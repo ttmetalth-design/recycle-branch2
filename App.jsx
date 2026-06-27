@@ -1058,7 +1058,7 @@ export default function App() {
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [users, setUsers] = useState([
-    { id: "U001", username: "changlo", password: "0260", name: "ผู้ดูแลระบบ", role: "admin" },
+    { id: "U001", username: "Ttm", password: "8526", name: "ผู้ดูแลระบบ", role: "admin" },
   ]);
   const [currentUser, setCurrentUser] = useState(null);
   const [tab, setTab] = useState("dashboard");
@@ -1102,13 +1102,13 @@ export default function App() {
   // ตั้งค่ากิจการ (Company Settings) — ใช้ใน header ของใบรับ/ขายสินค้า
   // shopProfile — ชื่อ/โลโก้ใน sidebar (แยกจากข้อมูลบิล)
   const [shopProfile, setShopProfile] = useState({
-    name: "วงจรกรีน",
+    name: "Ttm@นครสวรรค์",
     nameEn: "ระบบซื้อขายของเก่ารีไซเคิล",
     logo: "",   // base64
   });
 
   const [companySettings, setCompanySettings] = useState({
-    name: "วงจรกรีน รีไซเคิล",
+    name: "Ttm@นครสวรรค์",
     nameEn: "",
     taxId: "",
     address: "",
@@ -1290,7 +1290,7 @@ useEffect(() => {
                 <Boxes size={32} color="#fff" />
               </div>
             )}
-            <div style={{ fontWeight: 700, fontSize: 22, color: "#0c443c" }}>{shopProfile.name || "วงจรกรีน รีไซเคิล"}</div>
+            <div style={{ fontWeight: 700, fontSize: 22, color: "#0c443c" }}>{shopProfile.name || "Ttm@นครสวรรค์"}</div>
             <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 4 }}>{shopProfile.nameEn || "ระบบซื้อขายของเก่ารีไซเคิล"}</div>
           </div>
 
@@ -1373,7 +1373,7 @@ useEffect(() => {
               )}
               <div style={{ minWidth: 0, overflow: "hidden" }}>
                 <div style={{ fontWeight: 700, fontSize: 14, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {shopProfile.name || "วงจรกรีน"}
+                  {shopProfile.name || "Ttm@นครสวรรค์"}
                 </div>
                 <div style={{ fontSize: 10, color: "#9fe1cb", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {shopProfile.nameEn || "ระบบซื้อขายของเก่ารีไซเคิล"}
@@ -3813,7 +3813,7 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
               <img src={cs.logo} alt="logo" style={{ height: 60, maxWidth: 120, objectFit: "contain" }} />
             )}
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: primaryColor }}>{cs.name || "วงจรกรีน รีไซเคิล"}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: primaryColor }}>{cs.name || "Ttm@นครสวรรค์"}</div>
               {cs.nameEn && <div style={{ fontSize: 12, color: "#6b7280" }}>{cs.nameEn}</div>}
               {cs.taxId && <div style={{ fontSize: 12, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
               {cs.address && <div style={{ fontSize: 12, color: "#6b7280" }}>{cs.address}</div>}
@@ -4471,7 +4471,7 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
                   <img src={cs.logo} alt="logo" style={{ height: 50, maxWidth: 100, objectFit: "contain" }} />
                 )}
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: cs.accentColor || "#3c3489" }}>{cs.name || "วงจรกรีน รีไซเคิล"}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: cs.accentColor || "#3c3489" }}>{cs.name || "Ttm@นครสวรรค์"}</div>
                   {cs.taxId && <div style={{ fontSize: 12, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
                   {cs.address && <div style={{ fontSize: 12, color: "#6b7280" }}>{cs.address}</div>}
                   {cs.phone && <div style={{ fontSize: 12, color: "#6b7280" }}>โทร: {cs.phone}</div>}
@@ -4895,7 +4895,7 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
               <img src={cs.logo} alt="logo" style={{ height: 60, maxWidth: 120, objectFit: "contain" }} />
             )}
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: accentColor }}>{cs.name || "วงจรกรีน รีไซเคิล"}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: accentColor }}>{cs.name || "Ttm@นครสวรรค์"}</div>
               {cs.nameEn && <div style={{ fontSize: 12, color: "#6b7280" }}>{cs.nameEn}</div>}
               {cs.taxId && <div style={{ fontSize: 12, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
               {cs.address && <div style={{ fontSize: 12, color: "#6b7280" }}>{cs.address}</div>}
@@ -7732,7 +7732,7 @@ function ExpenseVoucherModal({ expense, storeBankAccounts, companySettings, onCl
               <img src={cs.logo} alt="logo" style={{ height: 50, maxWidth: 100, objectFit: "contain" }} />
             )}
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: cs.accentColor || "#993c1d" }}>{cs.name || "วงจรกรีน รีไซเคิล"}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: cs.accentColor || "#993c1d" }}>{cs.name || "Ttm@นครสวรรค์"}</div>
               {cs.taxId && <div style={{ fontSize: 12, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
               {cs.address && <div style={{ fontSize: 12, color: "#6b7280" }}>{cs.address}</div>}
               {cs.phone && <div style={{ fontSize: 12, color: "#6b7280" }}>โทร: {cs.phone}</div>}
@@ -8757,7 +8757,7 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
 
           <div style={{ flex: 1, minWidth: 200 }}>
             <Field label="ชื่อร้าน (บรรทัดบนใน sidebar)">
-              <input style={inputStyle} value={sp.name || ""} onChange={(e) => setSP("name", e.target.value)} placeholder="เช่น วงจรกรีน" />
+              <input style={inputStyle} value={sp.name || ""} onChange={(e) => setSP("name", e.target.value)} placeholder="เช่น Ttm@นครสวรรค์" />
             </Field>
             <Field label="คำบรรยาย (บรรทัดล่างใน sidebar)">
               <input style={inputStyle} value={sp.nameEn || ""} onChange={(e) => setSP("nameEn", e.target.value)} placeholder="เช่น ระบบซื้อขายของเก่ารีไซเคิล" />
@@ -8818,7 +8818,7 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
         <h4 style={{ margin: "0 0 12px", fontSize: 13, fontWeight: 600, color: "#6b7280" }}>ข้อมูลร้านบนบิล</h4>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
           <Field label="ชื่อร้าน / บริษัท (ภาษาไทย)">
-            <input style={inputStyle} value={cs.name || ""} onChange={(e) => set("name", e.target.value)} placeholder="เช่น วงจรกรีน รีไซเคิล" />
+            <input style={inputStyle} value={cs.name || ""} onChange={(e) => set("name", e.target.value)} placeholder="เช่น Ttm@นครสวรรค์" />
           </Field>
           <Field label="ชื่อร้าน / บริษัท (English)">
             <input style={inputStyle} value={cs.nameEn || ""} onChange={(e) => set("nameEn", e.target.value)} />
@@ -9379,7 +9379,7 @@ function DeliveryTab({ deliveries, setDeliveries, customers, sales, products, co
                   <img src={cs.logo} alt="logo" style={{ height: 50, maxWidth: 100, objectFit: "contain" }} />
                 )}
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: cs.accentColor || "#185fa5" }}>{cs.name || "วงจรกรีน รีไซเคิล"}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: cs.accentColor || "#185fa5" }}>{cs.name || "Ttm@นครสวรรค์"}</div>
                   {cs.taxId && <div style={{ fontSize: 12, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
                   {cs.address && <div style={{ fontSize: 12, color: "#6b7280" }}>{cs.address}</div>}
                   {cs.phone && <div style={{ fontSize: 12, color: "#6b7280" }}>โทร: {cs.phone}</div>}
