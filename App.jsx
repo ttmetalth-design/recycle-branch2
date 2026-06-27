@@ -648,10 +648,12 @@ function Header({ title, subtitle, children }) {
 // ตอน blur: แสดงพร้อมลูกน้ำ เช่น 10,000.50
 function NumInput({ value, onChange, onKeyDown, style, placeholder, min }) {
   const [focused, setFocused] = React.useState(false);
+  const [rawValue, setRawValue] = React.useState("");
+  
   const num = parseFloat(String(value).replace(/,/g, "")) || 0;
   const formatted = focused
-    ? (value === 0 || value === "0" ? "" : String(value))
-    : (num === 0 ? "0" : num.toLocaleString("en-US", { maximumFractionDigits: 4 }));
+  ? (value === 0 || value === "0" ? "" : String(value))
+  : (num === 0 && !String(value).includes(".") ? "0" : num.toLocaleString("en-US", { minimumFractionDigits: String(value).split(".")[1]?.replace(/0+$/, "").length || 0, maximumFractionDigits: 4 }));
 
   return (
     <input
@@ -660,18 +662,21 @@ function NumInput({ value, onChange, onKeyDown, style, placeholder, min }) {
       style={style}
       placeholder={placeholder}
       value={formatted}
-      onFocus={(e) => { setFocused(true); e.target.select(); }}
+      onFocus={(e) => { 
+        setFocused(true); 
+        setRawValue(num === 0 ? "" : String(num));
+        e.target.select(); 
+      }}
       onBlur={() => setFocused(false)}
       onChange={(e) => {
-        // อนุญาตเฉพาะตัวเลข จุดทศนิยม และลบหน้า
         const raw = e.target.value.replace(/[^0-9.]/g, "");
+        setRawValue(raw);
         onChange({ target: { value: raw } });
       }}
       onKeyDown={onKeyDown}
     />
   );
 }
-
 function SearchBar({ value, onChange, placeholder, dateFrom, dateTo, onDateFromChange, onDateToChange }) {
   return (
     <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
