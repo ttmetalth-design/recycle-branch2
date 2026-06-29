@@ -335,8 +335,109 @@ function handleEnterNavigate(e, onSubmit) {
     onSubmit();
   }
 }
+// ===== LINE Share Utilities =====
+const LINE_GREEN = "#06C755";
+const LINE_SVG_PATH = "M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.630 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.630 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.630-.63.345 0 .63.285.63.630v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.630v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.630-.63.348 0 .630.285.630.630v4.141h1.756c.348 0 .629.283.629.630 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314";
+
+async function shareTableImage({ title, subtitle = "", headers = [], rows = [], footerRow = null, accentColor = "#0A1E3D", filename = "สรุป.png" }) {
+  const DPR = 2;
+  const PAD = 24;
+  const ROW_H = 36;
+  const HEAD_H = 52;
+  const TITLE_H = 54;
+  const FOOTER_H = footerRow ? 46 : 0;
+  const COL_COUNT = headers.length;
+  const TOTAL_W = Math.max(480, COL_COUNT * 130 + 40);
+  const COL_W = Array.from({ length: COL_COUNT }, (_, i) => i === 0 ? TOTAL_W - (COL_COUNT - 1) * 120 - PAD * 2 : 120);
+  const W = TOTAL_W;
+  const H = TITLE_H + HEAD_H + rows.length * ROW_H + FOOTER_H + 20;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(DPR, DPR);
+
+  const fmtN = (n) => typeof n === "number" ? n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : String(n != null ? n : "");
+
+  ctx.fillStyle = "#f8fafc"; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = accentColor; ctx.fillRect(0, 0, W, TITLE_H);
+  ctx.fillStyle = "#fff"; ctx.font = "bold 16px sans-serif";
+  ctx.fillText(title, PAD, 28);
+  if (subtitle) { ctx.font = "12px sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.fillText(subtitle, PAD, 46); }
+
+  let y = TITLE_H;
+  ctx.fillStyle = "#1E3A5F"; ctx.fillRect(0, y, W, HEAD_H);
+  let x = PAD;
+  headers.forEach((h, i) => {
+    const isNum = i > 0;
+    ctx.fillStyle = "#e2eaf4"; ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = isNum ? "right" : "left";
+    ctx.fillText(h, isNum ? x + COL_W[i] - 6 : x + 4, y + HEAD_H / 2 + 5);
+    x += COL_W[i];
+  });
+  ctx.textAlign = "left";
+
+  y += HEAD_H;
+  rows.forEach((row, ri) => {
+    ctx.fillStyle = ri % 2 === 0 ? "#ffffff" : "#f0f4f8";
+    ctx.fillRect(0, y, W, ROW_H);
+    ctx.strokeStyle = "#dde3ec"; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(0, y + ROW_H); ctx.lineTo(W, y + ROW_H); ctx.stroke();
+    x = PAD;
+    row.forEach((val, ci) => {
+      const isNum = ci > 0;
+      const display = typeof val === "number" ? (val < 0 ? "(" + fmtN(Math.abs(val)) + ")" : fmtN(val)) : String(val != null ? val : "");
+      ctx.fillStyle = ci === 0 ? "#1E3A5F" : ci === row.length - 1 ? "#1E4D8C" : "#374151";
+      ctx.font = ci === 0 ? "600 12px sans-serif" : "12px sans-serif";
+      ctx.textAlign = isNum ? "right" : "left";
+      ctx.fillText(display, isNum ? x + COL_W[ci] - 6 : x + 4, y + ROW_H / 2 + 5);
+      x += COL_W[ci];
+    });
+    ctx.textAlign = "left";
+    y += ROW_H;
+  });
+
+  if (footerRow) {
+    ctx.fillStyle = accentColor; ctx.fillRect(0, y, W, FOOTER_H);
+    x = PAD;
+    footerRow.forEach((val, ci) => {
+      const isNum = ci > 0;
+      const display = typeof val === "number" ? fmtN(val) : String(val != null ? val : "");
+      ctx.fillStyle = "#fff"; ctx.font = "bold 13px sans-serif";
+      ctx.textAlign = isNum ? "right" : "left";
+      ctx.fillText(display, isNum ? x + COL_W[ci] - 6 : x + 4, y + FOOTER_H / 2 + 5);
+      x += COL_W[ci];
+    });
+    ctx.textAlign = "left";
+  }
+
+  return new Promise((resolve) => {
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], filename, { type: "image/png" });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title }); } catch {}
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 3000);
+        alert("💾 บันทึกรูปแล้ว!\nกรุณาเปิด LINE แล้วแนบรูปจากคลังรูปภาพได้เลยครับ");
+      }
+      resolve();
+    }, "image/png");
+  });
+}
+
+function LineShareBtn({ onClick, style = {} }) {
+  return (
+    <button onClick={onClick} title="แชร์ไป LINE" style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 6, border: "none", background: LINE_GREEN, cursor: "pointer", fontSize: 11, color: "#fff", fontWeight: 600, flexShrink: 0, ...style }}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d={LINE_SVG_PATH} /></svg>
+      LINE
+    </button>
+  );
+}
+
 // ExportToolbar component — renders 3 export buttons for a section
-function ExportToolbar({ onPDF, onExcel, onImage, label = "" }) {
+function ExportToolbar({ onPDF, onExcel, onImage, onLine, label = "" }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       {label && <span style={{ fontSize: 12, color: "#6b7280", marginRight: 4 }}>{label}</span>}
@@ -361,6 +462,7 @@ function ExportToolbar({ onPDF, onExcel, onImage, label = "" }) {
       >
         <Image size={13} /> รูปภาพ
       </button>
+      {onLine && <LineShareBtn onClick={onLine} style={{ padding: "5px 10px", fontSize: 12 }} />}
     </div>
   );
 }
@@ -2204,6 +2306,114 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
     },
   };
 
+  // ---------- LINE Share handlers (per sub-tab + per section) ----------
+  const lineShareHandlers = {
+    purchases: () => shareTableImage({
+      title: "ยอดซื้อรวม", subtitle: `ช่วงเวลา: ${periodLabel}`,
+      headers: ["ประเภทสินค้า", "จำนวน", "ราคาเฉลี่ย", "มูลค่ารวม"],
+      rows: purchaseByType.map(g => [g.type, g.qty, g.avgCost, g.value]),
+      footerRow: ["รวมทั้งหมด", purchaseByType.reduce((s,g)=>s+g.qty,0), "", purchaseByType.reduce((s,g)=>s+g.value,0)],
+      accentColor: "#0A1E3D", filename: `ยอดซื้อ_${periodLabel}.png`,
+    }),
+    sales: () => shareTableImage({
+      title: "ยอดขายรวม", subtitle: `ช่วงเวลา: ${periodLabel}`,
+      headers: ["ประเภทสินค้า", "จำนวน", "ราคาเฉลี่ย", "มูลค่ารวม"],
+      rows: salesByType.map(g => [g.type, g.qty, g.avgCost, g.value]),
+      footerRow: ["รวมทั้งหมด", salesByType.reduce((s,g)=>s+g.qty,0), "", salesByType.reduce((s,g)=>s+g.value,0)],
+      accentColor: "#185fa5", filename: `ยอดขาย_${periodLabel}.png`,
+    }),
+    expenses: () => shareTableImage({
+      title: "ค่าใช้จ่ายรวม", subtitle: `ช่วงเวลา: ${periodLabel}`,
+      headers: ["หมวดหมู่ย่อย", "รายการ", "ยอดรวม (฿)", "% ของทั้งหมด"],
+      rows: expensesBySubCategory.map(g => [g.subCategory, g.count, g.amount, totalExpenses > 0 ? `${((g.amount/totalExpenses)*100).toFixed(1)}%` : "-"]),
+      footerRow: ["รวม", expensesBySubCategory.reduce((s,g)=>s+g.count,0), totalExpenses, "100%"],
+      accentColor: "#1E4D8C", filename: `ค่าใช้จ่าย_${periodLabel}.png`,
+    }),
+    stock: () => shareTableImage({
+      title: "สรุปสต็อกสินค้า", subtitle: `ณ วันที่ ${today}`,
+      headers: ["ประเภทสินค้า", "จำนวน", "มูลค่า (฿)", "ราคาเฉลี่ย"],
+      rows: stockByType.filter(g=>g.qty>0).map(g => [g.type, g.qty, g.value, g.avgCost]),
+      footerRow: ["ผลรวม", stockByType.reduce((s,g)=>s+g.qty,0), stockByType.reduce((s,g)=>s+g.value,0), ""],
+      accentColor: "#0A1E3D", filename: `สต็อก_${today}.png`,
+    }),
+    loans: () => shareTableImage({
+      title: "สินเชื่อ / เงินกู้คงเหลือ", subtitle: `ณ วันที่ ${today}`,
+      headers: ["ชื่อสัญญา", "ประเภท", "เงินต้น", "งวดคงเหลือ"],
+      rows: (loans||[]).map(l => { const paid=(l.paidInstallments||[]).length; return [l.name, l.type, l.principal, l.totalInstallments-paid]; }),
+      footerRow: null, accentColor: "#1E3A5F", filename: `สินเชื่อ_${today}.png`,
+    }),
+    cashflow: () => shareTableImage({
+      title: "สรุปเงินหมุนร้าน", subtitle: dateRange ? `ช่วง: ${periodLabel}` : `ทั้งหมด ณ วันที่ ${today}`,
+      headers: ["รายการ", "ยอด (฿)"],
+      rows: [
+        ["เงินในธนาคาร", null], ["ลูกหนี้ค้างรับ", null], ["เจ้าหนี้ค้างจ่าย", null],
+        ["เงินมัดจำคงเหลือ", null], ["มูลค่าสต็อก (ทุน)", null],
+      ].map((r,i) => {
+        const vals = [0, 0, 0, 0, inventory.summary.reduce((s,x)=>s+x.totalCost,0)];
+        return [r[0], vals[i]];
+      }),
+      footerRow: null, accentColor: "#0A1E3D", filename: `เงินหมุนร้าน_${today}.png`,
+    }),
+    // กล่องย่อย
+    purchaseByType: () => shareTableImage({
+      title: "ยอดซื้อ แบ่งตามประเภทสินค้า", subtitle: `ช่วงเวลา: ${periodLabel}`,
+      headers: ["ประเภท", "จำนวน", "ราคาเฉลี่ย", "มูลค่ารวม"],
+      rows: purchaseByType.map(g => [g.type, g.qty, g.avgCost, g.value]),
+      footerRow: ["รวม", purchaseByType.reduce((s,g)=>s+g.qty,0), "", purchaseByType.reduce((s,g)=>s+g.value,0)],
+      accentColor: "#0A1E3D", filename: `ยอดซื้อแยกประเภท_${periodLabel}.png`,
+    }),
+    purchaseByProduct: () => shareTableImage({
+      title: "ยอดซื้อ แบ่งตามรายการสินค้า", subtitle: `ช่วงเวลา: ${periodLabel}`,
+      headers: ["สินค้า", "จำนวน", "ราคาเฉลี่ย", "มูลค่ารวม"],
+      rows: purchaseByProduct.map(g => [prodName(g.productId), g.qty, g.avgCost, g.value]),
+      footerRow: ["รวม", "", "", purchaseByProduct.reduce((s,g)=>s+g.value,0)],
+      accentColor: "#0A1E3D", filename: `ยอดซื้อแยกสินค้า_${periodLabel}.png`,
+    }),
+    salesByType: () => shareTableImage({
+      title: "ยอดขาย แบ่งตามประเภทสินค้า", subtitle: `ช่วงเวลา: ${periodLabel}`,
+      headers: ["ประเภท", "จำนวน", "ราคาเฉลี่ย", "มูลค่ารวม"],
+      rows: salesByType.map(g => [g.type, g.qty, g.avgCost, g.value]),
+      footerRow: ["รวม", salesByType.reduce((s,g)=>s+g.qty,0), "", salesByType.reduce((s,g)=>s+g.value,0)],
+      accentColor: "#185fa5", filename: `ยอดขายแยกประเภท_${periodLabel}.png`,
+    }),
+    salesByProduct: () => shareTableImage({
+      title: "ยอดขาย แบ่งตามรายการสินค้า", subtitle: `ช่วงเวลา: ${periodLabel}`,
+      headers: ["สินค้า", "จำนวน", "ราคาเฉลี่ย", "มูลค่ารวม"],
+      rows: salesByProduct.map(g => [prodName(g.productId), g.qty, g.avgCost, g.value]),
+      footerRow: ["รวม", "", "", salesByProduct.reduce((s,g)=>s+g.value,0)],
+      accentColor: "#185fa5", filename: `ยอดขายแยกสินค้า_${periodLabel}.png`,
+    }),
+    expensesBySubCat: () => shareTableImage({
+      title: "ค่าใช้จ่าย แบ่งตามหมวดหมู่ย่อย", subtitle: `ช่วงเวลา: ${periodLabel}`,
+      headers: ["หมวดหมู่ย่อย", "รายการ", "ยอดรวม (฿)", "%"],
+      rows: expensesBySubCategory.map(g => [g.subCategory, g.count, g.amount, totalExpenses>0 ? `${((g.amount/totalExpenses)*100).toFixed(1)}%` : "-"]),
+      footerRow: ["รวม", expensesBySubCategory.reduce((s,g)=>s+g.count,0), totalExpenses, "100%"],
+      accentColor: "#1E4D8C", filename: `ค่าใช้จ่ายแยกหมวด_${periodLabel}.png`,
+    }),
+  };
+
+  // state สำหรับ checkbox เลือกประเภทสต็อก (feature ข้อ 3)
+  const [selectedStockTypes, setSelectedStockTypes] = React.useState({});
+  const visibleStockGroups = stockByType.filter(g => g.items.some(s => s.qty > 0));
+  const allStockSelected = visibleStockGroups.length > 0 && visibleStockGroups.every(g => selectedStockTypes[g.type]);
+  const toggleAllStock = () => {
+    if (allStockSelected) setSelectedStockTypes({});
+    else { const next = {}; visibleStockGroups.forEach(g => { next[g.type] = true; }); setSelectedStockTypes(next); }
+  };
+  const shareSelectedStock = () => {
+    const chosen = visibleStockGroups.filter(g => selectedStockTypes[g.type]);
+    if (chosen.length === 0) { alert("กรุณาเลือกอย่างน้อย 1 ประเภทก่อนแชร์"); return; }
+    const totalQ = chosen.reduce((s,g)=>s+g.qty,0);
+    const totalV = chosen.reduce((s,g)=>s+g.value,0);
+    shareTableImage({
+      title: "สต็อกสินค้า (เลือกประเภท)", subtitle: `ณ วันที่ ${today}`,
+      headers: ["ประเภทสินค้า", "จำนวน", "มูลค่า (฿)", "ราคาเฉลี่ย"],
+      rows: chosen.map(g => [g.type, g.qty, g.value, g.avgCost]),
+      footerRow: ["ผลรวม", totalQ, totalV, ""],
+      accentColor: "#0A1E3D", filename: `สต็อกเลือก_${today}.png`,
+    });
+  };
+
   return (
     <div>
       <h2 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 700 }}>แดชบอร์ดภาพรวม</h2>
@@ -2284,7 +2494,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
         <>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <span style={{ fontSize: 13, color: "#6b7280" }}>ข้อมูลตามช่วงเวลา: {periodLabel}</span>
-            <ExportToolbar onPDF={exportHandlers.purchases.pdf} onExcel={exportHandlers.purchases.excel} onImage={exportHandlers.purchases.image} />
+            <ExportToolbar onPDF={exportHandlers.purchases.pdf} onExcel={exportHandlers.purchases.excel} onImage={exportHandlers.purchases.image} onLine={lineShareHandlers.purchases} />
           </div>
           <div id="dash-export-purchases">
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 20 }}>
@@ -2292,7 +2502,10 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
-  <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 600 }}>ยอดซื้อ แบ่งตามประเภทสินค้า</h3>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+    <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดซื้อ แบ่งตามประเภทสินค้า</h3>
+    <LineShareBtn onClick={lineShareHandlers.purchaseByType} />
+  </div>
   <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
                 <colgroup>
                   <col style={{ width: "50%" }} />
@@ -2333,7 +2546,10 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
             </div>
 
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
-              <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 600 }}>ยอดซื้อ แบ่งตามรายการสินค้า</h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดซื้อ แบ่งตามรายการสินค้า</h3>
+                <LineShareBtn onClick={lineShareHandlers.purchaseByProduct} />
+              </div>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
                 <colgroup>
                   <col style={{ width: "50%" }} />
@@ -2376,7 +2592,26 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
 
           {/* สรุปบิลแยกตามช่องทางชำระ */}
           <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", marginTop: 16 }}>
-            <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 600 }}>สรุปบิลแยกตามช่องทางชำระ</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>สรุปบิลแยกตามช่องทางชำระ</h3>
+              <LineShareBtn onClick={() => {
+                const pos = filteredPurchases;
+                const grouped = {};
+                pos.forEach(po => {
+                  const custN = (customers.find(c=>c.id===po.customerId)?.name)||"-";
+                  const sub = (po.items||[]).reduce((s,it)=>{ const qty=Number(it.qty)||0; const net=it.deductPct!=null?qty-(qty*(Number(it.deductPct)||0)/100)-(Number(it.deductKg)||0):qty-(Number(it.deduct)||0); return s+net*(Number(it.price)||0); },0);
+                  const total = sub+sub*((Number(po.vatRate)||0)/100);
+                  (po.payments||[]).forEach(p => {
+                    const acc=storeBankAccounts.find(a=>a.id===p.fromStoreBankId);
+                    const grp=p.fromStoreBankId==="DEPOSIT"?"หักเงินมัดจำ":acc?`${acc.bankName} — ${acc.accountNo}`:(p.method||"เงินสด");
+                    if(!grouped[grp]) grouped[grp]={count:0,total:0};
+                    grouped[grp].count++; grouped[grp].total+=Number(p.amount)||0;
+                  });
+                  if(!(po.payments||[]).length){const grp="ยังไม่ชำระ";if(!grouped[grp])grouped[grp]={count:0,total:0};grouped[grp].count++;grouped[grp].total+=total;}
+                });
+                shareTableImage({ title:"สรุปบิลแยกช่องทางชำระ (ซื้อ)", subtitle:`ช่วงเวลา: ${periodLabel}`, headers:["ช่องทาง","จำนวนบิล","ยอดรวม (฿)"], rows:Object.entries(grouped).map(([g,v])=>[g,v.count,v.total]), footerRow:["รวม",Object.values(grouped).reduce((s,v)=>s+v.count,0),Object.values(grouped).reduce((s,v)=>s+v.total,0)], accentColor:"#0A1E3D", filename:`ช่องทางชำระซื้อ_${periodLabel}.png` });
+              }} />
+            </div>
             {(() => {
               // จัดกลุ่ม purchases ในช่วง
               const pos = filteredPurchases;
@@ -2448,7 +2683,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
         <>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <span style={{ fontSize: 13, color: "#6b7280" }}>ข้อมูลตามช่วงเวลา: {periodLabel}</span>
-            <ExportToolbar onPDF={exportHandlers.sales.pdf} onExcel={exportHandlers.sales.excel} onImage={exportHandlers.sales.image} />
+            <ExportToolbar onPDF={exportHandlers.sales.pdf} onExcel={exportHandlers.sales.excel} onImage={exportHandlers.sales.image} onLine={lineShareHandlers.sales} />
           </div>
           <div id="dash-export-sales">
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 20 }}>
@@ -2456,7 +2691,10 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
-              <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 600 }}>ยอดขาย แบ่งตามประเภทสินค้า</h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดขาย แบ่งตามประเภทสินค้า</h3>
+                <LineShareBtn onClick={lineShareHandlers.salesByType} />
+              </div>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
                 <thead>
                   <tr>
@@ -2491,7 +2729,10 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
             </div>
 
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
-              <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 600 }}>ยอดขาย แบ่งตามรายการสินค้า</h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดขาย แบ่งตามรายการสินค้า</h3>
+                <LineShareBtn onClick={lineShareHandlers.salesByProduct} />
+              </div>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500  }}>
                 <thead>
                   <tr>
@@ -2534,14 +2775,17 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
         <>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <span style={{ fontSize: 13, color: "#6b7280" }}>ข้อมูลตามช่วงเวลา: {periodLabel}</span>
-            <ExportToolbar onPDF={exportHandlers.expenses.pdf} onExcel={exportHandlers.expenses.excel} onImage={exportHandlers.expenses.image} />
+            <ExportToolbar onPDF={exportHandlers.expenses.pdf} onExcel={exportHandlers.expenses.excel} onImage={exportHandlers.expenses.image} onLine={lineShareHandlers.expenses} />
           </div>
           <div id="dash-export-expenses">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 20 }}>
               {renderCard(expensesCard)}
             </div>
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
-              <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 600 }}>ค่าใช้จ่าย แบ่งตามหมวดหมู่ย่อย</h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ค่าใช้จ่าย แบ่งตามหมวดหมู่ย่อย</h3>
+                <LineShareBtn onClick={lineShareHandlers.expensesBySubCat} />
+              </div>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
                 <thead>
                   <tr>
@@ -2579,7 +2823,19 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
 
             {/* สรุปค่าใช้จ่ายแยกตามช่องทางชำระ */}
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", marginTop: 16 }}>
-              <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 600 }}>สรุปบิลแยกตามช่องทางชำระ</h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>สรุปบิลแยกตามช่องทางชำระ</h3>
+                <LineShareBtn onClick={() => {
+                  const exps=(expenses||[]).filter(e=>inRange(e.billDate||e.date));
+                  const grouped={};
+                  exps.forEach(e=>{
+                    const total=(()=>{const items=e.items&&e.items.length>0?e.items:[{amount:e.amount,vatEnabled:e.vatEnabled,whtRate:e.whtRate}];return items.reduce((s,it)=>{const a=Number(it.amount)||0;return s+a+(it.vatEnabled?a*0.07:0)-a*((Number(it.whtRate)||0)/100);},0);})();
+                    (e.payments||[]).forEach(p=>{const acc=storeBankAccounts.find(a=>a.id===p.fromStoreBankId);const grp=p.fromStoreBankId==="DEPOSIT"?"หักเงินมัดจำ":acc?`${acc.bankName} — ${acc.accountNo}`:(p.method||"เงินสด");if(!grouped[grp])grouped[grp]={count:0,total:0};grouped[grp].count++;grouped[grp].total+=Number(p.amount)||0;});
+                    if(!(e.payments||[]).length){const grp="ยังไม่ชำระ";if(!grouped[grp])grouped[grp]={count:0,total:0};grouped[grp].count++;grouped[grp].total+=total;}
+                  });
+                  shareTableImage({title:"สรุปบิลแยกช่องทางชำระ (ค่าใช้จ่าย)",subtitle:`ช่วงเวลา: ${periodLabel}`,headers:["ช่องทาง","จำนวนบิล","ยอดรวม (฿)"],rows:Object.entries(grouped).map(([g,v])=>[g,v.count,v.total]),footerRow:["รวม",Object.values(grouped).reduce((s,v)=>s+v.count,0),Object.values(grouped).reduce((s,v)=>s+v.total,0)],accentColor:"#1E4D8C",filename:`ช่องทางชำระค่าใช้จ่าย_${periodLabel}.png`});
+                }} />
+              </div>
               {(() => {
                 const exps = (expenses || []).filter(e => inRange(e.billDate || e.date));
                 const entries = [];
@@ -2644,7 +2900,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
         <>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <span style={{ fontSize: 13, color: "#6b7280" }}>ยอดคงเหลือ ณ วันที่ {today}</span>
-            <ExportToolbar onPDF={exportHandlers.stock.pdf} onExcel={exportHandlers.stock.excel} onImage={exportHandlers.stock.image} />
+            <ExportToolbar onPDF={exportHandlers.stock.pdf} onExcel={exportHandlers.stock.excel} onImage={exportHandlers.stock.image} onLine={lineShareHandlers.stock} />
           </div>
           <div id="dash-export-stock">
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 20 }}>
@@ -2654,11 +2910,31 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
           <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflowX: "auto" }}>
             <div style={{ background: "#0A1E3D", color: "#fff", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>มูลค่าสต๊อกรวม</h3>
-              <span style={{ fontSize: 12, color: "#e7c9c9" }}>วันที่ {today}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 12, color: "#e7c9c9" }}>วันที่ {today}</span>
+                {/* Checkbox เลือกทั้งหมด + ปุ่มแชร์ที่เลือก */}
+                {visibleStockGroups.length > 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 5, cursor: "pointer", fontSize: 12, color: "#fff" }}>
+                      <input type="checkbox" checked={allStockSelected} onChange={toggleAllStock}
+                        style={{ width: 15, height: 15, cursor: "pointer", accentColor: LINE_GREEN }} />
+                      เลือกทั้งหมด
+                    </label>
+                    {Object.values(selectedStockTypes).some(Boolean) && (
+                      <button onClick={shareSelectedStock}
+                        style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 6, border: "none", background: LINE_GREEN, cursor: "pointer", fontSize: 11, color: "#fff", fontWeight: 600 }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d={LINE_SVG_PATH} /></svg>
+                        แชร์ที่เลือก ({Object.values(selectedStockTypes).filter(Boolean).length})
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
               <thead>
                 <tr>
+                  <th style={{ ...thStyle, width: 36, textAlign: "center" }}>แชร์</th>
                   <th style={thStyle}>ประเภทสินค้า / รายการสินค้า</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>คงเหลือ/{stockByType[0]?.items[0]?.unit || "หน่วย"}</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>มูลค่าคงเหลือ</th>
@@ -2670,6 +2946,8 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                   const visibleItems = g.items.filter((s) => s.qty > 0);
                   if (visibleItems.length === 0) return null;
                   const isExpanded = !!expandedStockTypes[g.type];
+                  const isChecked = !!selectedStockTypes[g.type];
+                  const toggleCheck = (e) => { e.stopPropagation(); setSelectedStockTypes(prev => ({ ...prev, [g.type]: !prev[g.type] })); };
                   return (
                     <React.Fragment key={g.type}>
                       {isExpanded && (
@@ -2680,6 +2958,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                             onMouseEnter={(e) => { e.currentTarget.style.background = "#f3f4f6"; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
                           >
+                            <td style={{ ...tdStyle, textAlign: "center" }} onClick={toggleCheck}><input type="checkbox" checked={isChecked} onChange={toggleCheck} onClick={e=>e.stopPropagation()} style={{ width:15,height:15,cursor:"pointer",accentColor:LINE_GREEN }} /></td>
                             <td style={{ ...tdStyle, fontWeight: 700, color: "#1E4D8C" }}>{g.type}</td>
                             <td style={tdStyle}></td>
                             <td style={tdStyle}></td>
@@ -2687,6 +2966,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                           </tr>
                           {visibleItems.map((s) => (
                             <tr key={s.productId}>
+                              <td style={tdStyle}></td>
                               <td style={{ ...tdStyle, color: "#111827", paddingLeft: 24 }}>- {s.name}</td>
                               <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(s.qty)}</td>
                               <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C" }}>{fmt(s.totalCost)}</td>
@@ -2694,6 +2974,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                             </tr>
                           ))}
                           <tr style={{ background: "#1f2937" }}>
+                            <td style={tdStyle}></td>
                             <td style={{ ...tdStyle, fontWeight: 700, color: "#fff" }}>{g.type} (ยอดรวม)</td>
                             <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fff" }}>{fmt(g.qty)}</td>
                             <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fca5a5" }}>{fmt(g.value)}</td>
@@ -2704,10 +2985,11 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                       {!isExpanded && (
                         <tr
                           onClick={() => setExpandedStockTypes((prev) => ({ ...prev, [g.type]: !prev[g.type] }))}
-                          style={{ cursor: "pointer", background: "#1f2937" }}
+                          style={{ cursor: "pointer", background: isChecked ? "#064e3b" : "#1f2937" }}
                           onMouseEnter={(e) => { e.currentTarget.style.background = "#374151"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = "#1f2937"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = isChecked ? "#064e3b" : "#1f2937"; }}
                         >
+                          <td style={{ ...tdStyle, textAlign: "center" }} onClick={toggleCheck}><input type="checkbox" checked={isChecked} onChange={toggleCheck} onClick={e=>e.stopPropagation()} style={{ width:15,height:15,cursor:"pointer",accentColor:LINE_GREEN }} /></td>
                           <td style={{ ...tdStyle, fontWeight: 700, color: "#fff" }}>{g.type} (ยอดรวม)</td>
                           <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fff" }}>{fmt(g.qty)}</td>
                           <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fca5a5" }}>{fmt(g.value)}</td>
@@ -2718,12 +3000,13 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                   );
                 })}
                 {stockByType.every((g) => g.items.every((s) => s.qty === 0)) && (
-                  <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลสต๊อก</td></tr>
+                  <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลสต๊อก</td></tr>
                 )}
               </tbody>
               {stockByType.length > 0 && (
                 <tfoot>
                   <tr style={{ borderTop: "3px solid #1B3A6B" }}>
+                    <td style={tdStyle}></td>
                     <td style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>ผลรวม</td>
                     <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>{fmt(stockByType.reduce((s, g) => s + g.qty, 0))}</td>
                     <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>{fmt(stockByType.reduce((s, g) => s + g.value, 0))}</td>
@@ -2748,7 +3031,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
         <>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <span style={{ fontSize: 13, color: "#6b7280" }}>ยอดคงเหลือ ณ วันที่ {today}</span>
-            <ExportToolbar onPDF={exportHandlers.loans.pdf} onExcel={exportHandlers.loans.excel} onImage={exportHandlers.loans.image} />
+            <ExportToolbar onPDF={exportHandlers.loans.pdf} onExcel={exportHandlers.loans.excel} onImage={exportHandlers.loans.image} onLine={lineShareHandlers.loans} />
           </div>
           <div id="dash-export-loans" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
             {renderCard(loanCard, true)}
@@ -2922,6 +3205,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                   exportExcel(rows, "เงินหมุนร้าน.xlsx", "เงินหมุน");
                 }}
                 onImage={() => printAsPDF("dash-cashflow", "สรุปเงินหมุนร้าน")}
+                onLine={lineShareHandlers.cashflow}
               />
             </div>
 
@@ -5559,13 +5843,13 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
       accs.size === 0 || (doc.payments||[]).some(p => accs.has(p[field]));
 
     const dayCost = allPurchaseRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "fromStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayExp  = allExpenseRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "fromStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayRev  = allSaleRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "toStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "toStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayNet  = dayCost + dayExp - dayRev;
 
