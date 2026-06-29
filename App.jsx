@@ -143,14 +143,14 @@ function printAsPDF(elementId, title = "") {
     .toolbar .zoom-controls { display: flex; align-items: center; gap: 6px; }
     .toolbar .zoom-controls button { background: #374151; color: #fff; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
     .toolbar .zoom-controls span { font-size: 13px; min-width: 44px; text-align: center; }
-    .toolbar .print-btn { background: #8B2020; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif; white-space: nowrap; }
+    .toolbar .print-btn { background: #1B3A6B; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif; white-space: nowrap; }
     .page-wrap { padding: 20px 16px; display: flex; justify-content: center; }
     .page { background: #fff; width: 210mm; padding: 10mm; box-shadow: 0 2px 16px rgba(0,0,0,0.15); font-size: 11px; color: #1f2937; transform-origin: top center; transition: transform 0.15s; }
     table { border-collapse: collapse; width: 100%; page-break-inside: auto; }
     td, th { border: 1px solid #ddd; padding: 4px 6px; font-size: 10px; }
     th { background: #f3f4f6; font-weight: 700; }
     tr:nth-child(even) { background: #f9f9f9; }
-    tfoot td { font-weight: 700; background: #f3f4f6; border-top: 2px solid #5a1414; }
+    tfoot td { font-weight: 700; background: #f3f4f6; border-top: 2px solid #0A1E3D; }
     img { max-width: 100%; }
     button { display: none !important; }
     .toolbar button, .toolbar .print-btn { display: flex !important; }
@@ -217,7 +217,7 @@ table { border-collapse: collapse; width: 100%; page-break-inside: auto; table-l
 td, th { border: 1px solid #ddd; padding: 4px 6px; font-size: 10px; word-break: break-word; overflow-wrap: break-word; }
 th { background: #f3f4f6; font-weight: 700; }
 tr:nth-child(even) { background: #f9f9f9; }
-tfoot td { font-weight: 700; background: #f3f4f6; border-top: 2px solid #5a1414; }
+tfoot td { font-weight: 700; background: #f3f4f6; border-top: 2px solid #0A1E3D; }
 img { max-width: 100%; }
 button { display: none !important; }
 thead { display: table-header-group; }
@@ -258,7 +258,7 @@ tr, td, th { -webkit-print-color-adjust: exact !important; print-color-adjust: e
         #print-preview-content td, #print-preview-content th { border: 1px solid #ddd; padding: 4px 6px; font-size: 10px; }
         #print-preview-content th { background: #f3f4f6; font-weight: 700; }
         #print-preview-content tr:nth-child(even) { background: #f9f9f9; }
-        #print-preview-content tfoot td { font-weight: 700; background: #f3f4f6; border-top: 2px solid #5a1414; }
+        #print-preview-content tfoot td { font-weight: 700; background: #f3f4f6; border-top: 2px solid #0A1E3D; }
         #print-preview-content img { max-width: 100%; }
         #print-preview-content button { display: none !important; }
         #print-preview-content tr, #print-preview-content td, #print-preview-content th {
@@ -290,8 +290,8 @@ function ConfirmDialog({ pending, onClose }) {
   return (
     <Modal title={pending.title || "ยืนยันการลบ"} onClose={onClose} zIndex={200}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "4px 0 16px" }}>
-        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#faece7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Trash2 size={18} color="#993c1d" />
+        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#E8EEF8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Trash2 size={18} color="#1E4D8C" />
         </div>
         <p style={{ margin: 0, fontSize: 14, color: "#374151", lineHeight: 1.6 }}>{pending.message}</p>
       </div>
@@ -343,14 +343,14 @@ function ExportToolbar({ onPDF, onExcel, onImage, label = "" }) {
       <button
         onClick={onPDF}
         title="บันทึก PDF"
-        style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: 12, color: "#993c1d" }}
+        style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: 12, color: "#1E4D8C" }}
       >
         <FileDown size={13} /> PDF
       </button>
       <button
         onClick={onExcel}
         title="บันทึก Excel"
-        style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: 12, color: "#8B2020" }}
+        style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: 12, color: "#1B3A6B" }}
       >
         <FileSpreadsheet size={13} /> Excel
       </button>
@@ -716,7 +716,7 @@ const inputStyle = {
 };
 
 const btnPrimary = {
-  background: "#8B2020", color: "#fff", border: "none", padding: "8px 16px",
+  background: "#1B3A6B", color: "#fff", border: "none", padding: "8px 16px",
   borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
 };
 const btnSecondary = {
@@ -724,7 +724,7 @@ const btnSecondary = {
   borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
 };
 const btnDanger = {
-  background: "#fff", color: "#a32d2d", border: "1px solid #f7c1c1", padding: "6px 10px",
+  background: "#fff", color: "#2456A4", border: "1px solid #C5D5F0", padding: "6px 10px",
   borderRadius: 8, fontSize: 13, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4,
 };
 const iconBtn = {
@@ -732,8 +732,8 @@ const iconBtn = {
   cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 13, color: "#374151",
 };
 const roundBtn = {
-  background: "#FDEAEA", border: "1.5px solid #A52828", padding: "9px 11px", borderRadius: 8,
-  cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: "#8B2020", lineHeight: 1, flexShrink: 0, minWidth: 38,
+  background: "#E8EEF8", border: "1.5px solid #2855A0", padding: "9px 11px", borderRadius: 8,
+  cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: "#1B3A6B", lineHeight: 1, flexShrink: 0, minWidth: 38,
 };
 
 const thStyle = { textAlign: "left", padding: "10px 12px", fontSize: 12, fontWeight: 600, color: "#6b7280", borderBottom: "1px solid #e5e7eb", whiteSpace: "nowrap" };
@@ -1102,8 +1102,8 @@ function Pagination({ page, totalPages, setPage, total, start, end }) {
               onClick={() => setPage(p)}
               style={{
                 width: 32, height: 32, borderRadius: 6, border: "1px solid",
-                borderColor: page === p ? "#A52828" : "#d1d5db",
-                background: page === p ? "#A52828" : "#fff",
+                borderColor: page === p ? "#2855A0" : "#d1d5db",
+                background: page === p ? "#2855A0" : "#fff",
                 color: page === p ? "#fff" : "#374151",
                 fontWeight: page === p ? 700 : 400,
                 cursor: "pointer", fontSize: 13,
@@ -1198,7 +1198,7 @@ function ImportProductsModal({ onClose, onImport, productCategories, unitOptions
       <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "#6b7280", marginBottom: 12 }}>
         <strong>คอลัมน์ที่รองรับ:</strong> รหัส, ชื่อสินค้า, ประเภท, หน่วย, ยอดยกมา, ต้นทุน/หน่วย, เดือนยกมา, ราคาหน้าร้าน, ราคา VIP
       </div>
-      {error && <div style={{ background: "#fcebeb", border: "1px solid #f5c2c2", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#a32d2d", marginBottom: 12 }}>{error}</div>}
+      {error && <div style={{ background: "#E8EEF8", border: "1px solid #f5c2c2", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#2456A4", marginBottom: 12 }}>{error}</div>}
       {preview && rows.length > 0 && (
         <>
           <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>ตัวอย่างข้อมูลที่จะนำเข้า ({rows.length} รายการ)</div>
@@ -1312,7 +1312,7 @@ function ImportCustomersModal({ onClose, onImport }) {
       <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "#6b7280", marginBottom: 12 }}>
         <strong>คอลัมน์ที่รองรับ:</strong> รหัส, ชื่อลูกค้า, เบอร์โทร, เลขบัตร/ผู้เสียภาษี, ที่อยู่, Line ID, Email
       </div>
-      {error && <div style={{ background: "#fcebeb", border: "1px solid #f5c2c2", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#a32d2d", marginBottom: 12 }}>{error}</div>}
+      {error && <div style={{ background: "#E8EEF8", border: "1px solid #f5c2c2", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#2456A4", marginBottom: 12 }}>{error}</div>}
       {preview && rows.length > 0 && (
         <>
           <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>ตัวอย่างข้อมูลที่จะนำเข้า ({rows.length} รายการ)</div>
@@ -1421,7 +1421,7 @@ export default function App() {
     salesTitle: "ใบกำกับภาษี / Invoice",
     expenseVoucherTitle: "ใบสำคัญจ่าย",
     expenseVoucherNote: "",
-    primaryColor: "#8B2020",
+    primaryColor: "#1B3A6B",
     accentColor: "#185fa5",
     footerNote: "",
     showQrCode: false,
@@ -1577,7 +1577,7 @@ useEffect(() => {
 
   if (!isLoggedIn) {
     return (
-      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #6B1A1A 0%, #A52828 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans Thai', 'Inter', system-ui, sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0F2548 0%, #2855A0 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Noto Sans Thai', 'Inter', system-ui, sans-serif" }}>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" />
         <div style={{ background: "#fff", borderRadius: 20, padding: "40px 36px", width: "100%", maxWidth: 400, boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
           {/* Logo / ชื่อแอพ */}
@@ -1586,11 +1586,11 @@ useEffect(() => {
               <img src={shopProfile.logo} alt="logo"
                 style={{ width: 72, height: 72, objectFit: "contain", borderRadius: 16, background: "#f3f4f6", padding: 8, margin: "0 auto 16px", display: "block" }} />
             ) : (
-              <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, #6B1A1A, #A52828)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, #0F2548, #2855A0)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                 <Boxes size={32} color="#fff" />
               </div>
             )}
-            <div style={{ fontWeight: 700, fontSize: 22, color: "#6B1A1A" }}>{shopProfile.name || "Ttm@นครสวรรค์"}</div>
+            <div style={{ fontWeight: 700, fontSize: 22, color: "#0F2548" }}>{shopProfile.name || "Ttm@นครสวรรค์"}</div>
             <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 4 }}>{shopProfile.nameEn || "ระบบซื้อขายของเก่ารีไซเคิล"}</div>
           </div>
 
@@ -1627,14 +1627,14 @@ useEffect(() => {
           </div>
 
           {loginError && (
-            <div style={{ background: "#fcebeb", border: "1px solid #f5c2c2", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#a32d2d", marginBottom: 14, textAlign: "center" }}>
+            <div style={{ background: "#E8EEF8", border: "1px solid #f5c2c2", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#2456A4", marginBottom: 14, textAlign: "center" }}>
               {loginError}
             </div>
           )}
 
           <button
             onClick={handleLogin}
-            style={{ width: "100%", padding: "12px", background: "linear-gradient(135deg, #6B1A1A, #A52828)", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+            style={{ width: "100%", padding: "12px", background: "linear-gradient(135deg, #0F2548, #2855A0)", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
           >
             เข้าสู่ระบบ
           </button>
@@ -1655,7 +1655,7 @@ useEffect(() => {
       <ConfirmDialog pending={confirmDialog} onClose={() => setConfirmDialog(null)} />
 
       {/* Sidebar — fixed, independent scroll */}
-      <div style={{ width: sidebarOpen ? 220 : 64, background: "#6B1A1A", color: "#FDEAEA", display: "flex", flexDirection: "column", flexShrink: 0, transition: "width 0.2s ease", height: "100vh", overflowY: "auto", overflowX: "auto", position: "fixed", top: 0, left: 0, zIndex: 10 }}>
+      <div style={{ width: sidebarOpen ? 220 : 64, background: "#0F2548", color: "#E8EEF8", display: "flex", flexDirection: "column", flexShrink: 0, transition: "width 0.2s ease", height: "100vh", overflowY: "auto", overflowX: "auto", position: "fixed", top: 0, left: 0, zIndex: 10 }}>
         <div style={{ padding: sidebarOpen ? "16px 18px" : "16px 10px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
           {sidebarOpen ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}>
@@ -1667,7 +1667,7 @@ useEffect(() => {
                   style={{ width: 38, height: 38, borderRadius: 8, objectFit: "contain", background: "#fff", padding: 3, flexShrink: 0 }}
                 />
               ) : (
-                <div style={{ width: 38, height: 38, borderRadius: 8, background: "#A52828", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 8, background: "#2855A0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Boxes size={20} color="#4A0E0E" />
                 </div>
               )}
@@ -1675,7 +1675,7 @@ useEffect(() => {
                 <div style={{ fontWeight: 700, fontSize: 14, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {shopProfile.name || "Ttm@นครสวรรค์"}
                 </div>
-                <div style={{ fontSize: 10, color: "#F5C6C6", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{ fontSize: 10, color: "#C5D5F0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {shopProfile.nameEn || "ระบบซื้อขายของเก่ารีไซเคิล"}
                 </div>
               </div>
@@ -1689,7 +1689,7 @@ useEffect(() => {
                 style={{ width: 38, height: 38, borderRadius: 8, objectFit: "contain", background: "#fff", padding: 3, margin: "0 auto", display: "block" }}
               />
             ) : (
-              <div style={{ width: 38, height: 38, borderRadius: 8, background: "#A52828", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
+              <div style={{ width: 38, height: 38, borderRadius: 8, background: "#2855A0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
                 <Boxes size={20} color="#4A0E0E" />
               </div>
             )
@@ -1698,7 +1698,7 @@ useEffect(() => {
             <button
               onClick={() => setSidebarOpen(false)}
               title="ย่อเมนู"
-              style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#F5C6C6", cursor: "pointer", flexShrink: 0 }}
+              style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#C5D5F0", cursor: "pointer", flexShrink: 0 }}
             >
               <ChevronLeft size={16} />
             </button>
@@ -1709,7 +1709,7 @@ useEffect(() => {
             <button
               onClick={() => setSidebarOpen(true)}
               title="ขยายเมนู"
-              style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#F5C6C6", cursor: "pointer" }}
+              style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 6, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", color: "#C5D5F0", cursor: "pointer" }}
             >
               <Menu size={16} />
             </button>
@@ -1729,7 +1729,7 @@ useEffect(() => {
                   justifyContent: sidebarOpen ? "flex-start" : "center",
                   padding: sidebarOpen ? "10px 12px" : "10px 0", marginBottom: 4, borderRadius: 8, border: "none",
                   background: active ? "#C0392B" : "transparent",
-                  color: active ? "#fff" : "#F5C6C6",
+                  color: active ? "#fff" : "#C5D5F0",
                   fontWeight: active ? 600 : 500, fontSize: 14, cursor: "pointer", textAlign: "left",
                   transition: "background 0.15s", overflow: "hidden", whiteSpace: "nowrap",
                 }}
@@ -1760,14 +1760,14 @@ useEffect(() => {
                   width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
                   background: syncStatus === 'saving' ? "#fbbf24"
                     : syncStatus === 'error' ? "#ef4444"
-                    : "#A52828",
+                    : "#2855A0",
                   animation: syncStatus === 'saving' ? "pulse 1s ease-in-out infinite" : "none",
                 }} />
                 <span style={{
                   fontSize: 11, fontWeight: 600,
                   color: syncStatus === 'saving' ? "#fbbf24"
                     : syncStatus === 'error' ? "#fca5a5"
-                    : "#F5C6C6",
+                    : "#C5D5F0",
                 }}>
                   {syncStatus === 'saving' ? "กำลังบันทึก..." : syncStatus === 'error' ? "บันทึกไม่สำเร็จ!" : "บันทึกแล้ว ✓"}
                 </span>
@@ -1781,7 +1781,7 @@ useEffect(() => {
                 width: "100%", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "flex-start" : "center",
                 gap: 8, padding: sidebarOpen ? "8px 12px" : "8px 6px", borderRadius: 8,
                 background: isReloading ? "rgba(255,255,255,0.05)" : "rgba(165,40,40,0.2)",
-                border: "1px solid rgba(29,158,117,0.4)", color: "#F5C6C6", cursor: isReloading ? "not-allowed" : "pointer",
+                border: "1px solid rgba(29,158,117,0.4)", color: "#C5D5F0", cursor: isReloading ? "not-allowed" : "pointer",
                 fontSize: 12, fontWeight: 600, transition: "all 0.15s",
               }}
             >
@@ -1798,12 +1798,12 @@ useEffect(() => {
           {sidebarOpen ? (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#A52828", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#2855A0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Users size={15} color="#4A0E0E" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "#FDEAEA" }}>{currentUser?.name}</div>
-                  <div style={{ fontSize: 10, color: "#F5C6C6" }}>{currentUser?.role === "admin" ? "ผู้ดูแลระบบ" : "ผู้ใช้งาน"}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#E8EEF8" }}>{currentUser?.name}</div>
+                  <div style={{ fontSize: 10, color: "#C5D5F0" }}>{currentUser?.role === "admin" ? "ผู้ดูแลระบบ" : "ผู้ใช้งาน"}</div>
                 </div>
               </div>
               <button
@@ -2088,14 +2088,14 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
   const prodName = (id) => products.find((p) => p.id === id)?.name || id;
   const prodUnit = (id) => products.find((p) => p.id === id)?.unit || "";
 
-  const purchaseCard = { label: "มูลค่าซื้อ ก่อน VAT (อนุมัติแล้ว)", value: fmt(totalPurchaseValue), suffix: "บาท", icon: ArrowDownToLine, color: "#d85a30", bg: "#faece7" };
+  const purchaseCard = { label: "มูลค่าซื้อ ก่อน VAT (อนุมัติแล้ว)", value: fmt(totalPurchaseValue), suffix: "บาท", icon: ArrowDownToLine, color: "#d85a30", bg: "#E8EEF8" };
   const salesCard = { label: "มูลค่าขายสะสม", value: fmt(totalSalesValue), suffix: "บาท", icon: ArrowUpFromLine, color: "#185fa5", bg: "#e6f1fb" };
-  const expensesCard = { label: "ค่าใช้จ่ายรวม", value: fmt(totalExpenses), suffix: "บาท", icon: Receipt, color: "#993c1d", bg: "#faece7" };
+  const expensesCard = { label: "ค่าใช้จ่ายรวม", value: fmt(totalExpenses), suffix: "บาท", icon: Receipt, color: "#1E4D8C", bg: "#E8EEF8" };
   const stockCard = {
     label: "ยอดคงเหลือสต็อก (ต้นทุนก่อน VAT)",
-    value: fmt(totalStockValue), suffix: "บาท", icon: Boxes, color: "#A52828", bg: "#FDEAEA"
+    value: fmt(totalStockValue), suffix: "บาท", icon: Boxes, color: "#2855A0", bg: "#E8EEF8"
   };
-  const loanCard = { label: "คงเหลือสินเชื่อ/เงินกู้", value: fmt(totalLoanRemaining), suffix: "บาท", icon: CreditCard, color: "#993c1d", bg: "#faece7" };
+  const loanCard = { label: "คงเหลือสินเชื่อ/เงินกู้", value: fmt(totalLoanRemaining), suffix: "บาท", icon: CreditCard, color: "#1E4D8C", bg: "#E8EEF8" };
 
   const subTabs = [
     { key: "purchases", label: "ซื้อ", icon: ArrowDownToLine },
@@ -2226,7 +2226,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
               onClick={() => setPeriodMode(opt.key)}
               style={{
                 padding: "8px 16px", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
-                background: periodMode === opt.key ? "#A52828" : "#fff",
+                background: periodMode === opt.key ? "#2855A0" : "#fff",
                 color: periodMode === opt.key ? "#4A0E0E" : "#6b7280",
               }}
             >
@@ -2267,9 +2267,9 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
               style={{
                 display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
                 padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600,
-                border: active ? "1px solid #A52828" : "1px solid #d1d5db",
-                background: active ? "#FDEAEA" : "#fff",
-                color: active ? "#8B2020" : "#6b7280",
+                border: active ? "1px solid #2855A0" : "1px solid #d1d5db",
+                background: active ? "#E8EEF8" : "#fff",
+                color: active ? "#1B3A6B" : "#6b7280",
               }}
             >
               <Icon size={15} />
@@ -2325,7 +2325,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(purchaseByType.reduce((s, g) => s + g.qty, 0))}</td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>—</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>฿{fmt(purchaseByType.reduce((s, g) => s + g.value, 0))}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(purchaseByType.reduce((s, g) => s + g.value, 0))}</td>
                     </tr>
                   </tfoot>
                 )}
@@ -2366,7 +2366,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>—</td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>—</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>฿{fmt(purchaseByProduct.reduce((s, g) => s + g.value, 0))}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(purchaseByProduct.reduce((s, g) => s + g.value, 0))}</td>
                     </tr>
                   </tfoot>
                 )}
@@ -2424,14 +2424,14 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                         <tr key={i}>
                           <td style={{ ...tdStyle, fontFamily: "'JetBrains Mono', monospace", color: "#534ab7" }}>{r.id}</td>
                           <td style={tdStyle}>{r.cust}</td>
-                          <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#993c1d" }}>฿{fmt(r.amount)}</td>
+                          <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1E4D8C" }}>฿{fmt(r.amount)}</td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
                       <tr style={{ background: "#f9fafb" }}>
                         <td colSpan={2} style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>฿{fmt(rows.reduce((s,r)=>s+r.amount,0))}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(rows.reduce((s,r)=>s+r.amount,0))}</td>
                       </tr>
                     </tfoot>
                   </table>
@@ -2569,7 +2569,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                     <tr>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{expensesBySubCategory.reduce((s, g) => s + g.count, 0)} รายการ</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>฿{fmt(totalExpenses)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(totalExpenses)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>100%</td>
                     </tr>
                   </tfoot>
@@ -2620,14 +2620,14 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                           <tr key={i}>
                             <td style={{ ...tdStyle, fontFamily: "'JetBrains Mono', monospace", color: "#534ab7" }}>{r.id}</td>
                             <td style={tdStyle}>{r.cust}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#993c1d" }}>฿{fmt(r.amount)}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1E4D8C" }}>฿{fmt(r.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot>
                         <tr style={{ background: "#f9fafb" }}>
                           <td colSpan={2} style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
-                          <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>฿{fmt(rows.reduce((s,r)=>s+r.amount,0))}</td>
+                          <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(rows.reduce((s,r)=>s+r.amount,0))}</td>
                         </tr>
                       </tfoot>
                     </table>
@@ -2652,7 +2652,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
 
           </div>
           <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflowX: "auto" }}>
-            <div style={{ background: "#5a1414", color: "#fff", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+            <div style={{ background: "#0A1E3D", color: "#fff", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>มูลค่าสต๊อกรวม</h3>
               <span style={{ fontSize: 12, color: "#e7c9c9" }}>วันที่ {today}</span>
             </div>
@@ -2680,7 +2680,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                             onMouseEnter={(e) => { e.currentTarget.style.background = "#f3f4f6"; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
                           >
-                            <td style={{ ...tdStyle, fontWeight: 700, color: "#993c1d" }}>{g.type}</td>
+                            <td style={{ ...tdStyle, fontWeight: 700, color: "#1E4D8C" }}>{g.type}</td>
                             <td style={tdStyle}></td>
                             <td style={tdStyle}></td>
                             <td style={tdStyle}></td>
@@ -2689,7 +2689,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                             <tr key={s.productId}>
                               <td style={{ ...tdStyle, color: "#111827", paddingLeft: 24 }}>- {s.name}</td>
                               <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(s.qty)}</td>
-                              <td style={{ ...tdStyle, textAlign: "right", color: "#993c1d" }}>{fmt(s.totalCost)}</td>
+                              <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C" }}>{fmt(s.totalCost)}</td>
                               <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(s.avgCost)}</td>
                             </tr>
                           ))}
@@ -2723,11 +2723,11 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
               </tbody>
               {stockByType.length > 0 && (
                 <tfoot>
-                  <tr style={{ borderTop: "3px solid #8B2020" }}>
-                    <td style={{ ...tdStyle, fontWeight: 700, color: "#8B2020", fontSize: 14 }}>ผลรวม</td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020", fontSize: 14 }}>{fmt(stockByType.reduce((s, g) => s + g.qty, 0))}</td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020", fontSize: 14 }}>{fmt(stockByType.reduce((s, g) => s + g.value, 0))}</td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020", fontSize: 14 }}>
+                  <tr style={{ borderTop: "3px solid #1B3A6B" }}>
+                    <td style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>ผลรวม</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>{fmt(stockByType.reduce((s, g) => s + g.qty, 0))}</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>{fmt(stockByType.reduce((s, g) => s + g.value, 0))}</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>
                       {(() => {
                         const totalQty = stockByType.reduce((s, g) => s + g.qty, 0);
                         const totalVal = stockByType.reduce((s, g) => s + g.value, 0);
@@ -2929,18 +2929,18 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
               {/* การ์ดสรุป */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 14 }}>
                 {cfCard(dateRange ? "เงินในธนาคารรวม (ช่วงที่เลือก)" : "เงินในธนาคารรวม", bankGroupTotal, "#185fa5", "#e6f1fb", `${bankGroupRows.length} บัญชี`)}
-                {cfCard("ลูกหนี้ค้างรับ", totalReceivable, "#8B2020", "#FDEAEA", "รอรับชำระ (ปัจจุบัน)")}
-                {cfCard("เจ้าหนี้ค้างจ่าย", totalPayable, "#993c1d", "#faece7", "รอจ่ายชำระ (ปัจจุบัน)")}
-                {cfCard("เงินมัดจำคงเหลือ", totalDeposit, "#854f0b", "#faeeda", "มัดจำที่ยังไม่ใช้ (ปัจจุบัน)")}
+                {cfCard("ลูกหนี้ค้างรับ", totalReceivable, "#1B3A6B", "#E8EEF8", "รอรับชำระ (ปัจจุบัน)")}
+                {cfCard("เจ้าหนี้ค้างจ่าย", totalPayable, "#1E4D8C", "#E8EEF8", "รอจ่ายชำระ (ปัจจุบัน)")}
+                {cfCard("เงินมัดจำคงเหลือ", totalDeposit, "#1B3A6B", "#E8EEF8", "มัดจำที่ยังไม่ใช้ (ปัจจุบัน)")}
                 {cfCard("รับล่วงหน้าคงเหลือ", totalPrepayment, "#1d4ed8", "#eff6ff", "ลูกค้าจ่ายล่วงหน้าที่ยังไม่ได้ตัด")}
-                {cfCard("มูลค่าสต๊อก (ทุน)", stockVal, "#A52828", "#FDEAEA", "สินค้าคงเหลือ (ปัจจุบัน)")}
-                {cfCard(dateRange ? "เงินสดรวม (ช่วงที่เลือก)" : "เงินสดรวม", cashGroupTotal, "#8B2020", "#FDEAEA", `${cashGroupRows.length} บัญชี`)}
+                {cfCard("มูลค่าสต๊อก (ทุน)", stockVal, "#2855A0", "#E8EEF8", "สินค้าคงเหลือ (ปัจจุบัน)")}
+                {cfCard(dateRange ? "เงินสดรวม (ช่วงที่เลือก)" : "เงินสดรวม", cashGroupTotal, "#1B3A6B", "#E8EEF8", `${cashGroupRows.length} บัญชี`)}
               </div>
 
               {/* กรอบสรุปยอดเงินหมุนทั้งหมด — ใหญ่ที่สุด รวมทุกประเภท */}
-              <div style={{ background: grandTotal >= 0 ? "#FDEAEA" : "#fcebeb", borderRadius: 16, padding: "24px 28px", border: `3px solid ${grandTotal >= 0 ? "#8B2020" : "#a32d2d"}`, marginBottom: 20 }}>
-                <div style={{ fontSize: 14, color: grandTotal >= 0 ? "#8B2020" : "#a32d2d", marginBottom: 6, fontWeight: 700 }}>เงินหมุนยอดทั้งหมด</div>
-                <div style={{ fontWeight: 700, fontSize: 32, color: grandTotal >= 0 ? "#8B2020" : "#a32d2d" }}>฿{fmt(grandTotal)}</div>
+              <div style={{ background: grandTotal >= 0 ? "#E8EEF8" : "#E8EEF8", borderRadius: 16, padding: "24px 28px", border: `3px solid ${grandTotal >= 0 ? "#1B3A6B" : "#2456A4"}`, marginBottom: 20 }}>
+                <div style={{ fontSize: 14, color: grandTotal >= 0 ? "#1B3A6B" : "#2456A4", marginBottom: 6, fontWeight: 700 }}>เงินหมุนยอดทั้งหมด</div>
+                <div style={{ fontWeight: 700, fontSize: 32, color: grandTotal >= 0 ? "#1B3A6B" : "#2456A4" }}>฿{fmt(grandTotal)}</div>
                 <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6 }}>ธนาคาร + เงินสด + เงินมัดจำ + ลูกหนี้ − เจ้าหนี้</div>
               </div>
 
@@ -2954,8 +2954,8 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                     <th style={{ ...thStyle, width: "28%" }}>ธนาคาร</th>
                     <th style={{ ...thStyle, width: "18%" }}>เลขบัญชี</th>
                     <th style={{ ...thStyle, textAlign: "right", width: "14%" }}>{dateRange ? "ยอดยกมา (ก่อนช่วง)" : "ยอดยกมา"}</th>
-                    <th style={{ ...thStyle, textAlign: "right", color: "#8B2020", width: "13%" }}>รับเข้า</th>
-                    <th style={{ ...thStyle, textAlign: "right", color: "#993c1d", width: "13%" }}>จ่ายออก</th>
+                    <th style={{ ...thStyle, textAlign: "right", color: "#1B3A6B", width: "13%" }}>รับเข้า</th>
+                    <th style={{ ...thStyle, textAlign: "right", color: "#1E4D8C", width: "13%" }}>จ่ายออก</th>
                     <th style={{ ...thStyle, textAlign: "right", width: "14%" }}>คงเหลือ</th>
                   </tr></thead>
                   <tbody>
@@ -2971,16 +2971,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                         <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 24 }}>{b.bankName}</td>
                         <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 12 }}>{b.accountNo}</td>
                         <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>{b.ob !== 0 ? `฿${fmt(b.ob)}` : "-"}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#8B2020", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#993c1d", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#a32d2d" }}>฿{fmt(b.balance)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
                       </tr>
                     ))}
 
 
                     {cashGroupRows.length > 0 && (
                       <tr style={{ background: "#fff" }}>
-                        <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, color: "#8B2020", display: "flex", alignItems: "center", gap: 6 }}>
+                        <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B", display: "flex", alignItems: "center", gap: 6 }}>
                           <Wallet size={13} /> เงินสด
                         </td>
                       </tr>
@@ -2990,16 +2990,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                         <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 24 }}>{b.bankName}</td>
                         <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 12 }}>{b.accountNo}</td>
                         <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>{b.ob !== 0 ? `฿${fmt(b.ob)}` : "-"}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#8B2020", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#993c1d", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#a32d2d" }}>฿{fmt(b.balance)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
                       </tr>
                     ))}
 
 
                     {unsetGroupRows.length > 0 && (
                       <tr style={{ background: "#f3f4f6" }}>
-                        <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, color: "#854f0b" }}>
+                        <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B" }}>
                           ยังไม่ระบุประเภท
                         </td>
                       </tr>
@@ -3009,15 +3009,15 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                         <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 24 }}>{b.bankName}</td>
                         <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 12 }}>{b.accountNo}</td>
                         <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>{b.ob !== 0 ? `฿${fmt(b.ob)}` : "-"}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#8B2020", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#993c1d", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#a32d2d" }}>฿{fmt(b.balance)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
                       </tr>
                     ))}
                     {unsetGroupRows.length > 0 && (
                       <tr style={{ background: "#f9fafb" }}>
-                        <td colSpan={5} style={{ ...tdStyle, fontWeight: 600, color: "#854f0b", paddingLeft: 24 }}>รวมกลุ่มยังไม่ระบุประเภท</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#854f0b" }}>฿{fmt(unsetGroupTotal)}</td>
+                        <td colSpan={5} style={{ ...tdStyle, fontWeight: 600, color: "#1B3A6B", paddingLeft: 24 }}>รวมกลุ่มยังไม่ระบุประเภท</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(unsetGroupTotal)}</td>
                       </tr>
                     )}
 
@@ -3032,11 +3032,11 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                         const depOut = purchases.reduce((s,po) => s + (po.payments||[]).filter(p=>p.fromStoreBankId==="DEPOSIT").reduce((s2,p)=>s2+(Number(p.amount)||0),0), 0);
                         return (
                           <tr style={{ background: "#fff" }}>
-                            <td colSpan={2} style={{ ...tdStyle, fontWeight: 700, color: "#854f0b" }}>เงินมัดจำคงเหลือรวม</td>
+                            <td colSpan={2} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B" }}>เงินมัดจำคงเหลือรวม</td>
                             <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#6b7280" }}>฿{fmt(depOpening)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>+฿{fmt(depIn)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>-฿{fmt(depOut)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#854f0b" }}>฿{fmt(totalDeposit)}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>+฿{fmt(depIn)}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>-฿{fmt(depOut)}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#1B3A6B" }}>฿{fmt(totalDeposit)}</td>
                           </tr>
                         );
                       })()}
@@ -3045,10 +3045,10 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                         <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#374151", fontSize: 14 }}>
                           ฿{fmt(bankRows.reduce((s,b)=>s+b.ob,0) + customers.reduce((s,c)=>s+(Number(c.depositOpening)||0),0))}
                         </td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020", fontSize: 14 }}>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>
                           +฿{fmt(bankRows.reduce((s,b)=>s+b.inflow,0) + (deposits||[]).reduce((s,d)=>s+(Number(d.amount)||0),0))}
                         </td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d", fontSize: 14 }}>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C", fontSize: 14 }}>
                           -฿{fmt(bankRows.reduce((s,b)=>s+b.outflow,0) + purchases.reduce((s,po)=>s+(po.payments||[]).filter(p=>p.fromStoreBankId==="DEPOSIT").reduce((s2,p)=>s2+(Number(p.amount)||0),0),0))}
                         </td>
                         <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#185fa5", fontSize: 15 }}>
@@ -3062,17 +3062,17 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
 
               {/* ตารางสรุปรวม */}
               <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflow: "hidden" }}>
-                <div style={{ background: "#6B1A1A", color: "#fff", padding: "12px 16px", fontWeight: 700, fontSize: 14 }}>
+                <div style={{ background: "#0F2548", color: "#fff", padding: "12px 16px", fontWeight: 700, fontSize: 14 }}>
                   สรุปเงินหมุนเวียนร้าน
                 </div>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <tbody>
                     {[
                       { label: "เงินในธนาคารรวม", value: bankGroupTotal, color: "#185fa5", sign: "+" },
-                      { label: "เงินสดรวม", value: cashGroupTotal, color: "#8B2020", sign: "+" },
-                      { label: "ลูกหนี้การค้า (ค้างรับ)", value: totalReceivable, color: "#8B2020", sign: "+" },
-                      { label: "เจ้าหนี้การค้า (ค้างจ่าย)", value: totalPayable, color: "#993c1d", sign: "−" },
-                      { label: "เงินมัดจำคงเหลือ", value: totalDeposit, color: "#854f0b", sign: "+" },
+                      { label: "เงินสดรวม", value: cashGroupTotal, color: "#1B3A6B", sign: "+" },
+                      { label: "ลูกหนี้การค้า (ค้างรับ)", value: totalReceivable, color: "#1B3A6B", sign: "+" },
+                      { label: "เจ้าหนี้การค้า (ค้างจ่าย)", value: totalPayable, color: "#1E4D8C", sign: "−" },
+                      { label: "เงินมัดจำคงเหลือ", value: totalDeposit, color: "#1B3A6B", sign: "+" },
                     ].map((r) => (
                       <tr key={r.label}>
                         <td style={{ ...tdStyle, display: "flex", alignItems: "center", gap: 8 }}>
@@ -3084,9 +3084,9 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr style={{ background: grandTotal >= 0 ? "#FDEAEA" : "#fcebeb", borderTop: "2px solid #6B1A1A" }}>
+                    <tr style={{ background: grandTotal >= 0 ? "#E8EEF8" : "#E8EEF8", borderTop: "2px solid #0F2548" }}>
                       <td style={{ ...tdStyle, fontWeight: 700, fontSize: 15 }}>เงินหมุนยอดทั้งหมด</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 18, color: grandTotal >= 0 ? "#8B2020" : "#a32d2d" }}>฿{fmt(grandTotal)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 18, color: grandTotal >= 0 ? "#1B3A6B" : "#2456A4" }}>฿{fmt(grandTotal)}</td>
                     </tr>
                     <tr style={{ background: "#f9fafb" }}>
                       <td style={{ ...tdStyle, color: "#6b7280", fontSize: 12 }}>+ มูลค่าสต๊อกสินค้า (ทุน) — ไม่รวมในเงินสด</td>
@@ -3226,7 +3226,7 @@ const save = async () => {
               <th style={thStyle}>ชื่อสินค้า</th>
               <th style={thStyle}>ประเภท</th>
               <th style={thStyle}>หน่วย</th>
-              <th style={{ ...thStyle, textAlign: "right", color: "#854f0b" }}>ราคาหน้าร้าน/หน่วย</th>
+              <th style={{ ...thStyle, textAlign: "right", color: "#1B3A6B" }}>ราคาหน้าร้าน/หน่วย</th>
               <th style={{ ...thStyle, textAlign: "right", color: "#534ab7" }}>ราคา VIP/หน่วย</th>
               <th style={{ ...thStyle, textAlign: "right" }}>ยอดยกมา (จำนวน)</th>
               <th style={{ ...thStyle, textAlign: "right" }}>ต้นทุน/หน่วย</th>
@@ -3266,7 +3266,7 @@ const save = async () => {
                   <td style={{ ...tdStyle, fontWeight: 600 }}>{p.name}</td>
                   <td style={tdStyle}><Badge text={p.type} /></td>
                   <td style={tdStyle}>{p.unit}</td>
-                  <td style={{ ...tdStyle, textAlign: "right" }}>{inlinePriceCell("buyPrice", "#854f0b")}</td>
+                  <td style={{ ...tdStyle, textAlign: "right" }}>{inlinePriceCell("buyPrice", "#1B3A6B")}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{inlinePriceCell("vipPrice", "#534ab7")}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(p.openingQty || 0)}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(p.openingCost || 0)}</td>
@@ -3355,7 +3355,7 @@ const save = async () => {
             </Field>
           </div>
           <div style={{ background: "#fffbeb", borderRadius: 8, padding: "12px 16px", marginTop: 8, border: "1px solid #fde68a" }}>
-            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#854f0b" }}>ราคารับซื้อ (กดที่ช่องราคาในตารางเพื่อแก้เร็วขึ้น)</div>
+            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B3A6B" }}>ราคารับซื้อ (กดที่ช่องราคาในตารางเพื่อแก้เร็วขึ้น)</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
               <Field label={`ราคาหน้าร้าน/หน่วย (บาท/${form.unit || "หน่วย"})`}>
                 <input type="number" min={0} style={inputStyle} value={form.buyPrice || 0} onChange={(e) => setForm({ ...form, buyPrice: e.target.value })} placeholder="0" />
@@ -3367,7 +3367,7 @@ const save = async () => {
           </div>
 
           <div style={{ background: "#f0f9f5", borderRadius: 8, padding: "12px 16px", marginTop: 8 }}>
-            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10, color: "#8B2020" }}>ยอดคงเหลือยกมา (ก่อนเริ่มใช้ระบบ)</div>
+            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10, color: "#1B3A6B" }}>ยอดคงเหลือยกมา (ก่อนเริ่มใช้ระบบ)</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
               <Field label={`จำนวนยกมา (${form.unit || "หน่วย"})`}>
                 <input type="number" min={0} style={inputStyle} value={form.openingQty} onChange={(e) => setForm({ ...form, openingQty: e.target.value })} placeholder="0" />
@@ -3379,11 +3379,11 @@ const save = async () => {
             <Field label="ของเดือน">
               <input type="month" style={inputStyle} value={form.openingMonth || ""} onChange={(e) => setForm({ ...form, openingMonth: e.target.value })} />
             </Field>
-            <p style={{ fontSize: 11, color: "#8B2020", margin: "0 0 4px" }}>
+            <p style={{ fontSize: 11, color: "#1B3A6B", margin: "0 0 4px" }}>
               * ระบุเดือนที่ยอดยกมานี้มีผล — รายงาน/แดชบอร์ดของเดือนนั้นๆ จะนับรวมยอดนี้เข้าไปด้วย
             </p>
             {(Number(form.openingQty) > 0 || Number(form.openingCost) > 0) && (
-              <div style={{ fontSize: 13, color: "#8B2020", fontWeight: 600, marginTop: 6 }}>
+              <div style={{ fontSize: 13, color: "#1B3A6B", fontWeight: 600, marginTop: 6 }}>
                 มูลค่ายกมา: ฿{fmt((Number(form.openingQty) || 0) * (Number(form.openingCost) || 0))}
               </div>
             )}
@@ -3740,8 +3740,8 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
 
   const statusBadge = (status) => {
     if (status === "อนุมัติแล้ว") return { bg: "#eaf3de", color: "#27500a", icon: CheckCircle2 };
-    if (status === "ยกเลิก") return { bg: "#fcebeb", color: "#791f1f", icon: XCircle };
-    return { bg: "#faeeda", color: "#854f0b", icon: Clock };
+    if (status === "ยกเลิก") return { bg: "#E8EEF8", color: "#791f1f", icon: XCircle };
+    return { bg: "#E8EEF8", color: "#1B3A6B", icon: Clock };
   };
 
   return (
@@ -3780,8 +3780,8 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
           const total = grandTotal(po);
           const remaining = total - paid;
           const payBadge = (po.writeOff || remaining <= 0.01) ? { bg: "#eaf3de", color: "#27500a", icon: CheckCircle2, label: "ชำระแล้ว" }
-            : paid > 0.01 ? { bg: "#faeeda", color: "#854f0b", icon: Clock, label: "ชำระบางส่วน" }
-            : { bg: "#fcebeb", color: "#791f1f", icon: Clock, label: "ค้างจ่าย" };
+            : paid > 0.01 ? { bg: "#E8EEF8", color: "#1B3A6B", icon: Clock, label: "ชำระบางส่วน" }
+            : { bg: "#E8EEF8", color: "#791f1f", icon: Clock, label: "ค้างจ่าย" };
           const PIcon = payBadge.icon;
           const isExpanded = expanded === po.id;
 
@@ -3814,7 +3814,7 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
                     {(po.vatRate > 0) && <div style={{ fontSize: 11, color: "#9ca3af" }}>ก่อน VAT: ฿{fmt(subtotalBeforeVat(po))}</div>}
                     {(po.vatRate > 0) && <div style={{ fontSize: 11, color: "#9ca3af" }}>VAT {po.vatRate}%: +฿{fmt(vatAmount(po))}</div>}
                     <div style={{ fontSize: 12, color: "#9ca3af" }}>ยอดรวม</div>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: "#993c1d" }}>฿{fmt(total)}</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(total)}</div>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
                     {(po.status || "รออนุมัติ") === "อนุมัติแล้ว" ? (
@@ -3873,7 +3873,7 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
                             <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(deductDisplay)}</td>
                             <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(net)}</td>
                             <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(it.price)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", color: discountPct > 0 ? "#993c1d" : "#9ca3af" }}>{discountPct > 0 ? `${discountPct}%` : "—"}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", color: discountPct > 0 ? "#1E4D8C" : "#9ca3af" }}>{discountPct > 0 ? `${discountPct}%` : "—"}</td>
                             <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>{fmt(net * discountedPrice)}</td>
                           </tr>
                         );
@@ -3883,15 +3883,15 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
 
                   <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 16px", marginBottom: 12, fontSize: 13, maxWidth: 360 }}>
                     <Row label="ยอดก่อน VAT" value={`฿${fmt(subtotalBeforeVat(po))}`} />
-                    {(po.vatRate > 0) && <Row label={`VAT ${po.vatRate}%`} value={`+฿${fmt(vatAmount(po))}`} color="#993c1d" />}
+                    {(po.vatRate > 0) && <Row label={`VAT ${po.vatRate}%`} value={`+฿${fmt(vatAmount(po))}`} color="#1E4D8C" />}
                     <Row label="ยอดรวมที่ต้องชำระ" value={`฿${fmt(total)}`} bold />
                     <Row label="ชำระแล้ว" value={`฿${fmt(paid)}`} />
-                    <Row label="คงค้าง" value={`฿${fmt(remaining)}`} bold color={remaining > 0 ? "#a32d2d" : "#27500a"} />
+                    <Row label="คงค้าง" value={`฿${fmt(remaining)}`} bold color={remaining > 0 ? "#2456A4" : "#27500a"} />
                   </div>
 
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     {(po.status || "รออนุมัติ") === "รออนุมัติ" && (
-                      <button style={{ ...iconBtn, color: "#8B2020", borderColor: "#F5C6C6" }} onClick={() => approve(po.id)}><CheckCircle2 size={14} /> อนุมัติ</button>
+                      <button style={{ ...iconBtn, color: "#1B3A6B", borderColor: "#C5D5F0" }} onClick={() => approve(po.id)}><CheckCircle2 size={14} /> อนุมัติ</button>
                     )}
                     {(po.status || "รออนุมัติ") === "อนุมัติแล้ว" && (
                       <button style={iconBtn} onClick={() => revertToPending(po.id)}><Clock size={14} /> ยกเลิกอนุมัติ</button>
@@ -3928,7 +3928,7 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
             </Field>
             <Field label="ประเภทราคา">
               <div style={{ display: "flex", gap: 8, height: 38, alignItems: "center" }}>
-                {[{ value: "normal", label: "ราคาหน้าร้าน", color: "#854f0b", bg: "#fffbeb" }, { value: "vip", label: "ราคา VIP", color: "#534ab7", bg: "#f0effe" }].map((opt) => (
+                {[{ value: "normal", label: "ราคาหน้าร้าน", color: "#1B3A6B", bg: "#fffbeb" }, { value: "vip", label: "ราคา VIP", color: "#534ab7", bg: "#f0effe" }].map((opt) => (
                   <button key={opt.value} type="button"
                     style={{ padding: "6px 16px", borderRadius: 6, border: `2px solid ${form.priceType === opt.value ? opt.color : "#e5e7eb"}`, background: form.priceType === opt.value ? opt.bg : "#fff", color: form.priceType === opt.value ? opt.color : "#6b7280", fontWeight: form.priceType === opt.value ? 700 : 400, fontSize: 13, cursor: "pointer" }}
                     onClick={() => {
@@ -3967,8 +3967,8 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
               style={{
                 display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, fontSize: 14, cursor: "pointer",
                 border: (form.status || "รออนุมัติ") === "รออนุมัติ" ? "1px solid #f0997b" : "1px solid #d1d5db",
-                background: (form.status || "รออนุมัติ") === "รออนุมัติ" ? "#faece7" : "#fff",
-                color: (form.status || "รออนุมัติ") === "รออนุมัติ" ? "#993c1d" : "#374151",
+                background: (form.status || "รออนุมัติ") === "รออนุมัติ" ? "#E8EEF8" : "#fff",
+                color: (form.status || "รออนุมัติ") === "รออนุมัติ" ? "#1E4D8C" : "#374151",
                 fontWeight: (form.status || "รออนุมัติ") === "รออนุมัติ" ? 600 : 400,
               }}
             >
@@ -3979,7 +3979,7 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
               style={{
                 display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, fontSize: 14, cursor: "pointer",
                 border: form.status === "อนุมัติแล้ว" ? "1px solid #5dcaa5" : "1px solid #d1d5db",
-                background: form.status === "อนุมัติแล้ว" ? "#FDEAEA" : "#fff",
+                background: form.status === "อนุมัติแล้ว" ? "#E8EEF8" : "#fff",
                 color: form.status === "อนุมัติแล้ว" ? "#085041" : "#374151",
                 fontWeight: form.status === "อนุมัติแล้ว" ? 600 : 400,
               }}
@@ -4024,10 +4024,10 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
                       <td style={{ ...tdStyle, color: "#9ca3af", fontSize: 11 }}>{prodUnit(it.productId)}</td>
                       <td style={tdStyle}><input type="number" min={0} max={100} style={{ ...inputStyle, width: "100%", textAlign: "right" }} value={it.deductPct || ""} placeholder="0" onChange={(e) => updateItem(idx, "deductPct", e.target.value)} /></td>
                       <td style={tdStyle}><input type="number" min={0} style={{ ...inputStyle, width: "100%", textAlign: "right" }} value={it.deductKg != null ? (Math.round((Number(it.deductKg)||0)*100)/100) : ""} placeholder="0" onChange={(e) => updateItem(idx, "deductKg", e.target.value)} /></td>
-                      <td style={{ ...tdStyle, textAlign: "right", color: totalDeductKg > 0 ? "#993c1d" : "#9ca3af", fontWeight: 500 }}>{fmt(totalDeductKg)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", color: totalDeductKg > 0 ? "#1E4D8C" : "#9ca3af", fontWeight: 500 }}>{fmt(totalDeductKg)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>{fmt(net)}</td>
                       <td style={tdStyle}><NumInput style={{ ...inputStyle, width: "100%", textAlign: "right" }} value={it.price} onChange={(e) => updateItem(idx, "price", e.target.value)} onKeyDown={(e) => handleEnterNavigate(e, save)} /></td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#993c1d" }}>{fmt(net * (Number(it.price) || 0))}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1E4D8C" }}>{fmt(net * (Number(it.price) || 0))}</td>
                       <td style={tdStyle}><button style={btnDanger} onClick={() => removeItem(idx)}><Trash2 size={14} /></button></td>
                     </tr>
                   );
@@ -4055,7 +4055,7 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
               <div style={{ fontSize: 14, fontWeight: 700 }}>
                 ก่อน VAT: ฿{fmt(form.items.reduce((s, it) => s + lineTotal(it), 0))}
                 {Number(form.vatRate) > 0 && (
-                  <span style={{ color: "#993c1d", marginLeft: 10 }}>
+                  <span style={{ color: "#1E4D8C", marginLeft: 10 }}>
                     VAT {form.vatRate}%: +฿{fmt(form.items.reduce((s, it) => s + lineTotal(it), 0) * ((Number(form.vatRate) || 0) / 100))}
                     &nbsp;|&nbsp; รวม: ฿{fmt(form.items.reduce((s, it) => s + lineTotal(it), 0) * (1 + (Number(form.vatRate) || 0) / 100))}
                   </span>
@@ -4088,8 +4088,8 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
                   {[
                     { label: "น้ำหนักรวม", value: fmt(totalQty), unit: "กก.", color: "#1f2937", bg: "#f9fafb" },
-                    { label: "รวมน้ำหนักหัก", value: fmt(totalDeduct), unit: "กก.", color: "#993c1d", bg: "#fef2f2" },
-                    { label: "น้ำหนักสุทธิ", value: fmt(totalNet), unit: "กก.", color: "#8B2020", bg: "#f0fdf4" },
+                    { label: "รวมน้ำหนักหัก", value: fmt(totalDeduct), unit: "กก.", color: "#1E4D8C", bg: "#fef2f2" },
+                    { label: "น้ำหนักสุทธิ", value: fmt(totalNet), unit: "กก.", color: "#1B3A6B", bg: "#f0fdf4" },
                   ].map((item) => (
                     <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: "10px 14px", textAlign: "center", border: `1px solid ${item.color}22` }}>
                       <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>{item.label}</div>
@@ -4101,7 +4101,7 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
                 {/* สรุปยอดเงิน */}
                 <div style={{ background: "#f9fafb", borderRadius: 8, padding: "12px 16px", fontSize: 14 }}>
                   <Row label="ยอดก่อน VAT" value={`฿${fmt(subtotalBeforeVat)}`} />
-                  {vat > 0 && <Row label={`VAT ${form.vatRate}%`} value={`+฿${fmt(vat)}`} color="#993c1d" />}
+                  {vat > 0 && <Row label={`VAT ${form.vatRate}%`} value={`+฿${fmt(vat)}`} color="#1E4D8C" />}
                   <Row label="ยอดรวมที่ต้องชำระ" value={`฿${fmt(total)}`} bold />
                   <p style={{ fontSize: 12, color: "#9ca3af", margin: "8px 0 0" }}>
                     * บันทึกใบนี้ก่อนได้เลย — ไปบันทึกการจ่ายเงินจริงที่เมนู "รับชำระ/จ่ายชำระ" ทีหลังได้
@@ -4155,7 +4155,7 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
   }, 0);
   const vat = subtotal * ((Number(po.vatRate) || 0) / 100);
   const total = subtotal + vat;
-  const primaryColor = cs.primaryColor || "#8B2020";
+  const primaryColor = cs.primaryColor || "#1B3A6B";
   // style แถวเตี้ยเฉพาะใบรับสินค้า (ลดระยะห่างบน-ล่าง ไม่กระทบตารางหน้าอื่น)
   const thCompact = { ...thStyle, padding: "4px 12px" };
   const tdCompact = { ...tdStyle, padding: "4px 12px" };
@@ -4182,7 +4182,7 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
             <div style={{ fontSize: 12, color: "#6b7280" }}>เลขที่: {po.id}</div>
             <div style={{ fontSize: 12, color: "#6b7280" }}>วันที่: {po.date}</div>
             <div style={{ fontSize: 12, marginTop: 4 }}>
-              สถานะ: <span style={{ fontWeight: 600, color: po.status === "อนุมัติแล้ว" ? "#8B2020" : po.status === "ยกเลิก" ? "#a32d2d" : "#854f0b" }}>{po.status || "รออนุมัติ"}</span>
+              สถานะ: <span style={{ fontWeight: 600, color: po.status === "อนุมัติแล้ว" ? "#1B3A6B" : po.status === "ยกเลิก" ? "#2456A4" : "#1B3A6B" }}>{po.status || "รออนุมัติ"}</span>
             </div>
           </div>
         </div>
@@ -4222,7 +4222,7 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
                 <tr key={idx}>
                   <td style={{ ...tdCompact, wordBreak: "break-word" }}>{p.name}</td>
                   <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(qty)} {p.unit}</td>
-                  <td style={{ ...tdCompact, textAlign: "right", color: deducted > 0 ? "#993c1d" : "#9ca3af" }}>{deducted > 0 ? fmt(deducted) : "0"}</td>
+                  <td style={{ ...tdCompact, textAlign: "right", color: deducted > 0 ? "#1E4D8C" : "#9ca3af" }}>{deducted > 0 ? fmt(deducted) : "0"}</td>
                   <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(net)}</td>
                   <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(it.price)}</td>
                   <td style={{ ...tdCompact, textAlign: "right", fontWeight: 600 }}>{fmt(amount)}</td>
@@ -4244,7 +4244,7 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
                 <tr style={{ background: "#f9fafb" }}>
                   <td style={{ ...tdCompact, fontWeight: 700, color: "#374151" }}>รวมทั้งหมด</td>
                   <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700 }}>{fmt(totalQty)}</td>
-                  <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>{fmt(totalDeducted)}</td>
+                  <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>{fmt(totalDeducted)}</td>
                   <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700 }}>{fmt(totalNet)}</td>
                   <td style={{ ...tdCompact }}></td>
                   <td style={{ ...tdCompact }}></td>
@@ -4259,13 +4259,13 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
             )}
             {po.vatRate > 0 && (
               <tr>
-                <td colSpan={5} style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#993c1d" }}>VAT {po.vatRate}%</td>
-                <td style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#993c1d" }}>+{fmt(vat)} บาท</td>
+                <td colSpan={5} style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#1E4D8C" }}>VAT {po.vatRate}%</td>
+                <td style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#1E4D8C" }}>+{fmt(vat)} บาท</td>
               </tr>
             )}
             <tr style={{ background: "#f0fdf4" }}>
               <td colSpan={5} style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 13 }}>จำนวนเงินสุทธิ</td>
-              <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 13, color: "#8B2020" }}>{fmt(total)}</td>
+              <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 13, color: "#1B3A6B" }}>{fmt(total)}</td>
             </tr>
           </tfoot>
         </table>
@@ -4623,7 +4623,7 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
                           <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(it.value)}</td>
                           <td style={{ ...tdStyle, textAlign: "right" }}>
                             ฿{fmt(it.avgCost)}
-                            {it.shortfall > 0 && <span style={{ color: "#a32d2d", fontSize: 11, marginLeft: 4 }}>(สต๊อกขาด {fmt(it.shortfall)})</span>}
+                            {it.shortfall > 0 && <span style={{ color: "#2456A4", fontSize: 11, marginLeft: 4 }}>(สต๊อกขาด {fmt(it.shortfall)})</span>}
                           </td>
                           <td style={{ ...tdStyle, color: "#9ca3af" }}><ArrowRight size={14} /></td>
                           <td style={tdStyle}>{prodName(it.targetProductId)}</td>
@@ -4768,11 +4768,11 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
                         <ProductSelect products={products} value={it.sourceProductId} onChange={(pid) => updateLineItem(idx, "sourceProductId", pid)} />
                       </td>
                       <td style={tdStyle}><input type="number" style={{ ...inputStyle, width: "100%", textAlign: "right" }} value={it.qty} onChange={(e) => updateLineItem(idx, "qty", e.target.value)} /></td>
-                      <td style={{ ...tdStyle, textAlign: "right", color: remain < 0 ? "#a32d2d" : "#6b7280" }}>{fmt(remain)} {prodUnit(it.sourceProductId)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", color: remain < 0 ? "#2456A4" : "#6b7280" }}>{fmt(remain)} {prodUnit(it.sourceProductId)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#3c3489" }}>฿{fmt(p.value)}</td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>
                         ฿{fmt(avgCost)}
-                        {p.shortfall > 0 && <div style={{ color: "#a32d2d", fontSize: 11 }}>(ขาด {fmt(p.shortfall)})</div>}
+                        {p.shortfall > 0 && <div style={{ color: "#2456A4", fontSize: 11 }}>(ขาด {fmt(p.shortfall)})</div>}
                       </td>
                       <td style={{ ...tdStyle, color: "#9ca3af" }}><ArrowRight size={14} /></td>
                       <td style={tdStyle}>
@@ -4802,7 +4802,7 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
               const netWeight = totalQty - totalDeduct;
               return [
                 { label: "น้ำหนักรวม", value: fmt(totalQty), color: "#1f2937", bg: "#f9fafb" },
-                { label: "รวมน้ำหนักหัก", value: fmt(totalDeduct), color: "#993c1d", bg: "#fef2f2" },
+                { label: "รวมน้ำหนักหัก", value: fmt(totalDeduct), color: "#1E4D8C", bg: "#fef2f2" },
                 { label: "น้ำหนักสุทธิ", value: fmt(netWeight), color: "#3c3489", bg: "#f5f3ff" },
               ].map((item) => (
                 <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: "10px 14px", textAlign: "center", border: `1px solid ${item.color}22` }}>
@@ -4974,8 +4974,8 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
 
   const statusColor = (st) => {
     if (st === "ชำระแล้ว") return { bg: "#eaf3de", color: "#27500a" };
-    if (st === "ชำระบางส่วน") return { bg: "#faeeda", color: "#854f0b" };
-    return { bg: "#fcebeb", color: "#791f1f" };
+    if (st === "ชำระบางส่วน") return { bg: "#E8EEF8", color: "#1B3A6B" };
+    return { bg: "#E8EEF8", color: "#791f1f" };
   };
 
   return (
@@ -5035,8 +5035,8 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
                   </td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>{fmt(t.total)} บาท</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>
-                    <div style={{ fontSize: 12, color: "#8B2020" }}>รับแล้ว ฿{fmt(t.paid)}</div>
-                    {livePayStatus !== "ชำระแล้ว" && t.remaining > 0.01 && <div style={{ fontSize: 12, color: "#993c1d" }}>ค้าง ฿{fmt(t.remaining)}</div>}
+                    <div style={{ fontSize: 12, color: "#1B3A6B" }}>รับแล้ว ฿{fmt(t.paid)}</div>
+                    {livePayStatus !== "ชำระแล้ว" && t.remaining > 0.01 && <div style={{ fontSize: 12, color: "#1E4D8C" }}>ค้าง ฿{fmt(t.remaining)}</div>}
                   </td>
                   <td style={tdStyle}><span style={{ background: sc.bg, color: sc.color, padding: "2px 10px", borderRadius: 6, fontSize: 12, fontWeight: 500 }}>{livePayStatus}</span></td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>
@@ -5142,7 +5142,7 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
                       <td style={{ ...tdStyle, textAlign: "right", color: fromW ? "#534ab7" : "#9ca3af", fontWeight: fromW ? 600 : 400 }}>
                         {fromW ? fmt(it.withdrawalCost || 0) : "—"}
                       </td>
-                      <td style={{ ...tdStyle, textAlign: "right", color: insufficient ? "#a32d2d" : "#6b7280" }}>
+                      <td style={{ ...tdStyle, textAlign: "right", color: insufficient ? "#2456A4" : "#6b7280" }}>
                         {fromW ? <span style={{ color: "#9ca3af" }}>—</span> : <>{stock ? fmt(stock.qty) : "-"} {prodUnit(it.productId)}</>}
                       </td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>{fmt(lineTotal(it))}</td>
@@ -5176,8 +5176,8 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
               const totalDeduct = totalQty - totalNet;
               return [
                 { label: "น้ำหนักรวม", value: fmt(totalQty), color: "#1f2937", bg: "#f9fafb" },
-                { label: "รวมน้ำหนักหัก", value: fmt(totalDeduct), color: "#993c1d", bg: "#fef2f2" },
-                { label: "น้ำหนักสุทธิ", value: fmt(totalNet), color: "#8B2020", bg: "#f0fdf4" },
+                { label: "รวมน้ำหนักหัก", value: fmt(totalDeduct), color: "#1E4D8C", bg: "#fef2f2" },
+                { label: "น้ำหนักสุทธิ", value: fmt(totalNet), color: "#1B3A6B", bg: "#f0fdf4" },
               ].map((item) => (
                 <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: "10px 14px", textAlign: "center", border: `1px solid ${item.color}22` }}>
                   <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>{item.label}</div>
@@ -5375,7 +5375,7 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
                       <td style={tdStyle}>{p.date}</td>
                       <td style={tdStyle}>{p.method}</td>
                       <td style={tdStyle}>{b ? `${b.bankName} ${b.accountNo}` : "-"}</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#8B2020" }}>฿{fmt(p.amount)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1B3A6B" }}>฿{fmt(p.amount)}</td>
                     </tr>
                   );
                 })}
@@ -5383,12 +5383,12 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
               <tfoot>
                 <tr style={{ borderTop: "2px solid #e5e7eb" }}>
                   <td colSpan={3} style={{ ...tdStyle, fontWeight: 700 }}>รับชำระแล้ว</td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>฿{fmt(paid)}</td>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(paid)}</td>
                 </tr>
                 {remaining > 0 && (
                   <tr>
                     <td colSpan={3} style={{ ...tdStyle, fontWeight: 700 }}>ยอดค้างชำระ</td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>฿{fmt(remaining)}</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(remaining)}</td>
                   </tr>
                 )}
               </tfoot>
@@ -5758,14 +5758,14 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
           <div>
             <div style={{ background: "#6b1f1f", color: "#fff", padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>ยอดใช้เงินต่อวัน / ยอดรับต่อวัน</div>
             {[
-              { label: "ค่าสินค้า", value: creditDaySummary.dayCost, color: "#faece7" },
+              { label: "ค่าสินค้า", value: creditDaySummary.dayCost, color: "#E8EEF8" },
               { label: "ค่าใช้จ่าย", value: creditDaySummary.dayExp, color: "#fff" },
-              { label: "หัก รายได้จากสินค้า", value: -creditDaySummary.dayRev, color: "#faece7" },
+              { label: "หัก รายได้จากสินค้า", value: -creditDaySummary.dayRev, color: "#E8EEF8" },
               { label: "รวมยอดใช้วันนี้", value: creditDaySummary.dayNet, color: "#e8d4d4", bold: true },
             ].map((row, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 14px", background: row.color, borderBottom: "1px solid #f3f0f0" }}>
                 <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 400 }}>{row.label}</span>
-                <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 600, color: row.value < 0 ? "#8B2020" : row.value > 0 ? "#993c1d" : "#374151" }}>
+                <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 600, color: row.value < 0 ? "#1B3A6B" : row.value > 0 ? "#1E4D8C" : "#374151" }}>
                   {row.value < 0 ? `(${fmt(Math.abs(row.value))})` : fmt(row.value)}
                 </span>
               </div>
@@ -5786,7 +5786,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
                   <input type="number" value={creditManual} onChange={(e) => setCreditManual(e.target.value)}
                     style={{ width: 100, textAlign: "right", border: "1px solid #d1d5db", borderRadius: 6, padding: "2px 8px", fontSize: 13 }} />
                 ) : (
-                  <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 600, color: row.value < 0 ? "#8B2020" : row.value > 0 ? "#993c1d" : "#374151" }}>
+                  <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 600, color: row.value < 0 ? "#1B3A6B" : row.value > 0 ? "#1E4D8C" : "#374151" }}>
                     {row.value < 0 ? `(${fmt(Math.abs(row.value))})` : fmt(row.value)}
                   </span>
                 )}
@@ -5825,7 +5825,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14, marginBottom: 20 }}>
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "16px 18px" }}>
           <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>ยอดที่ต้องจ่าย (ใบรับสินค้าค้างจ่าย)</div>
-          <div style={{ fontWeight: 700, fontSize: 22, color: "#993c1d" }}>฿{fmt(totalPayable)}</div>
+          <div style={{ fontWeight: 700, fontSize: 22, color: "#1E4D8C" }}>฿{fmt(totalPayable)}</div>
           <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>{unpaidPurchases.length} ใบ</div>
         </div>
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "16px 18px" }}>
@@ -5835,7 +5835,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
         </div>
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "16px 18px" }}>
           <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>ยอดที่ต้องจ่าย (ค่าใช้จ่ายค้างจ่าย)</div>
-          <div style={{ fontWeight: 700, fontSize: 22, color: "#854f0b" }}>฿{fmt(totalPayableExpense)}</div>
+          <div style={{ fontWeight: 700, fontSize: 22, color: "#1B3A6B" }}>฿{fmt(totalPayableExpense)}</div>
           <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>{unpaidExpenses.length} รายการ</div>
         </div>
       </div>
@@ -5851,9 +5851,9 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
         ].map((opt) => (
           <button key={opt.key} onClick={() => setActiveView(opt.key)}
             style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600, border: "1px solid",
-              borderColor: activeView === opt.key ? "#A52828" : "#d1d5db",
-              background: activeView === opt.key ? "#FDEAEA" : "#fff",
-              color: activeView === opt.key ? "#8B2020" : "#6b7280" }}>
+              borderColor: activeView === opt.key ? "#2855A0" : "#d1d5db",
+              background: activeView === opt.key ? "#E8EEF8" : "#fff",
+              color: activeView === opt.key ? "#1B3A6B" : "#6b7280" }}>
             {opt.label}
           </button>
         ))}
@@ -5897,9 +5897,9 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
               <tr key={r.kind + r.id}>
                 <td style={tdStyle}>
                   {r.kind === "purchase" ? (
-                    <span style={{ background: "#faece7", color: "#993c1d", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>จ่าย (ใบรับสินค้า)</span>
+                    <span style={{ background: "#E8EEF8", color: "#1E4D8C", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>จ่าย (ใบรับสินค้า)</span>
                   ) : r.kind === "expense" ? (
-                    <span style={{ background: "#faeeda", color: "#854f0b", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>จ่าย (ค่าใช้จ่าย)</span>
+                    <span style={{ background: "#E8EEF8", color: "#1B3A6B", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>จ่าย (ค่าใช้จ่าย)</span>
                   ) : (
                     <span style={{ background: "#e6f1fb", color: "#185fa5", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>รับ (ใบขาย)</span>
                   )}
@@ -5908,8 +5908,8 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
                 <td style={tdStyle}>{r.date}</td>
                 <td style={tdStyle}>{r.kind === "expense" ? r.vendorLabel : custName(r.customerId)}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(r.total)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", color: "#8B2020" }}>฿{fmt(r.paid)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: r.payStatus === "paid" ? "#8B2020" : r.kind === "sale" ? "#185fa5" : "#993c1d" }}>฿{fmt(r.payStatus === "paid" ? 0 : r.remaining)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B" }}>฿{fmt(r.paid)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: r.payStatus === "paid" ? "#1B3A6B" : r.kind === "sale" ? "#185fa5" : "#1E4D8C" }}>฿{fmt(r.payStatus === "paid" ? 0 : r.remaining)}</td>
 
                 {["unpaid-purchase","unpaid-sale","unpaid-expense"].includes(activeView) && (
                   <td style={{ ...tdStyle, textAlign: "center" }}>
@@ -5940,7 +5940,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
                           setFlag(r.id, "withdrawn", e.target.checked);
                         }
                       }}
-                      style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#8B2020" }} />
+                      style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#1B3A6B" }} />
                   </td>
                 )}
                 <td style={{ ...tdStyle, textAlign: "right" }}>
@@ -6001,7 +6001,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
             เลขที่: <strong>{transferDetailModal.row.id}</strong> — {custName(transferDetailModal.row.customerId) || transferDetailModal.row.vendorLabel}
           </div>
           <div style={{ marginBottom: 12, fontSize: 13 }}>
-            ยอดคงค้าง: <strong style={{ color: "#993c1d" }}>฿{fmt(transferDetailModal.row.remaining)}</strong>
+            ยอดคงค้าง: <strong style={{ color: "#1E4D8C" }}>฿{fmt(transferDetailModal.row.remaining)}</strong>
           </div>
           {transferEntries.map((entry, idx) => (
             <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "0 10px", alignItems: "end", marginBottom: 10 }}>
@@ -6119,7 +6119,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
                             <td style={tdStyle}>{r.kind === "expense" ? r.vendorLabel : custName(r.customerId)}</td>
                             {transferTab === "expense" && <td style={{ ...tdStyle, fontSize: 12, color: "#6b7280" }}>{expenseDetail || "-"}</td>}
                             <td style={{ ...tdStyle, fontSize: 12, color: "#185fa5" }}>{bankInfo}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: r.kind === "sale" ? "#185fa5" : "#993c1d" }}>฿{fmt(details[0]?.amount || r.remaining)}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: r.kind === "sale" ? "#185fa5" : "#1E4D8C" }}>฿{fmt(details[0]?.amount || r.remaining)}</td>
                           </tr>
                         )];
                       }
@@ -6204,7 +6204,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
             <Row label={payModal.kind === "expense" ? "รายการ" : "ลูกค้า"} value={payModal.kind === "expense" ? payModal.vendorLabel : custName(payModal.customerId)} />
             <Row label="ยอดรวมใบนี้" value={`฿${fmt(payModal.total)}`} />
             <Row label="ชำระแล้ว" value={`฿${fmt(payModal.paid)}`} />
-            <Row label="คงค้าง" value={`฿${fmt(payModal.remaining)}`} bold color={payModal.kind === "sale" ? "#185fa5" : "#993c1d"} />
+            <Row label="คงค้าง" value={`฿${fmt(payModal.remaining)}`} bold color={payModal.kind === "sale" ? "#185fa5" : "#1E4D8C"} />
           </div>
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
@@ -6269,7 +6269,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
               </div>
 
               {payModal.kind === "purchase" && p.fromStoreBankId === "DEPOSIT" && (
-                <p style={{ fontSize: 12, color: (Number(p.amount) || 0) > availableDeposit ? "#a32d2d" : "#6b9c8d", margin: "4px 0 0" }}>
+                <p style={{ fontSize: 12, color: (Number(p.amount) || 0) > availableDeposit ? "#2456A4" : "#6b9c8d", margin: "4px 0 0" }}>
                   ลูกค้ามีเงินมัดจำคงเหลือ ฿{fmt(availableDeposit)}
                   {(Number(p.amount) || 0) > availableDeposit && " — เกินยอดมัดจำคงเหลือ"}
                 </p>
@@ -6279,7 +6279,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
 
           <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 14px", marginTop: 4, fontSize: 14 }}>
             <Row label="รวมยอดที่จะบันทึกครั้งนี้" value={`฿${fmt(rowsTotal)}`} bold />
-            <Row label="คงค้างหลังบันทึก" value={`฿${fmt(payModal.remaining - rowsTotal)}`} color={(payModal.remaining - rowsTotal) > 0.01 ? "#993c1d" : "#8B2020"} />
+            <Row label="คงค้างหลังบันทึก" value={`฿${fmt(payModal.remaining - rowsTotal)}`} color={(payModal.remaining - rowsTotal) > 0.01 ? "#1E4D8C" : "#1B3A6B"} />
           </div>
 
           {Math.abs(payModal.remaining - rowsTotal) > 0.01 && (
@@ -6288,7 +6288,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
               <span>
                 <strong>ปัดเศษให้ครบ — ถือว่าใบนี้ "ชำระครบแล้ว"</strong>
                 <br />
-                <span style={{ color: "#854f0b" }}>ไม่นับยอดคงเหลือ ฿{fmt(payModal.remaining - rowsTotal)} เป็นยอดค้างอีกต่อไป (เหมาะกับเศษสตางค์เล็กน้อยจากการชั่งน้ำหนัก)</span>
+                <span style={{ color: "#1B3A6B" }}>ไม่นับยอดคงเหลือ ฿{fmt(payModal.remaining - rowsTotal)} เป็นยอดค้างอีกต่อไป (เหมาะกับเศษสตางค์เล็กน้อยจากการชั่งน้ำหนัก)</span>
               </span>
             </label>
           )}
@@ -6310,12 +6310,12 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
             <Row label={historyModal.kind === "expense" ? "รายการ" : "ลูกค้า"} value={historyModal.kind === "expense" ? historyModal.vendorLabel : custName(historyModal.customerId)} />
             <Row label="ยอดรวมใบนี้" value={`฿${fmt(historyTotals.total)}`} />
             <Row label="ชำระแล้ว" value={`฿${fmt(historyTotals.paid)}`} />
-            <Row label="คงค้าง" value={`฿${fmt(historyTotals.remaining)}`} bold color={historyTotals.remaining > 0.01 ? "#993c1d" : "#8B2020"} />
+            <Row label="คงค้าง" value={`฿${fmt(historyTotals.remaining)}`} bold color={historyTotals.remaining > 0.01 ? "#1E4D8C" : "#1B3A6B"} />
           </div>
 
           {historyModal.doc.writeOff && historyTotals.remaining > 0.01 && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 14, padding: "10px 14px", background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, fontSize: 13 }}>
-              <span style={{ color: "#854f0b" }}>
+              <span style={{ color: "#1B3A6B" }}>
                 <strong>ปัดเศษไว้แล้ว</strong> — ใบนี้ถือว่าชำระครบ ไม่นับยอด ฿{fmt(historyTotals.remaining)} เป็นยอดค้าง
               </span>
               <button style={btnSecondary} onClick={() => {
@@ -6465,7 +6465,7 @@ function InventoryTab({ products, inventory, storeBankAccounts }) {
       {(totalOpeningStockValue > 0 || totalOpeningBankBalance > 0) && (
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
           {totalOpeningStockValue > 0 && (
-            <div style={{ background: "#FDEAEA", border: "1px solid #a3d9c3", borderRadius: 8, padding: "7px 14px", fontSize: 13, color: "#6B1A1A", display: "flex", gap: 6, alignItems: "center" }}>
+            <div style={{ background: "#E8EEF8", border: "1px solid #a3d9c3", borderRadius: 8, padding: "7px 14px", fontSize: 13, color: "#0F2548", display: "flex", gap: 6, alignItems: "center" }}>
               <Boxes size={14} />
               <span>สต็อกยกมา <strong>{fmt(totalOpeningStockQty)} หน่วย</strong> มูลค่า <strong>฿{fmt(totalOpeningStockValue)}</strong> — รวมในสต็อกแล้ว</span>
             </div>
@@ -6553,21 +6553,21 @@ function InventoryTab({ products, inventory, storeBankAccounts }) {
                                 <td style={{ ...tdStyle, fontFamily: "'JetBrains Mono', monospace" }}>{ev.ref}</td>
                                 <td style={tdStyle}>
                                   {ev.type === "in" ? (
-                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#8B2020" }}><ArrowDownToLine size={14} /> รับเข้า</span>
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#1B3A6B" }}><ArrowDownToLine size={14} /> รับเข้า</span>
                                   ) : ev.type === "withdraw" ? (
                                     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#534ab7" }}><PackageMinus size={14} /> เบิกเพื่อขาย</span>
                                   ) : (
-                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#993c1d" }}><ArrowUpFromLine size={14} /> เบิกออก</span>
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#1E4D8C" }}><ArrowUpFromLine size={14} /> เบิกออก</span>
                                   )}
                                 </td>
-                                <td style={{ ...tdStyle, textAlign: "right", color: ev.type === "in" ? "#8B2020" : ev.type === "withdraw" ? "#534ab7" : "#993c1d" }}>
+                                <td style={{ ...tdStyle, textAlign: "right", color: ev.type === "in" ? "#1B3A6B" : ev.type === "withdraw" ? "#534ab7" : "#1E4D8C" }}>
                                   {ev.type === "in" ? "+" : "-"}{fmt(ev.qty)} {s.unit}
                                 </td>
                                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 500 }}>{fmt(ev.balance)} {s.unit}</td>
                                 <td style={{ ...tdStyle, textAlign: "right" }}>
                                   {ev.type === "in" ? fmt(ev.price) : fmt(ev.avgCostUsed)}
                                   {ev.type !== "in" && ev.shortfall > 0 && (
-                                    <span style={{ color: "#a32d2d", marginLeft: 6, fontSize: 11 }}>(ขาด {fmt(ev.shortfall)})</span>
+                                    <span style={{ color: "#2456A4", marginLeft: 6, fontSize: 11 }}>(ขาด {fmt(ev.shortfall)})</span>
                                   )}
                                 </td>
                               </tr>
@@ -6757,8 +6757,8 @@ function DepositsTab({ customers, setCustomers, deposits, setDeposits, purchases
                   </td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(b.newGiven)}</td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(b.totalGiven)}</td>
-                  <td style={{ ...tdStyle, textAlign: "right", color: "#854f0b" }}>฿{fmt(b.totalUsed)}</td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: b.remaining > 0 ? "#8B2020" : "#6b7280" }}>฿{fmt(b.remaining)}</td>
+                  <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B" }}>฿{fmt(b.totalUsed)}</td>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: b.remaining > 0 ? "#1B3A6B" : "#6b7280" }}>฿{fmt(b.remaining)}</td>
                 </tr>
               ))}
               {balances.every((b) => b.totalGiven === 0 && b.opening === 0) && (
@@ -6791,7 +6791,7 @@ function DepositsTab({ customers, setCustomers, deposits, setDeposits, purchases
               <tr key={d.id}>
                 <td style={tdStyle}>{d.date}</td>
                 <td style={tdStyle}>{custName(d.customerId)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#8B2020" }}>+฿{fmt(d.amount)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1B3A6B" }}>+฿{fmt(d.amount)}</td>
                 <td style={tdStyle}>{fromLabel(d.fromStoreBankId)}</td>
                 <td style={{ ...tdStyle, color: "#6b7280" }}>{d.note || "-"}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>
@@ -6808,7 +6808,7 @@ function DepositsTab({ customers, setCustomers, deposits, setDeposits, purchases
             <tfoot>
               <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                 <td style={{ ...tdStyle, fontWeight: 700 }} colSpan={2}>รวมทั้งหมด ({filtered.length} รายการ)</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>+฿{fmt(filtered.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>+฿{fmt(filtered.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</td>
                 <td colSpan={3} style={tdStyle}></td>
               </tr>
             </tfoot>
@@ -6836,7 +6836,7 @@ function DepositsTab({ customers, setCustomers, deposits, setDeposits, purchases
                     <td style={tdStyle}>{u.date}</td>
                     <td style={tdStyle}>{custName(u.customerId)}</td>
                     <td style={{ ...tdStyle, fontFamily: "'JetBrains Mono', monospace" }}>{u.poId}</td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#993c1d" }}>-฿{fmt(u.amount)}</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1E4D8C" }}>-฿{fmt(u.amount)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -7004,10 +7004,10 @@ function LoansTab({ loans, setLoans, expenses, customers }) {
                     {l.interestMode === "amount" ? `฿${fmt(l.totalInterestAmount)} (รวม)` : `${fmt(l.annualInterestRate)}% /ปี`}
                   </td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{l.totalInstallments} งวด</td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: paidCount >= l.totalInstallments ? "#8B2020" : "#854f0b" }}>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: paidCount >= l.totalInstallments ? "#1B3A6B" : "#1B3A6B" }}>
                     {paidCount} / {l.totalInstallments}
                   </td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: remainingCount > 0 ? "#993c1d" : "#8B2020" }}>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: remainingCount > 0 ? "#1E4D8C" : "#1B3A6B" }}>
                     {remainingCount} งวด
                   </td>
                   <td style={tdStyle}>
@@ -7118,7 +7118,7 @@ function LoansTab({ loans, setLoans, expenses, customers }) {
                         <td style={tdStyle}>{p.no}</td>
                         <td style={tdStyle}>{p.dueDate}</td>
                         <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(p.payment)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#854f0b" }}>฿{fmt(p.interest)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B" }}>฿{fmt(p.interest)}</td>
                         <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(p.principalPortion)}</td>
                         <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(p.remainingBalance)}</td>
                       </tr>
@@ -7174,16 +7174,16 @@ function LoanScheduleModal({ loan, expenses, onClose }) {
             {schedule.map((s) => {
               const paid = paidMap[s.no];
               return (
-                <tr key={s.no} style={paid ? { background: "#FDEAEA" } : undefined}>
+                <tr key={s.no} style={paid ? { background: "#E8EEF8" } : undefined}>
                   <td style={tdStyle}>{s.no}</td>
                   <td style={tdStyle}>{s.dueDate}</td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(s.payment)}</td>
-                  <td style={{ ...tdStyle, textAlign: "right", color: "#854f0b" }}>฿{fmt(s.interest)}</td>
+                  <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B" }}>฿{fmt(s.interest)}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(s.principalPortion)}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(s.remainingBalance)}</td>
                   <td style={tdStyle}>
                     {paid ? (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#8B2020", fontWeight: 600 }}><CheckCircle2 size={14} /> จ่ายแล้ว ({paid.paidDate})</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#1B3A6B", fontWeight: 600 }}><CheckCircle2 size={14} /> จ่ายแล้ว ({paid.paidDate})</span>
                     ) : (
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#9ca3af" }}><Clock size={14} /> ยังไม่จ่าย</span>
                     )}
@@ -7270,7 +7270,7 @@ function PrepaymentsTab({ customers, setCustomers, prepayments, setPrepayments, 
               <th style={{ ...thStyle, textAlign: "right" }}>รับเพิ่ม</th>
               <th style={{ ...thStyle, textAlign: "right" }}>รับรวม</th>
               <th style={{ ...thStyle, textAlign: "right" }}>หักไปแล้ว (ในใบขาย)</th>
-              <th style={{ ...thStyle, textAlign: "right", color: "#8B2020" }}>คงเหลือ</th>
+              <th style={{ ...thStyle, textAlign: "right", color: "#1B3A6B" }}>คงเหลือ</th>
             </tr>
           </thead>
           <tbody>
@@ -7285,8 +7285,8 @@ function PrepaymentsTab({ customers, setCustomers, prepayments, setPrepayments, 
                 <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>฿{fmt(b.opening)}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>+฿{fmt(b.newReceived)}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(b.totalReceived)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", color: "#993c1d" }}>-฿{fmt(b.totalUsed)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: b.remaining > 0 ? "#8B2020" : "#991b1b" }}>฿{fmt(b.remaining)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C" }}>-฿{fmt(b.totalUsed)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: b.remaining > 0 ? "#1B3A6B" : "#991b1b" }}>฿{fmt(b.remaining)}</td>
               </tr>
             ))}
             {balances.filter((b) => b.totalReceived > 0 || b.opening > 0).length === 0 && (
@@ -7295,13 +7295,13 @@ function PrepaymentsTab({ customers, setCustomers, prepayments, setPrepayments, 
           </tbody>
           {balances.some((b) => b.totalReceived > 0 || b.opening > 0) && (
             <tfoot>
-              <tr style={{ background: "#f0fdf4", borderTop: "2px solid #8B2020" }}>
+              <tr style={{ background: "#f0fdf4", borderTop: "2px solid #1B3A6B" }}>
                 <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(balances.reduce((s, b) => s + b.opening, 0))}</td>
                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>+฿{fmt(balances.reduce((s, b) => s + b.newReceived, 0))}</td>
                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(balances.reduce((s, b) => s + b.totalReceived, 0))}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>-฿{fmt(balances.reduce((s, b) => s + b.totalUsed, 0))}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>฿{fmt(balances.reduce((s, b) => s + b.remaining, 0))}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>-฿{fmt(balances.reduce((s, b) => s + b.totalUsed, 0))}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(balances.reduce((s, b) => s + b.remaining, 0))}</td>
               </tr>
             </tfoot>
           )}
@@ -7328,7 +7328,7 @@ function PrepaymentsTab({ customers, setCustomers, prepayments, setPrepayments, 
                 <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 12 }}>{d.id}</td>
                 <td style={tdStyle}>{d.date}</td>
                 <td style={{ ...tdStyle, fontWeight: 500 }}>{custName(d.customerId)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#8B2020" }}>+฿{fmt(d.amount)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1B3A6B" }}>+฿{fmt(d.amount)}</td>
                 <td style={tdStyle}>{bankName(d.toStoreBankId)}</td>
                 <td style={tdStyle}>{d.note || "-"}</td>
                 <td style={tdStyle}>
@@ -7343,7 +7343,7 @@ function PrepaymentsTab({ customers, setCustomers, prepayments, setPrepayments, 
             {filtered.length > 0 && (
               <tr style={{ background: "#f9fafb", borderTop: "2px solid #e5e7eb" }}>
                 <td colSpan={3} style={{ ...tdStyle, fontWeight: 700 }}>รวม ({filtered.length} รายการ)</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>+฿{fmt(filtered.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>+฿{fmt(filtered.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</td>
                 <td colSpan={3} style={tdStyle}></td>
               </tr>
             )}
@@ -7694,9 +7694,9 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
       {/* การ์ดสรุป */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12, marginBottom: 20 }}>
         {/* การ์ดเดือนนี้ */}
-        <div style={{ background: "#faece7", borderRadius: 12, border: "1px solid #f0c0a0", padding: "14px 16px" }}>
-          <div style={{ fontSize: 11, color: "#993c1d", marginBottom: 4, fontWeight: 600 }}>เดือนนี้ (สุทธิ)</div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: "#993c1d" }}>฿{fmt(totalThisMonth)}</div>
+        <div style={{ background: "#E8EEF8", borderRadius: 12, border: "1px solid #f0c0a0", padding: "14px 16px" }}>
+          <div style={{ fontSize: 11, color: "#1E4D8C", marginBottom: 4, fontWeight: 600 }}>เดือนนี้ (สุทธิ)</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(totalThisMonth)}</div>
         </div>
         {/* การ์ดรวมทั้งหมด */}
         <div style={{ background: "#f1efe8", borderRadius: 12, border: "1px solid #d4d0c0", padding: "14px 16px" }}>
@@ -7752,7 +7752,7 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
                         <td style={{ ...tdStyle, fontFamily: "'JetBrains Mono', monospace" }}>{e.taxInvoiceNo || "-"}</td>
                         <td style={{ ...tdStyle, fontWeight: 600, color: "#374151" }}>{e.vendorName || "-"}</td>
                         <td style={tdStyle}></td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#993c1d" }}>-฿{fmt(t.net)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1E4D8C" }}>-฿{fmt(t.net)}</td>
                         <td style={{ ...tdStyle, textAlign: "right" }} onClick={(e2) => e2.stopPropagation()}>
                           <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                             <button style={iconBtn} onClick={() => openView(e)}><Printer size={14} /> ใบสำคัญจ่าย</button>
@@ -7774,7 +7774,7 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
                             </div>
                             {it.description && <div style={{ fontSize: 13, paddingLeft: 2 }}>{it.description}</div>}
                           </td>
-                          <td style={{ ...tdStyle, textAlign: "right", color: "#993c1d" }}>-฿{fmt(it.amount)}</td>
+                          <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C" }}>-฿{fmt(it.amount)}</td>
                           <td style={tdStyle}></td>
                         </tr>
                       ))}
@@ -7938,12 +7938,12 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
                       <input type="number" style={{ ...inputStyle, textAlign: "right" }} value={it.whtRate} onChange={(e) => updateItem(idx, "whtRate", e.target.value)} placeholder="0" />
                     </Field>
                     <Field label="จำนวนหัก ณ ที่จ่าย">
-                      <div style={{ ...inputStyle, background: "#f3f4f6", textAlign: "right", color: whtAmt > 0 ? "#993c1d" : "#9ca3af" }}>
+                      <div style={{ ...inputStyle, background: "#f3f4f6", textAlign: "right", color: whtAmt > 0 ? "#1E4D8C" : "#9ca3af" }}>
                         {whtAmt > 0 ? `-${fmt(whtAmt)}` : "0.00"}
                       </div>
                     </Field>
                     <Field label="จำนวนเงินสุทธิ">
-                      <div style={{ ...inputStyle, background: "#FDEAEA", textAlign: "right", fontWeight: 700, color: "#8B2020" }}>
+                      <div style={{ ...inputStyle, background: "#E8EEF8", textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>
                         {fmt(net)}
                       </div>
                     </Field>
@@ -7968,14 +7968,14 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
             <div style={{ fontWeight: 600, fontSize: 14 }}>การชำระเงิน</div>
           </div>
 
-          <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "12px 16px", fontSize: 13, color: "#854f0b" }}>
+          <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "12px 16px", fontSize: 13, color: "#1B3A6B" }}>
             บันทึกการจ่ายเงินสำหรับบิลนี้ได้ที่หน้า <strong>"รับชำระ / จ่ายชำระ"</strong> แทน — กดปุ่ม "ค้างจ่าย (ค่าใช้จ่าย)" เพื่อหารายการนี้และบันทึกจ่ายได้ที่นั่น
           </div>
 
           <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 16px", marginTop: 12, fontSize: 13 }}>
             <Row label="ยอดที่ต้องชำระ" value={`฿${fmt(formNet)}`} />
             <Row label="ชำระแล้ว" value={`฿${fmt(formPaid)}`} />
-            <Row label="คงค้าง" value={`฿${fmt(formRemaining)}`} bold color={formRemaining > 0 ? "#a32d2d" : "#27500a"} />
+            <Row label="คงค้าง" value={`฿${fmt(formRemaining)}`} bold color={formRemaining > 0 ? "#2456A4" : "#27500a"} />
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
@@ -8055,7 +8055,7 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
                         <td style={tdStyle}>{installment.no} / {loan.totalInstallments}</td>
                         <td style={tdStyle}>{installment.dueDate}</td>
                         <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(installment.payment)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#854f0b" }}>฿{fmt(installment.interest)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B" }}>฿{fmt(installment.interest)}</td>
                         <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(installment.principalPortion)}</td>
                         <td style={tdStyle}>
                           <button style={btnPrimary} onClick={() => applyInstallment(loan, installment)}>เลือก</button>
@@ -8101,13 +8101,13 @@ function ExpenseVoucherModal({ expense, storeBankAccounts, companySettings, onCl
   return (
     <Modal title={`ใบสำคัญจ่าย · ${expense.refNo || expense.id}`} onClose={onClose} wide>
       <div id="expense-voucher-pdf-content" style={{ background: "#fff", padding: "24px", border: "1px solid #e5e7eb", borderRadius: 8 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: `2px solid ${cs.accentColor || "#993c1d"}`, paddingBottom: 12, marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: `2px solid ${cs.accentColor || "#1E4D8C"}`, paddingBottom: 12, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             {cs.logo && (
               <img src={cs.logo} alt="logo" style={{ height: 50, maxWidth: 100, objectFit: "contain" }} />
             )}
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: cs.accentColor || "#993c1d" }}>{cs.name || "Ttm@นครสวรรค์"}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: cs.accentColor || "#1E4D8C" }}>{cs.name || "Ttm@นครสวรรค์"}</div>
               {cs.taxId && <div style={{ fontSize: 12, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
               {cs.address && <div style={{ fontSize: 12, color: "#6b7280" }}>{cs.address}</div>}
               {cs.phone && <div style={{ fontSize: 12, color: "#6b7280" }}>โทร: {cs.phone}</div>}
@@ -8156,7 +8156,7 @@ function ExpenseVoucherModal({ expense, storeBankAccounts, companySettings, onCl
             <Row label="จำนวนเงิน" value={`฿${fmt(amount)}`} />
             <Row label="ภาษีมูลค่าเพิ่มรวม" value={`+฿${fmt(vat)}`} />
             <Row label="หัก ณ ที่จ่ายรวม" value={`-฿${fmt(wht)}`} />
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: "2px solid #993c1d", fontWeight: 700, fontSize: 15 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: "2px solid #1E4D8C", fontWeight: 700, fontSize: 15 }}>
               <span>จำนวนเงินสุทธิ</span>
               <span>฿{fmt(net)}</span>
             </div>
@@ -8349,7 +8349,7 @@ function ExpenseCategoriesTab({ expenseCategories, setExpenseCategories, expense
                     <td style={{ ...tdStyle, color: "#9ca3af", fontSize: 12 }}>{countSub(main, sub.name)} รายการ</td>
                     <td style={{ ...tdStyle, fontSize: 12 }}>
                       {Number(sub.openingBalance) > 0 ? (
-                        <span style={{ background: "#faeeda", color: "#854f0b", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>
+                        <span style={{ background: "#E8EEF8", color: "#1B3A6B", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>
                           ยอดยกมา ฿{fmt(sub.openingBalance)} ({monthLabelOf(sub.openingMonth)})
                         </span>
                       ) : (
@@ -8402,14 +8402,14 @@ function ExpenseCategoriesTab({ expenseCategories, setExpenseCategories, expense
               * ถ้าเปลี่ยนชื่อ ค่าใช้จ่ายทุกรายการที่ใช้หมวดหมู่ย่อยนี้จะถูกเปลี่ยนชื่อตามไปด้วยอัตโนมัติ
             </p>
           )}
-          <div style={{ background: "#faeeda", borderRadius: 8, padding: "12px 16px", marginTop: 8 }}>
+          <div style={{ background: "#E8EEF8", borderRadius: 8, padding: "12px 16px", marginTop: 8 }}>
             <Field label="ยอดยกมา (บาท)">
               <input type="number" min={0} style={inputStyle} value={subForm.openingBalance} onChange={(e) => setSubForm({ ...subForm, openingBalance: e.target.value })} placeholder="0" />
             </Field>
             <Field label="ของเดือน">
               <input type="month" style={inputStyle} value={subForm.openingMonth} onChange={(e) => setSubForm({ ...subForm, openingMonth: e.target.value })} />
             </Field>
-            <p style={{ fontSize: 11, color: "#854f0b", margin: 0 }}>
+            <p style={{ fontSize: 11, color: "#1B3A6B", margin: 0 }}>
               * ยอดสะสมก่อนเริ่มใช้ระบบ กรอกครั้งเดียว — จะรวมเข้าไปเฉพาะตอนดูแดชบอร์ด/รายงานของเดือนที่ระบุไว้เท่านั้น
             </p>
           </div>
@@ -8540,8 +8540,8 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
           <div key={a.id} style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "16px 18px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: a.accountType === "เงินสด" ? "#FDEAEA" : "#e6f1fb", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {a.accountType === "เงินสด" ? <Wallet size={18} color="#8B2020" /> : <Landmark size={18} color="#185fa5" />}
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: a.accountType === "เงินสด" ? "#E8EEF8" : "#e6f1fb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {a.accountType === "เงินสด" ? <Wallet size={18} color="#1B3A6B" /> : <Landmark size={18} color="#185fa5" />}
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -8549,11 +8549,11 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                     {a.accountType ? (
                       <span style={{
                         fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 5,
-                        background: a.accountType === "เงินสด" ? "#FDEAEA" : "#e6f1fb",
-                        color: a.accountType === "เงินสด" ? "#8B2020" : "#185fa5",
+                        background: a.accountType === "เงินสด" ? "#E8EEF8" : "#e6f1fb",
+                        color: a.accountType === "เงินสด" ? "#1B3A6B" : "#185fa5",
                       }}>{a.accountType}</span>
                     ) : (
-                      <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 5, background: "#faeeda", color: "#854f0b" }}>ยังไม่ระบุประเภท</span>
+                      <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 5, background: "#E8EEF8", color: "#1B3A6B" }}>ยังไม่ระบุประเภท</span>
                     )}
                   </div>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "#6b7280" }}>{a.accountNo}</div>
@@ -8597,7 +8597,7 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                 {[{key:"month",label:"รายเดือน"},{key:"range",label:"เลือกช่วงวันที่"}].map((opt) => (
                   <button key={opt.key} onClick={() => setStmtMode(opt.key)}
                     style={{ padding:"7px 14px", border:"none", cursor:"pointer", fontSize:13, fontWeight:600,
-                      background: stmtMode===opt.key ? "#6B1A1A" : "#fff",
+                      background: stmtMode===opt.key ? "#0F2548" : "#fff",
                       color: stmtMode===opt.key ? "#fff" : "#6b7280" }}>
                     {opt.label}
                   </button>
@@ -8640,13 +8640,13 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                   <div style={{ color: "#6b7280", marginBottom: 2 }}>ยอดยกมา</div>
                   <div style={{ fontWeight: 700, color: "#185fa5" }}>฿{fmt(stmt.startBalance)}</div>
                 </div>
-                <div style={{ background: "#FDEAEA", borderRadius: 8, padding: "10px 14px", fontSize: 13 }}>
+                <div style={{ background: "#E8EEF8", borderRadius: 8, padding: "10px 14px", fontSize: 13 }}>
                   <div style={{ color: "#6b7280", marginBottom: 2 }}>รับเข้ารวม</div>
-                  <div style={{ fontWeight: 700, color: "#8B2020" }}>฿{fmt(totalCredit)}</div>
+                  <div style={{ fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(totalCredit)}</div>
                 </div>
-                <div style={{ background: "#faece7", borderRadius: 8, padding: "10px 14px", fontSize: 13 }}>
+                <div style={{ background: "#E8EEF8", borderRadius: 8, padding: "10px 14px", fontSize: 13 }}>
                   <div style={{ color: "#6b7280", marginBottom: 2 }}>จ่ายออกรวม</div>
-                  <div style={{ fontWeight: 700, color: "#993c1d" }}>฿{fmt(totalDebit)}</div>
+                  <div style={{ fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(totalDebit)}</div>
                 </div>
               </div>
 
@@ -8657,8 +8657,8 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                     <th style={thStyle}>ประเภท</th>
                     <th style={thStyle}>เลขอ้างอิง</th>
                     <th style={thStyle}>รายการ</th>
-                    <th style={{ ...thStyle, textAlign: "right", color: "#8B2020" }}>ฝาก (เข้า)</th>
-                    <th style={{ ...thStyle, textAlign: "right", color: "#993c1d" }}>ถอน (ออก)</th>
+                    <th style={{ ...thStyle, textAlign: "right", color: "#1B3A6B" }}>ฝาก (เข้า)</th>
+                    <th style={{ ...thStyle, textAlign: "right", color: "#1E4D8C" }}>ถอน (ออก)</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>คงเหลือ</th>
                   </tr>
                 </thead>
@@ -8670,12 +8670,12 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                   {stmt.rows.map((r, i) => (
                     <tr key={i}>
                       <td style={tdStyle}>{r.date}</td>
-                      <td style={tdStyle}><span style={{ background: r.credit > 0 ? "#FDEAEA" : "#faece7", color: r.credit > 0 ? "#8B2020" : "#993c1d", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 500 }}>{r.type}</span></td>
+                      <td style={tdStyle}><span style={{ background: r.credit > 0 ? "#E8EEF8" : "#E8EEF8", color: r.credit > 0 ? "#1B3A6B" : "#1E4D8C", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 500 }}>{r.type}</span></td>
                       <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 11 }}>{r.ref}</td>
                       <td style={tdStyle}>{r.description}</td>
-                      <td style={{ ...tdStyle, textAlign: "right", color: "#8B2020", fontWeight: r.credit > 0 ? 600 : 400 }}>{r.credit > 0 ? `฿${fmt(r.credit)}` : "-"}</td>
-                      <td style={{ ...tdStyle, textAlign: "right", color: "#993c1d", fontWeight: r.debit > 0 ? 600 : 400 }}>{r.debit > 0 ? `฿${fmt(r.debit)}` : "-"}</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: r.balance >= 0 ? "#1f2937" : "#a32d2d" }}>฿{fmt(r.balance)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: r.credit > 0 ? 600 : 400 }}>{r.credit > 0 ? `฿${fmt(r.credit)}` : "-"}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: r.debit > 0 ? 600 : 400 }}>{r.debit > 0 ? `฿${fmt(r.debit)}` : "-"}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: r.balance >= 0 ? "#1f2937" : "#2456A4" }}>฿{fmt(r.balance)}</td>
                     </tr>
                   ))}
                   {stmt.rows.length === 0 && (
@@ -8685,9 +8685,9 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                 <tfoot>
                   <tr style={{ background: "#f3f4f6" }}>
                     <td colSpan={4} style={{ ...tdStyle, fontWeight: 700 }}>รวม / ยอดคงเหลือสิ้นเดือน</td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>฿{fmt(totalCredit)}</td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>฿{fmt(totalDebit)}</td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 15, color: stmt.endBalance >= 0 ? "#185fa5" : "#a32d2d" }}>฿{fmt(stmt.endBalance)}</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(totalCredit)}</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(totalDebit)}</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 15, color: stmt.endBalance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(stmt.endBalance)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -8704,7 +8704,7 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                 const totalRemaining = depositRows.reduce((s, r) => s + r.remaining, 0);
                 return (
                   <div style={{ marginTop: 20 }}>
-                    <div style={{ background: "#854f0b", color: "#fff", padding: "10px 16px", fontWeight: 700, fontSize: 14, borderRadius: "8px 8px 0 0" }}>
+                    <div style={{ background: "#1B3A6B", color: "#fff", padding: "10px 16px", fontWeight: 700, fontSize: 14, borderRadius: "8px 8px 0 0" }}>
                       สรุปเงินมัดจำคงเหลือต่อลูกค้า
                     </div>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -8712,8 +8712,8 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                         <tr>
                           <th style={thStyle}>ลูกค้า</th>
                           <th style={{ ...thStyle, textAlign: "right" }}>ยอดยกมา</th>
-                          <th style={{ ...thStyle, textAlign: "right", color: "#8B2020" }}>จ่ายมัดจำเพิ่ม</th>
-                          <th style={{ ...thStyle, textAlign: "right", color: "#993c1d" }}>หักไปแล้ว</th>
+                          <th style={{ ...thStyle, textAlign: "right", color: "#1B3A6B" }}>จ่ายมัดจำเพิ่ม</th>
+                          <th style={{ ...thStyle, textAlign: "right", color: "#1E4D8C" }}>หักไปแล้ว</th>
                           <th style={{ ...thStyle, textAlign: "right" }}>คงเหลือ</th>
                         </tr>
                       </thead>
@@ -8722,16 +8722,16 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                           <tr key={i}>
                             <td style={tdStyle}>{r.name}</td>
                             <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>฿{fmt(r.opening)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", color: "#8B2020" }}>+฿{fmt(r.given)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", color: "#993c1d" }}>-฿{fmt(r.used)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: r.remaining > 0 ? "#854f0b" : "#6b7280" }}>฿{fmt(r.remaining)}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B" }}>+฿{fmt(r.given)}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C" }}>-฿{fmt(r.used)}</td>
+                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: r.remaining > 0 ? "#1B3A6B" : "#6b7280" }}>฿{fmt(r.remaining)}</td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot>
-                        <tr style={{ background: "#faeeda" }}>
-                          <td colSpan={4} style={{ ...tdStyle, fontWeight: 700, color: "#854f0b" }}>รวมเงินมัดจำคงเหลือทั้งหมด</td>
-                          <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#854f0b" }}>฿{fmt(totalRemaining)}</td>
+                        <tr style={{ background: "#E8EEF8" }}>
+                          <td colSpan={4} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B" }}>รวมเงินมัดจำคงเหลือทั้งหมด</td>
+                          <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#1B3A6B" }}>฿{fmt(totalRemaining)}</td>
                         </tr>
                       </tfoot>
                     </table>
@@ -8755,9 +8755,9 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                   style={{
                     flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                     padding: "9px 14px", borderRadius: 8, fontSize: 14, cursor: "pointer",
-                    border: form.accountType === t ? "1.5px solid #A52828" : "1px solid #d1d5db",
-                    background: form.accountType === t ? "#FDEAEA" : "#fff",
-                    color: form.accountType === t ? "#6B1A1A" : "#6b7280",
+                    border: form.accountType === t ? "1.5px solid #2855A0" : "1px solid #d1d5db",
+                    background: form.accountType === t ? "#E8EEF8" : "#fff",
+                    color: form.accountType === t ? "#0F2548" : "#6b7280",
                     fontWeight: form.accountType === t ? 600 : 400,
                   }}
                 >
@@ -8765,7 +8765,7 @@ function StoreBankAccountsTab({ accounts, setAccounts, purchases, sales, expense
                 </button>
               ))}
             </div>
-            {!form.accountType && <p style={{ fontSize: 11, color: "#854f0b", marginTop: 4, marginBottom: 0 }}>* กรุณาเลือกประเภทบัญชี เพื่อให้แสดงผลถูกกลุ่มในแดชบอร์ด</p>}
+            {!form.accountType && <p style={{ fontSize: 11, color: "#1B3A6B", marginTop: 4, marginBottom: 0 }}>* กรุณาเลือกประเภทบัญชี เพื่อให้แสดงผลถูกกลุ่มในแดชบอร์ด</p>}
           </Field>
           <Field label="ธนาคาร">
   <input style={inputStyle} list="bank-name-options" value={form.bankName} onChange={(e) => setForm({ ...form, bankName: e.target.value })} placeholder="เลือกหรือพิมพ์ชื่อธนาคาร" />
@@ -8834,7 +8834,7 @@ function BankTransferTab({ storeBankAccounts, bankTransfers, setBankTransfers })
       </Header>
 
       {storeBankAccounts.length < 2 && (
-        <div style={{ background: "#faeeda", border: "1px solid #f0c070", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#854f0b" }}>
+        <div style={{ background: "#E8EEF8", border: "1px solid #f0c070", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#1B3A6B" }}>
           ⚠️ ต้องมีบัญชีธนาคารร้านอย่างน้อย 2 บัญชีเพื่อโยกเงิน — ไปที่ "บัญชีธนาคารร้าน" เพื่อเพิ่ม
         </div>
       )}
@@ -8845,8 +8845,8 @@ function BankTransferTab({ storeBankAccounts, bankTransfers, setBankTransfers })
           {storeBankAccounts.map((b) => (
             <div key={b.id} style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e7eb", padding: "14px 16px" }}>
               <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>{b.bankName} {b.accountNo}</div>
-              <div style={{ fontSize: 12, color: "#8B2020" }}>รับโอนเข้า: ฿{fmt(totalIn(b.id))}</div>
-              <div style={{ fontSize: 12, color: "#993c1d" }}>โอนออก: ฿{fmt(totalOut(b.id))}</div>
+              <div style={{ fontSize: 12, color: "#1B3A6B" }}>รับโอนเข้า: ฿{fmt(totalIn(b.id))}</div>
+              <div style={{ fontSize: 12, color: "#1E4D8C" }}>โอนออก: ฿{fmt(totalOut(b.id))}</div>
             </div>
           ))}
         </div>
@@ -8862,9 +8862,9 @@ function BankTransferTab({ storeBankAccounts, bankTransfers, setBankTransfers })
                 <span style={{ fontSize: 13, color: "#6b7280" }}>{t.date}</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
-                <span style={{ fontWeight: 600, color: "#993c1d" }}>{bankName(t.fromBankId)}</span>
+                <span style={{ fontWeight: 600, color: "#1E4D8C" }}>{bankName(t.fromBankId)}</span>
                 <ArrowRight size={14} color="#9ca3af" />
-                <span style={{ fontWeight: 600, color: "#8B2020" }}>{bankName(t.toBankId)}</span>
+                <span style={{ fontWeight: 600, color: "#1B3A6B" }}>{bankName(t.toBankId)}</span>
               </div>
               {t.note && <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>{t.note}</div>}
             </div>
@@ -8959,8 +8959,8 @@ function AssetsTab({ assets, setAssets }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
         {[
           { label: "ราคาทุนรวมทั้งหมด", value: fmt(totalCost), color: "#185fa5", bg: "#e6f1fb" },
-          { label: "ค่าเสื่อมราคาสะสม", value: fmt(totalAccDep), color: "#854f0b", bg: "#faeeda" },
-          { label: "มูลค่าตามบัญชีรวม", value: fmt(totalBookValue), color: "#8B2020", bg: "#FDEAEA" },
+          { label: "ค่าเสื่อมราคาสะสม", value: fmt(totalAccDep), color: "#1B3A6B", bg: "#E8EEF8" },
+          { label: "มูลค่าตามบัญชีรวม", value: fmt(totalBookValue), color: "#1B3A6B", bg: "#E8EEF8" },
         ].map((c) => (
           <div key={c.label} style={{ background: c.bg, borderRadius: 12, padding: "14px 18px" }}>
             <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>{c.label}</div>
@@ -8997,8 +8997,8 @@ function AssetsTab({ assets, setAssets }) {
                 <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(a.cost)}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>{a.lifeYears}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(annualDepreciation(a))}</td>
-                <td style={{ ...tdStyle, textAlign: "right", color: "#854f0b" }}>{fmt(accumulatedDepreciation(a))}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#8B2020" }}>{fmt(bookValue(a))}</td>
+                <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B" }}>{fmt(accumulatedDepreciation(a))}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1B3A6B" }}>{fmt(bookValue(a))}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>
                   <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                     <button style={iconBtn} onClick={() => { setForm({ ...a }); setModal({ mode: "edit", item: a }); }}><Edit2 size={14} /></button>
@@ -9016,8 +9016,8 @@ function AssetsTab({ assets, setAssets }) {
                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(totalCost)}</td>
                 <td style={tdStyle}></td>
                 <td style={tdStyle}></td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#854f0b" }}>{fmt(totalAccDep)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>{fmt(totalBookValue)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>{fmt(totalAccDep)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>{fmt(totalBookValue)}</td>
                 <td style={tdStyle}></td>
               </tr>
             </tfoot>
@@ -9107,29 +9107,29 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
       </Header>
 
       {/* ===== ส่วนที่ 1: โปรไฟล์ Sidebar ===== */}
-      <div style={{ ...sCard, border: "2px solid #A52828" }}>
+      <div style={{ ...sCard, border: "2px solid #2855A0" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 6, background: "#6B1A1A", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Boxes size={14} color="#F5C6C6" />
+          <div style={{ width: 28, height: 28, borderRadius: 6, background: "#0F2548", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Boxes size={14} color="#C5D5F0" />
           </div>
-          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#6B1A1A" }}>โปรไฟล์แอป (แสดงในแถบเมนูซ้าย)</h3>
+          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#0F2548" }}>โปรไฟล์แอป (แสดงในแถบเมนูซ้าย)</h3>
           <span style={{ fontSize: 11, color: "#9ca3af", marginLeft: 4 }}>แยกอิสระจากข้อมูลบิล</span>
         </div>
 
         <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
           {/* sidebar logo preview */}
           <div style={{ flexShrink: 0 }}>
-            <div style={{ background: "#6B1A1A", borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, width: 200 }}>
+            <div style={{ background: "#0F2548", borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, width: 200 }}>
               {sp.logo ? (
                 <img src={sp.logo} alt="logo" style={{ width: 38, height: 38, borderRadius: 8, objectFit: "contain", background: "#fff", padding: 3 }} />
               ) : (
-                <div style={{ width: 38, height: 38, borderRadius: 8, background: "#A52828", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: 38, height: 38, borderRadius: 8, background: "#2855A0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Boxes size={18} color="#4A0E0E" />
                 </div>
               )}
               <div>
-                <div style={{ fontWeight: 700, fontSize: 13, color: "#FDEAEA", lineHeight: 1.2 }}>{sp.name || "ชื่อร้าน"}</div>
-                <div style={{ fontSize: 10, color: "#F5C6C6" }}>{sp.nameEn || "คำบรรยาย"}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: "#E8EEF8", lineHeight: 1.2 }}>{sp.name || "ชื่อร้าน"}</div>
+                <div style={{ fontSize: 10, color: "#C5D5F0" }}>{sp.nameEn || "คำบรรยาย"}</div>
               </div>
             </div>
             <div style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", marginTop: 6 }}>ตัวอย่าง sidebar</div>
@@ -9234,8 +9234,8 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
           <div></div>
           <Field label="สีหลักเอกสาร">
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input type="color" value={cs.primaryColor || "#8B2020"} onChange={(e) => set("primaryColor", e.target.value)} style={{ width: 40, height: 36, border: "1px solid #e5e7eb", borderRadius: 6, cursor: "pointer" }} />
-              <input style={{ ...inputStyle, flex: 1 }} value={cs.primaryColor || "#8B2020"} onChange={(e) => set("primaryColor", e.target.value)} />
+              <input type="color" value={cs.primaryColor || "#1B3A6B"} onChange={(e) => set("primaryColor", e.target.value)} style={{ width: 40, height: 36, border: "1px solid #e5e7eb", borderRadius: 6, cursor: "pointer" }} />
+              <input style={{ ...inputStyle, flex: 1 }} value={cs.primaryColor || "#1B3A6B"} onChange={(e) => set("primaryColor", e.target.value)} />
             </div>
           </Field>
           <Field label="สีรองเอกสาร">
@@ -9257,7 +9257,7 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
       <div style={{ ...sCard, background: "#f9fafb" }}>
         <h3 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700 }}>👁 ตัวอย่างหัวบิล</h3>
         <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: 18 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: `2px solid ${cs.primaryColor || "#8B2020"}`, paddingBottom: 10, marginBottom: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: `2px solid ${cs.primaryColor || "#1B3A6B"}`, paddingBottom: 10, marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {cs.logo ? (
                 <img src={cs.logo} alt="logo" style={{ height: 48, maxWidth: 90, objectFit: "contain" }} />
@@ -9267,13 +9267,13 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
                 </div>
               )}
               <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: cs.primaryColor || "#8B2020" }}>{cs.name || "ชื่อร้านบนบิล"}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: cs.primaryColor || "#1B3A6B" }}>{cs.name || "ชื่อร้านบนบิล"}</div>
                 {cs.taxId && <div style={{ fontSize: 11, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
                 {cs.phone && <div style={{ fontSize: 11, color: "#6b7280" }}>โทร: {cs.phone}</div>}
               </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: cs.primaryColor || "#8B2020" }}>{cs.purchaseTitle || "ใบรับสินค้า"}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: cs.primaryColor || "#1B3A6B" }}>{cs.purchaseTitle || "ใบรับสินค้า"}</div>
               <div style={{ fontSize: 11, color: "#6b7280" }}>เลขที่: PO260617001</div>
             </div>
           </div>
@@ -9384,7 +9384,7 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
           {[{key:"month",label:"รายเดือน"},{key:"range",label:"เลือกช่วง"}].map((opt) => (
             <button key={opt.key} onClick={() => setMode(opt.key)}
               style={{ padding:"7px 14px", border:"none", cursor:"pointer", fontSize:13, fontWeight:600,
-                background: mode===opt.key ? "#6B1A1A" : "#fff", color: mode===opt.key ? "#fff" : "#6b7280" }}>
+                background: mode===opt.key ? "#0F2548" : "#fff", color: mode===opt.key ? "#fff" : "#6b7280" }}>
               {opt.label}
             </button>
           ))}
@@ -9410,21 +9410,21 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
 
       {/* Summary Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
-        <div style={{ background: "#faece7", borderRadius: 12, padding: "14px 18px" }}>
-          <div style={{ fontSize: 12, color: "#993c1d", marginBottom: 4 }}>ภาษีซื้อ (Input VAT)</div>
-          <div style={{ fontWeight: 700, fontSize: 20, color: "#993c1d" }}>฿{fmt(totalInputVat)}</div>
+        <div style={{ background: "#E8EEF8", borderRadius: 12, padding: "14px 18px" }}>
+          <div style={{ fontSize: 12, color: "#1E4D8C", marginBottom: 4 }}>ภาษีซื้อ (Input VAT)</div>
+          <div style={{ fontWeight: 700, fontSize: 20, color: "#1E4D8C" }}>฿{fmt(totalInputVat)}</div>
           <div style={{ fontSize: 11, color: "#9ca3af" }}>ฐานภาษี ฿{fmt(totalInputBase)}</div>
         </div>
-        <div style={{ background: "#FDEAEA", borderRadius: 12, padding: "14px 18px" }}>
-          <div style={{ fontSize: 12, color: "#8B2020", marginBottom: 4 }}>ภาษีขาย (Output VAT)</div>
-          <div style={{ fontWeight: 700, fontSize: 20, color: "#8B2020" }}>฿{fmt(totalOutputVat)}</div>
+        <div style={{ background: "#E8EEF8", borderRadius: 12, padding: "14px 18px" }}>
+          <div style={{ fontSize: 12, color: "#1B3A6B", marginBottom: 4 }}>ภาษีขาย (Output VAT)</div>
+          <div style={{ fontWeight: 700, fontSize: 20, color: "#1B3A6B" }}>฿{fmt(totalOutputVat)}</div>
           <div style={{ fontSize: 11, color: "#9ca3af" }}>ฐานภาษี ฿{fmt(totalOutputBase)}</div>
         </div>
-        <div style={{ background: vatDiff >= 0 ? "#e6f1fb" : "#faeeda", borderRadius: 12, padding: "14px 18px" }}>
-          <div style={{ fontSize: 12, color: vatDiff >= 0 ? "#185fa5" : "#854f0b", marginBottom: 4 }}>
+        <div style={{ background: vatDiff >= 0 ? "#e6f1fb" : "#E8EEF8", borderRadius: 12, padding: "14px 18px" }}>
+          <div style={{ fontSize: 12, color: vatDiff >= 0 ? "#185fa5" : "#1B3A6B", marginBottom: 4 }}>
             {vatDiff >= 0 ? "VAT ต้องชำระ" : "VAT ขอคืน"}
           </div>
-          <div style={{ fontWeight: 700, fontSize: 20, color: vatDiff >= 0 ? "#185fa5" : "#854f0b" }}>฿{fmt(Math.abs(vatDiff))}</div>
+          <div style={{ fontWeight: 700, fontSize: 20, color: vatDiff >= 0 ? "#185fa5" : "#1B3A6B" }}>฿{fmt(Math.abs(vatDiff))}</div>
         </div>
         <div style={{ background: "#eeedfe", borderRadius: 12, padding: "14px 18px" }}>
           <div style={{ fontSize: 12, color: "#3c3489", marginBottom: 4 }}>หัก ณ ที่จ่าย (WHT)</div>
@@ -9436,7 +9436,7 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
       <div id="tax-content">
         {/* ภาษีซื้อ */}
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflow: "hidden", marginBottom: 16 }}>
-          <div style={{ background: "#faece7", padding: "10px 16px", fontWeight: 700, fontSize: 14, color: "#993c1d" }}>
+          <div style={{ background: "#E8EEF8", padding: "10px 16px", fontWeight: 700, fontSize: 14, color: "#1E4D8C" }}>
             ภาษีซื้อ (Input VAT) — {periodLabel}
           </div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -9453,7 +9453,7 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
                   <td style={tdStyle}>{r.description}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{r.vatRate}%</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(r.base)}</td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#993c1d" }}>{fmt(r.vat)}</td>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1E4D8C" }}>{fmt(r.vat)}</td>
                 </tr>
               ))}
               {inputVatRows.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีรายการภาษีซื้อในช่วงนี้</td></tr>}
@@ -9462,7 +9462,7 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
               <tr>
                 <td colSpan={4} style={{ ...tdStyle, fontWeight: 700 }}>รวมภาษีซื้อ</td>
                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(totalInputBase)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>{fmt(totalInputVat)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>{fmt(totalInputVat)}</td>
               </tr>
             </tfoot>}
           </table>
@@ -9470,7 +9470,7 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
 
         {/* ภาษีขาย */}
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflow: "hidden", marginBottom: 16 }}>
-          <div style={{ background: "#FDEAEA", padding: "10px 16px", fontWeight: 700, fontSize: 14, color: "#8B2020" }}>
+          <div style={{ background: "#E8EEF8", padding: "10px 16px", fontWeight: 700, fontSize: 14, color: "#1B3A6B" }}>
             ภาษีขาย (Output VAT) — {periodLabel}
           </div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -9487,7 +9487,7 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
                   <td style={tdStyle}>{r.description}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{r.vatRate}%</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(r.base)}</td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#8B2020" }}>{fmt(r.vat)}</td>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1B3A6B" }}>{fmt(r.vat)}</td>
                 </tr>
               ))}
               {outputVatRows.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีรายการภาษีขายในช่วงนี้</td></tr>}
@@ -9496,21 +9496,21 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
               <tr>
                 <td colSpan={4} style={{ ...tdStyle, fontWeight: 700 }}>รวมภาษีขาย</td>
                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(totalOutputBase)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>{fmt(totalOutputVat)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>{fmt(totalOutputVat)}</td>
               </tr>
             </tfoot>}
           </table>
         </div>
 
         {/* สรุป */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "2px solid #6B1A1A", padding: "18px 20px" }}>
-          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12, color: "#6B1A1A" }}>สรุปภาษีสุทธิ — {periodLabel}</div>
+        <div style={{ background: "#fff", borderRadius: 12, border: "2px solid #0F2548", padding: "18px 20px" }}>
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12, color: "#0F2548" }}>สรุปภาษีสุทธิ — {periodLabel}</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, fontSize: 14 }}>
-            <div><span style={{ color: "#6b7280" }}>ภาษีขาย</span><div style={{ fontWeight: 700, fontSize: 18, color: "#8B2020" }}>฿{fmt(totalOutputVat)}</div></div>
-            <div><span style={{ color: "#6b7280" }}>หัก ภาษีซื้อ</span><div style={{ fontWeight: 700, fontSize: 18, color: "#993c1d" }}>฿{fmt(totalInputVat)}</div></div>
+            <div><span style={{ color: "#6b7280" }}>ภาษีขาย</span><div style={{ fontWeight: 700, fontSize: 18, color: "#1B3A6B" }}>฿{fmt(totalOutputVat)}</div></div>
+            <div><span style={{ color: "#6b7280" }}>หัก ภาษีซื้อ</span><div style={{ fontWeight: 700, fontSize: 18, color: "#1E4D8C" }}>฿{fmt(totalInputVat)}</div></div>
             <div>
               <span style={{ color: "#6b7280" }}>{vatDiff >= 0 ? "ภาษีต้องชำระ" : "ภาษีขอคืน"}</span>
-              <div style={{ fontWeight: 700, fontSize: 20, color: vatDiff >= 0 ? "#185fa5" : "#854f0b" }}>฿{fmt(Math.abs(vatDiff))}</div>
+              <div style={{ fontWeight: 700, fontSize: 20, color: vatDiff >= 0 ? "#185fa5" : "#1B3A6B" }}>฿{fmt(Math.abs(vatDiff))}</div>
               <div style={{ fontSize: 11, color: "#9ca3af" }}>{vatDiff >= 0 ? "นำส่งกรมสรรพากร" : "ยื่นขอคืนภาษี"}</div>
             </div>
           </div>
@@ -9731,9 +9731,9 @@ function DeliveryTab({ deliveries, setDeliveries, customers, sales, products, co
               <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                 <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(form.items.reduce((s, it) => s + (Number(it.qty) || 0), 0))} กก.</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>{fmt(form.items.reduce((s, it) => s + (Number(it.containerWeight) || 0), 0))} กก.</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>{fmt(form.items.reduce((s, it) => s + (Number(it.containerWeight) || 0), 0))} กก.</td>
                 <td style={tdStyle}></td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>{fmt(form.items.reduce((s, it) => s + netQtyOf(it), 0))} กก.</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>{fmt(form.items.reduce((s, it) => s + netQtyOf(it), 0))} กก.</td>
                 <td style={tdStyle}></td>
               </tr>
             </tfoot>
@@ -9799,9 +9799,9 @@ function DeliveryTab({ deliveries, setDeliveries, customers, sales, products, co
                 <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                   <td colSpan={2} style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(modal.item.items.reduce((s, it) => s + (Number(it.qty) || 0), 0))} กก.</td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#993c1d" }}>{fmt(modal.item.items.reduce((s, it) => s + (Number(it.containerWeight) || 0), 0))} กก.</td>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>{fmt(modal.item.items.reduce((s, it) => s + (Number(it.containerWeight) || 0), 0))} กก.</td>
                   <td style={tdStyle}></td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>{fmt(deliveryNetTotal(modal.item))} กก.</td>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>{fmt(deliveryNetTotal(modal.item))} กก.</td>
                 </tr>
               </tfoot>
             </table>
@@ -9999,9 +9999,9 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
         ].map((opt) => (
           <button key={opt.key} onClick={() => setReportView(opt.key)}
             style={{ padding: "8px 18px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontWeight: 600, border: "1px solid",
-              borderColor: reportView === opt.key ? "#A52828" : "#d1d5db",
-              background: reportView === opt.key ? "#FDEAEA" : "#fff",
-              color: reportView === opt.key ? "#8B2020" : "#6b7280" }}>
+              borderColor: reportView === opt.key ? "#2855A0" : "#d1d5db",
+              background: reportView === opt.key ? "#E8EEF8" : "#fff",
+              color: reportView === opt.key ? "#1B3A6B" : "#6b7280" }}>
             {opt.label}
           </button>
         ))}
@@ -10021,17 +10021,17 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
       <div id="monthly-report-content">
         {/* Summary cards */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
-          <div style={{ background: "#FDEAEA", borderRadius: 12, padding: "14px 18px" }}>
-            <div style={{ fontSize: 12, color: "#8B2020", marginBottom: 4 }}>รวมรายได้</div>
-            <div style={{ fontWeight: 700, fontSize: 20, color: "#8B2020" }}>฿{fmt(totalIncome)}</div>
+          <div style={{ background: "#E8EEF8", borderRadius: 12, padding: "14px 18px" }}>
+            <div style={{ fontSize: 12, color: "#1B3A6B", marginBottom: 4 }}>รวมรายได้</div>
+            <div style={{ fontWeight: 700, fontSize: 20, color: "#1B3A6B" }}>฿{fmt(totalIncome)}</div>
           </div>
-          <div style={{ background: "#faece7", borderRadius: 12, padding: "14px 18px" }}>
-            <div style={{ fontSize: 12, color: "#993c1d", marginBottom: 4 }}>ต้นทุนขาย + ค่าใช้จ่าย</div>
-            <div style={{ fontWeight: 700, fontSize: 20, color: "#993c1d" }}>฿{fmt(totalCost + totalExpenses)}</div>
+          <div style={{ background: "#E8EEF8", borderRadius: 12, padding: "14px 18px" }}>
+            <div style={{ fontSize: 12, color: "#1E4D8C", marginBottom: 4 }}>ต้นทุนขาย + ค่าใช้จ่าย</div>
+            <div style={{ fontWeight: 700, fontSize: 20, color: "#1E4D8C" }}>฿{fmt(totalCost + totalExpenses)}</div>
           </div>
-          <div style={{ background: netProfit >= 0 ? "#e6f1fb" : "#faeeda", borderRadius: 12, padding: "14px 18px" }}>
-            <div style={{ fontSize: 12, color: netProfit >= 0 ? "#185fa5" : "#854f0b", marginBottom: 4 }}>กำไรสุทธิ</div>
-            <div style={{ fontWeight: 700, fontSize: 20, color: netProfit >= 0 ? "#185fa5" : "#854f0b" }}>฿{fmt(netProfit)}</div>
+          <div style={{ background: netProfit >= 0 ? "#e6f1fb" : "#E8EEF8", borderRadius: 12, padding: "14px 18px" }}>
+            <div style={{ fontSize: 12, color: netProfit >= 0 ? "#185fa5" : "#1B3A6B", marginBottom: 4 }}>กำไรสุทธิ</div>
+            <div style={{ fontWeight: 700, fontSize: 20, color: netProfit >= 0 ? "#185fa5" : "#1B3A6B" }}>฿{fmt(netProfit)}</div>
           </div>
           <div style={{ background: "#eeedfe", borderRadius: 12, padding: "14px 18px" }}>
             <div style={{ fontSize: 12, color: "#3c3489", marginBottom: 4 }}>อัตรากำไรสุทธิ</div>
@@ -10045,14 +10045,14 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
 
           <Row label="รายได้จากการขาย" value={`฿${fmt(totalRevenue)}`} />
           <Row label="รายได้อื่น" value={`฿${fmt(totalOtherIncome)}`} />
-          {openingApplies && Number(openingRevenue) > 0 && <Row label={`รายได้ยกมา${openingMonth ? " (" + openingMonth + ")" : ""}`} value={`+฿${fmt(Number(openingRevenue))}`} color="#854f0b" />}
+          {openingApplies && Number(openingRevenue) > 0 && <Row label={`รายได้ยกมา${openingMonth ? " (" + openingMonth + ")" : ""}`} value={`+฿${fmt(Number(openingRevenue))}`} color="#1B3A6B" />}
           <div style={{ borderTop: "1px solid #e5e7eb", margin: "8px 0" }} />
           <Row label="รวมรายได้" value={`฿${fmt(totalIncome)}`} bold />
 
           <div style={{ marginTop: 16, marginBottom: 4, fontWeight: 600, fontSize: 13, color: "#6b7280" }}>ต้นทุนขาย:</div>
           <Row label="　สินค้าคงเหลือยกมาต้นงวด" value={`฿${fmt(beginningInventory)}`} />
           <Row label="　บวก ซื้อสินค้า" value={`+฿${fmt(purchasesInRange)}`} />
-          {openingApplies && Number(openingCost) > 0 && <Row label={`　ต้นทุนยกมา${openingMonth ? " (" + openingMonth + ")" : ""}`} value={`+฿${fmt(Number(openingCost))}`} color="#854f0b" />}
+          {openingApplies && Number(openingCost) > 0 && <Row label={`　ต้นทุนยกมา${openingMonth ? " (" + openingMonth + ")" : ""}`} value={`+฿${fmt(Number(openingCost))}`} color="#1B3A6B" />}
           <div style={{ borderTop: "1px solid #e5e7eb", margin: "6px 0 6px 16px" }} />
           <Row label="　สินค้าที่มีไว้เพื่อขาย" value={`฿${fmt(goodsAvailableForSale)}`} />
           <Row label="　หัก สินค้าคงเหลือปลายงวด" value={`-฿${fmt(endingInventory)}`} />
@@ -10068,8 +10068,8 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
           ))}
           {expenseByCategory.length === 0 && <Row label="　ไม่มีค่าใช้จ่าย" value="฿0" />}
           <Row label="รวมค่าใช้จ่าย" value={`-฿${fmt(totalExpenses)}`} />
-          <div style={{ borderTop: "2px solid #6B1A1A", margin: "8px 0" }} />
-          <Row label="กำไรสุทธิ (Net Profit)" value={`฿${fmt(netProfit)}`} bold color={netProfit >= 0 ? "#8B2020" : "#993c1d"} />
+          <div style={{ borderTop: "2px solid #0F2548", margin: "8px 0" }} />
+          <Row label="กำไรสุทธิ (Net Profit)" value={`฿${fmt(netProfit)}`} bold color={netProfit >= 0 ? "#1B3A6B" : "#1E4D8C"} />
         </div>
 
         {/* Dividend Calculation */}
@@ -10083,7 +10083,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
 
           <div style={{ background: "#f9fafb", borderRadius: 8, padding: "12px 16px", marginBottom: 16, fontSize: 14 }}>
             <Row label="กำไรสุทธิที่นำมาคำนวณปันผล" value={`฿${fmt(dividendPool)}`} bold />
-            {netProfit < 0 && <p style={{ fontSize: 12, color: "#993c1d", margin: "6px 0 0" }}>* เดือนนี้ขาดทุน ไม่มีเงินปันผล</p>}
+            {netProfit < 0 && <p style={{ fontSize: 12, color: "#1E4D8C", margin: "6px 0 0" }}>* เดือนนี้ขาดทุน ไม่มีเงินปันผล</p>}
           </div>
 
           {editingShareholders && (
@@ -10117,7 +10117,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
                         <input type="number" style={{ ...inputStyle, textAlign: "right", width: 90 }} value={sh.percent} onChange={(e) => updateShareholder(idx, "percent", e.target.value)} />
                       ) : `${sh.percent}%`}
                     </td>
-                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#8B2020" }}>฿{fmt(amount)}</td>
+                    <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1B3A6B" }}>฿{fmt(amount)}</td>
                     {editingShareholders && (
                       <td style={{ ...tdStyle, textAlign: "right" }}>
                         <button style={btnDanger} onClick={() => confirmAction(`ต้องการลบผู้ถือหุ้น "${sh.name}" ใช่หรือไม่?`, () => removeShareholder(idx))}><Trash2 size={14} /></button>
@@ -10130,7 +10130,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
             <tfoot>
               <tr>
                 <td style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: totalSharePercent === 100 ? "#8B2020" : "#993c1d" }}>{totalSharePercent}%</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: totalSharePercent === 100 ? "#1B3A6B" : "#1E4D8C" }}>{totalSharePercent}%</td>
                 <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(dividendPool)}</td>
                 {editingShareholders && <td style={tdStyle}></td>}
               </tr>
@@ -10138,7 +10138,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
           </table>
           </div>
           {totalSharePercent !== 100 && (
-            <p style={{ fontSize: 12, color: "#993c1d", marginTop: 8 }}>⚠️ สัดส่วนหุ้นรวมต้องเท่ากับ 100% (ปัจจุบัน {totalSharePercent}%)</p>
+            <p style={{ fontSize: 12, color: "#1E4D8C", marginTop: 8 }}>⚠️ สัดส่วนหุ้นรวมต้องเท่ากับ 100% (ปัจจุบัน {totalSharePercent}%)</p>
           )}
         </div>
       </div>
@@ -10154,17 +10154,17 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 20 }}>
-        <div style={{ background: yearlyNetProfitTotal >= 0 ? "#e6f1fb" : "#faeeda", borderRadius: 12, padding: "16px 18px" }}>
-          <div style={{ fontSize: 12, color: yearlyNetProfitTotal >= 0 ? "#185fa5" : "#854f0b", marginBottom: 4 }}>กำไรสุทธิรวมทั้งปี {year}</div>
-          <div style={{ fontWeight: 700, fontSize: 22, color: yearlyNetProfitTotal >= 0 ? "#185fa5" : "#854f0b" }}>฿{fmt(yearlyNetProfitTotal)}</div>
+        <div style={{ background: yearlyNetProfitTotal >= 0 ? "#e6f1fb" : "#E8EEF8", borderRadius: 12, padding: "16px 18px" }}>
+          <div style={{ fontSize: 12, color: yearlyNetProfitTotal >= 0 ? "#185fa5" : "#1B3A6B", marginBottom: 4 }}>กำไรสุทธิรวมทั้งปี {year}</div>
+          <div style={{ fontWeight: 700, fontSize: 22, color: yearlyNetProfitTotal >= 0 ? "#185fa5" : "#1B3A6B" }}>฿{fmt(yearlyNetProfitTotal)}</div>
         </div>
         <div style={{ background: "#eeedfe", borderRadius: 12, padding: "16px 18px" }}>
           <div style={{ fontSize: 12, color: "#3c3489", marginBottom: 4 }}>จ่ายเงินปันผลไปแล้วในปีนี้</div>
           <div style={{ fontWeight: 700, fontSize: 22, color: "#3c3489" }}>฿{fmt(totalDividendPaidThisYear)}</div>
         </div>
-        <div style={{ background: (yearlyNetProfitTotal - totalDividendPaidThisYear) >= 0 ? "#e3f5ea" : "#faeeda", borderRadius: 12, padding: "16px 18px" }}>
-          <div style={{ fontSize: 12, color: (yearlyNetProfitTotal - totalDividendPaidThisYear) >= 0 ? "#8B2020" : "#854f0b", marginBottom: 4 }}>กำไร - เงินปันผล</div>
-          <div style={{ fontWeight: 700, fontSize: 22, color: (yearlyNetProfitTotal - totalDividendPaidThisYear) >= 0 ? "#8B2020" : "#854f0b" }}>฿{fmt(yearlyNetProfitTotal - totalDividendPaidThisYear)}</div>
+        <div style={{ background: (yearlyNetProfitTotal - totalDividendPaidThisYear) >= 0 ? "#e3f5ea" : "#E8EEF8", borderRadius: 12, padding: "16px 18px" }}>
+          <div style={{ fontSize: 12, color: (yearlyNetProfitTotal - totalDividendPaidThisYear) >= 0 ? "#1B3A6B" : "#1B3A6B", marginBottom: 4 }}>กำไร - เงินปันผล</div>
+          <div style={{ fontWeight: 700, fontSize: 22, color: (yearlyNetProfitTotal - totalDividendPaidThisYear) >= 0 ? "#1B3A6B" : "#1B3A6B" }}>฿{fmt(yearlyNetProfitTotal - totalDividendPaidThisYear)}</div>
         </div>
       </div>
 
@@ -10188,7 +10188,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
                 <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(m.totalIncome)}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(m.totalCost)}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(m.totalExpenses)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: m.netProfit >= 0 ? "#8B2020" : "#993c1d" }}>฿{fmt(m.netProfit)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: m.netProfit >= 0 ? "#1B3A6B" : "#1E4D8C" }}>฿{fmt(m.netProfit)}</td>
               </tr>
             ))}
           </tbody>
@@ -10198,7 +10198,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
               <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(yearlyMonths.reduce((s,m)=>s+m.totalIncome,0))}</td>
               <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(yearlyMonths.reduce((s,m)=>s+m.totalCost,0))}</td>
               <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(yearlyMonths.reduce((s,m)=>s+m.totalExpenses,0))}</td>
-              <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: yearlyNetProfitTotal >= 0 ? "#8B2020" : "#993c1d" }}>฿{fmt(yearlyNetProfitTotal)}</td>
+              <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: yearlyNetProfitTotal >= 0 ? "#1B3A6B" : "#1E4D8C" }}>฿{fmt(yearlyNetProfitTotal)}</td>
             </tr>
           </tfoot>
         </table>
@@ -10224,7 +10224,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
             {dividendPaymentsThisYear.sort((a,b) => (b.date||"").localeCompare(a.date||"")).map((d) => (
               <tr key={d.id}>
                 <td style={tdStyle}>{d.date}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#8B2020" }}>฿{fmt(d.amount)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1B3A6B" }}>฿{fmt(d.amount)}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>
                   <button style={btnDanger} onClick={() => confirmAction(`ต้องการลบรายการจ่ายเงินปันผลวันที่ ${d.date} จำนวน ฿${fmt(d.amount)} ใช่หรือไม่?`, () => removeDivPayment(d.id))}><Trash2 size={14} /> ลบ</button>
                 </td>
@@ -10238,7 +10238,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
             <tfoot>
               <tr>
                 <td style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#8B2020" }}>฿{fmt(totalDividendPaidThisYear)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(totalDividendPaidThisYear)}</td>
                 <td style={tdStyle}></td>
               </tr>
             </tfoot>
@@ -10248,7 +10248,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
 
         {/* ยอดยกมาก่อนเริ่มใช้แอพ */}
         <div style={{ background: "#fffbeb", borderRadius: 12, border: "1px solid #fde68a", padding: "16px 20px", marginTop: 16 }}>
-          <div style={{ fontWeight: 600, fontSize: 14, color: "#854f0b", marginBottom: 12 }}>ยอดยกมาก่อนเริ่มใช้แอพ (ถ้ามี)</div>
+          <div style={{ fontWeight: 600, fontSize: 14, color: "#1B3A6B", marginBottom: 12 }}>ยอดยกมาก่อนเริ่มใช้แอพ (ถ้ามี)</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0 16px" }}>
             <div>
               <label style={{ display: "block", fontSize: 13, color: "#374151", marginBottom: 4 }}>เดือนที่มีผล</label>
@@ -10263,7 +10263,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
               <input type="number" style={{ ...inputStyle, textAlign: "right" }} value={openingCost} onChange={(e) => setOpeningCost(e.target.value)} placeholder="0" />
             </div>
           </div>
-          <p style={{ fontSize: 12, color: "#854f0b", margin: "8px 0 0" }}>* ยอดยกมาจะรวมเข้างบเฉพาะเดือนที่กำหนด — ถ้าไม่กำหนดเดือนจะรวมทุกเดือน — บันทึกถาวรอัตโนมัติ ใช้ได้ทุกเครื่อง</p>
+          <p style={{ fontSize: 12, color: "#1B3A6B", margin: "8px 0 0" }}>* ยอดยกมาจะรวมเข้างบเฉพาะเดือนที่กำหนด — ถ้าไม่กำหนดเดือนจะรวมทุกเดือน — บันทึกถาวรอัตโนมัติ ใช้ได้ทุกเครื่อง</p>
         </div>
 
         {divPayForm && (
