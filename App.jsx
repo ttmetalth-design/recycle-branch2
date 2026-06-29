@@ -3208,7 +3208,7 @@ const save = async () => {
  return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 80px)" }}>
       <div style={{ flexShrink: 0 }}>
-      <Header title="ข้อมูลสินค้า (Product Master)" subtitle={`ฐานข้อมูลสินค้า — ระบุยอดยกมาเพื่อให้สต๊อกเริ่มต้นถูกต้อง | ทั้งหมด ${products.length} รายการ`}>
+      <Header title="ข้อมูลสินค้า (Product Master)" subtitle="ฐานข้อมูลสินค้า — ระบุยอดยกมาเพื่อให้สต๊อกเริ่มต้นถูกต้อง">
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <ExportToolbar
             onPDF={() => printAsPDF("products-print", "ข้อมูลสินค้า")}
@@ -3419,7 +3419,7 @@ function CustomersTab({ customers, setCustomers }) {
   const blank = { id: "", name: "", taxId: "", address: "", phone: "", line: "", email: "", deliveries: 0, bankAccounts: [], idCardImage: "" };
   const [form, setForm] = useState(blank);
 
-  const filtered = [...customers].filter((c) => c.name.includes(search) || c.id.includes(search) || (c.phone || "").includes(search)).reverse();
+  const filtered = [...customers].filter((c) => c.name.includes(search) || c.id.includes(search) || (c.phone || "").includes(search)).sort((a, b) => { const na = parseInt((a.id || "").replace(/\D/g, "")) || 0; const nb = parseInt((b.id || "").replace(/\D/g, "")) || 0; return nb - na; });
 
   const openAdd = () => { setForm({ ...blank, id: genSeqId("C", customers) }); setModal({ mode: "add" }); };
   const openEdit = (item) => { setForm(JSON.parse(JSON.stringify({ ...blank, ...item }))); setModal({ mode: "edit", item }); };
@@ -3459,7 +3459,7 @@ function CustomersTab({ customers, setCustomers }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 80px)" }}>
       <div style={{ flexShrink: 0 }}>
-      <Header title="ข้อมูลลูกค้า" subtitle={`รายชื่อลูกค้าและผู้ส่งของรีไซเคิล | ทั้งหมด ${customers.length} รายการ`}>
+      <Header title="ข้อมูลลูกค้า" subtitle="รายชื่อลูกค้าและผู้ส่งของรีไซเคิล">
         <button style={btnSecondary} onClick={() => setImportModal(true)}><FileSpreadsheet size={16} /> นำเข้าจาก Excel</button>
         <button style={btnPrimary} onClick={openAdd}><Plus size={16} /> เพิ่มลูกค้า</button>
       </Header>
