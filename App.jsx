@@ -761,7 +761,7 @@ function genSeqId(prefix, list) {
     })
     .filter((n) => n > 0);
   const next = nums.length > 0 ? Math.max(...nums) + 1 : 1;
-  return `${prefix}${String(next).padStart(4, "0")}`;
+  return `${prefix}${String(next).padStart(3, "0")}`;
 }
 
 // ---------- Searchable product select (type to filter) ----------
@@ -3208,7 +3208,7 @@ const save = async () => {
  return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 80px)" }}>
       <div style={{ flexShrink: 0 }}>
-      <Header title="ข้อมูลสินค้า (Product Master)" subtitle="ฐานข้อมูลสินค้า — ระบุยอดยกมาเพื่อให้สต๊อกเริ่มต้นถูกต้อง">
+      <Header title="ข้อมูลสินค้า (Product Master)" subtitle={`ฐานข้อมูลสินค้า — ระบุยอดยกมาเพื่อให้สต๊อกเริ่มต้นถูกต้อง | ทั้งหมด ${products.length} รายการ`}>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <ExportToolbar
             onPDF={() => printAsPDF("products-print", "ข้อมูลสินค้า")}
@@ -3459,7 +3459,7 @@ function CustomersTab({ customers, setCustomers }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 80px)" }}>
       <div style={{ flexShrink: 0 }}>
-      <Header title="ข้อมูลลูกค้า" subtitle="รายชื่อลูกค้าและผู้ส่งของรีไซเคิล">
+      <Header title="ข้อมูลลูกค้า" subtitle={`รายชื่อลูกค้าและผู้ส่งของรีไซเคิล | ทั้งหมด ${customers.length} รายการ`}>
         <button style={btnSecondary} onClick={() => setImportModal(true)}><FileSpreadsheet size={16} /> นำเข้าจาก Excel</button>
         <button style={btnPrimary} onClick={openAdd}><Plus size={16} /> เพิ่มลูกค้า</button>
       </Header>
