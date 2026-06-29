@@ -43,7 +43,7 @@ export async function loadProducts() {
 // เพิ่มสินค้าใหม่ 1 รายการ — เขียนตรงไป Supabase ทันที ไม่ต้องรอ debounce
 export async function insertProduct(product) {
   if (!isSupabaseReady) return { error: 'not ready' }
-  const { error } = await supabase.from('products').insert(toRow(product))
+  const { error } = await supabase.from('products').upsert(toRow(product), { onConflict: 'id', ignoreDuplicates: false })
   return { error }
 }
 
