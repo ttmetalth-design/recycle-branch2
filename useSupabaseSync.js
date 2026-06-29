@@ -64,8 +64,14 @@ async function saveArrayTable(tableName, items) {
     data: { ...item, _updated_by: DEVICE_ID },
     updated_at: new Date().toISOString(),
   }))
-  const { error } = await supabase.from(tableName).upsert(rows, { onConflict: 'id' })
-  return !error
+  // แบ่ง batch ทีละ 50 รายการ ป้องกัน request size เกิน
+  const BATCH = 50
+  for (let i = 0; i < rows.length; i += BATCH) {
+    const batch = rows.slice(i, i + BATCH)
+    const { error } = await supabase.from(tableName).upsert(batch, { onConflict: 'id' })
+    if (error) return false
+  }
+  return true
 }
 
 async function deleteArrayRow(tableName, id) {
