@@ -64,14 +64,8 @@ async function saveArrayTable(tableName, items) {
     data: { ...item, _updated_by: DEVICE_ID },
     updated_at: new Date().toISOString(),
   }))
-  // แบ่ง batch ทีละ 50 รายการ ป้องกัน request size เกิน
-  const BATCH = 50
-  for (let i = 0; i < rows.length; i += BATCH) {
-    const batch = rows.slice(i, i + BATCH)
-    const { error } = await supabase.from(tableName).upsert(batch, { onConflict: 'id' })
-    if (error) return false
-  }
-  return true
+  const { error } = await supabase.from(tableName).upsert(rows, { onConflict: 'id' })
+  return !error
 }
 
 async function deleteArrayRow(tableName, id) {
@@ -82,12 +76,21 @@ async function deleteArrayRow(tableName, id) {
 
 async function loadArrayTable(tableName) {
   if (!isSupabaseReady) return []
-  const { data, error } = await supabase
-    .from(tableName)
-    .select('data')
-    .order('updated_at', { ascending: true })
-  if (error || !data) return []
-  return data.map(row => row.data)
+  const PAGE = 1000
+  let all = []
+  let from = 0
+  while (true) {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('data')
+      .order('updated_at', { ascending: true })
+      .range(from, from + PAGE - 1)
+    if (error || !data) break
+    all = all.concat(data.map(row => row.data))
+    if (data.length < PAGE) break
+    from += PAGE
+  }
+  return all
 }
 
 // ---------- Settings helpers ----------
