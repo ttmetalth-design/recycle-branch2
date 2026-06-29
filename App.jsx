@@ -3146,7 +3146,7 @@ function ProductsTab({ products, setProducts, unitOptions, setUnitOptions, produ
     return `${MONTH_NAMES_TH[Number(m)]} ${y}`;
   };
 
- const openAdd = () => { setForm({ id: genSeqId("P", products), name: "", type: productCategories[0] || "", unit: unitOptions[0] || "กก.", openingQty: 0, openingCost: 0, openingMonth: "", buyPrice: 0, vipPrice: 0 }); setModal({ mode: "add" }); };
+  const openAdd = () => { let newId = genSeqId("P", products); while (products.some((p) => p.id === newId)) { newId = genSeqId("P", [...products, { id: newId }]); } setForm({ id: newId, name: "", type: productCategories[0] || "", unit: unitOptions[0] || "กก.", openingQty: 0, openingCost: 0, openingMonth: "", buyPrice: 0, vipPrice: 0 }); setModal({ mode: "add" }); };
   const openEdit = (item) => { setForm({ openingQty: 0, openingCost: 0, openingMonth: "", buyPrice: 0, vipPrice: 0, ...item }); setModal({ mode: "edit", item }); };
 
   // เมื่อพิมพ์ประเภทสินค้าใหม่ที่ยังไม่มี ให้เพิ่มเข้าฐานข้อมูล productCategories ทันที (ใช้ได้ทุกเครื่องหลังจากนี้)
@@ -3172,12 +3172,25 @@ const save = async () => {
   const cleaned = { ...form, openingQty: Number(form.openingQty) || 0, openingCost: Number(form.openingCost) || 0, buyPrice: Number(form.buyPrice) || 0, vipPrice: Number(form.vipPrice) || 0 };
 
   if (modal.mode === "add") {
-    setProducts([...products, cleaned]); // อัปเดตหน้าจอทันที
-    const { error } = await insertProduct(cleaned);
+    // ตรวจสอบรหัสซ้ำใน local state ก่อน
+    let finalCleaned = cleaned;
+    if (products.some((p) => p.id === finalCleaned.id)) {
+      finalCleaned = { ...finalCleaned, id: genSeqId("P", products) };
+    }
+    setProducts([...products, finalCleaned]); // อัปเดตหน้าจอทันที
+    let { error } = await insertProduct(finalCleaned);
     if (error) {
-      alert("บันทึกสินค้าไม่สำเร็จ กรุณาลองใหม่ (อาจมีรหัสสินค้านี้อยู่แล้ว)");
-      setProducts(products); // ย้อนกลับ
-      return;
+      // รหัสซ้ำใน Supabase — สร้างรหัสใหม่แล้ว retry อัตโนมัติ
+      const allIds = [...products.map((p) => p.id), finalCleaned.id];
+      const retryId = genSeqId("P", allIds.map((id) => ({ id })));
+      const retried = { ...finalCleaned, id: retryId };
+      setProducts(products.map((p) => p.id === finalCleaned.id ? retried : p));
+      const { error: err2 } = await insertProduct(retried);
+      if (err2) {
+        alert("บันทึกสินค้าไม่สำเร็จ กรุณาลองใหม่");
+        setProducts(products); // ย้อนกลับ
+        return;
+      }
     }
   } else {
     setProducts(products.map((p) => (p.id === modal.item.id ? cleaned : p)));
