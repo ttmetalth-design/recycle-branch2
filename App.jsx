@@ -5559,13 +5559,13 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
       accs.size === 0 || (doc.payments||[]).some(p => accs.has(p[field]));
 
     const dayCost = allPurchaseRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "fromStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayExp  = allExpenseRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "fromStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayRev  = allSaleRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "toStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "toStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayNet  = dayCost + dayExp - dayRev;
 
