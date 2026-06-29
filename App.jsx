@@ -1468,7 +1468,8 @@ export default function App() {
       })
     }
 
-    loadAllFromSupabase().then(data => {
+    Promise.all([loadAllFromSupabase(), loadProducts()]).then(([data, prods]) => {
+      if (prods && prods.length > 0) setProducts(dedup(prods))
       if (data) {
         if (data.customers)     setCustomers(dedup(data.customers))
         if (data.purchases)     setPurchases(dedup(data.purchases))
@@ -1500,7 +1501,8 @@ export default function App() {
   const reloadFromSupabase = async () => {
     if (!isSupabaseReady || isReloading) return
     setIsReloading(true)
-    const data = await loadAllFromSupabase()
+    const [data, prods] = await Promise.all([loadAllFromSupabase(), loadProducts()])
+    if (prods && prods.length > 0) setProducts(dedup(prods))
     if (data) {
       if (data.customers)       setCustomers(dedup(data.customers))
       if (data.purchases)       setPurchases(dedup(data.purchases))
@@ -1547,9 +1549,7 @@ export default function App() {
   useSupabaseSync('deliveries',        deliveries,        setDeliveries,        dbLoaded)
   useSupabaseSync('prepayments',       prepayments,       setPrepayments,       dbLoaded)
 
-useEffect(() => {
-  loadProducts().then(setProducts);
-}, []);
+// loadProducts ถูกเรียกใน loadAllFromSupabase แล้ว ไม่ต้องเรียกซ้ำที่นี่
 
   const navItems = [
     { key: "dashboard",         label: "แดชบอร์ด",              icon: LayoutDashboard },
