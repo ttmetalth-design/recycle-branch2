@@ -761,7 +761,7 @@ function genSeqId(prefix, list) {
     })
     .filter((n) => n > 0);
   const next = nums.length > 0 ? Math.max(...nums) + 1 : 1;
-  return `${prefix}${String(next).padStart(3, "0")}`;
+  return `${prefix}${String(next).padStart(4, "0")}`;
 }
 
 // ---------- Searchable product select (type to filter) ----------
@@ -3208,7 +3208,7 @@ const save = async () => {
  return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 80px)" }}>
       <div style={{ flexShrink: 0 }}>
-      <Header title="ข้อมูลสินค้า (Product Master)" subtitle="ฐานข้อมูลสินค้า — ระบุยอดยกมาเพื่อให้สต๊อกเริ่มต้นถูกต้อง">
+      <Header title="ข้อมูลสินค้า (Product Master)" subtitle={`ฐานข้อมูลสินค้า — ระบุยอดยกมาเพื่อให้สต๊อกเริ่มต้นถูกต้อง | ทั้งหมด ${products.length} รายการ`}>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <ExportToolbar
             onPDF={() => printAsPDF("products-print", "ข้อมูลสินค้า")}
@@ -3318,7 +3318,7 @@ const save = async () => {
           onClose={() => setImportModal(false)}
           productCategories={productCategories}
           unitOptions={unitOptions}
-          onImport={(rows) => {
+          onImport={async (rows) => {
             const newProducts = [];
             const updatedProducts = [...products];
             rows.forEach((r) => {
@@ -3329,11 +3329,18 @@ const save = async () => {
                 newProducts.push(r);
               }
             });
-            setProducts([...updatedProducts, ...newProducts]);
-            // เพิ่มหมวดหมู่ใหม่ที่ไม่มีในระบบ
+            const allUpdated = [...updatedProducts, ...newProducts];
+            setProducts(allUpdated);
             const newTypes = [...new Set(rows.map(r => r.type).filter(Boolean))].filter(t => !productCategories.includes(t));
             if (newTypes.length > 0) setProductCategories([...productCategories, ...newTypes]);
-            alert("นำเข้าสำเร็จ! " + rows.length + " รายการ (อัปเดต " + rows.filter(r => products.find(p => p.id === r.id)).length + " / เพิ่มใหม่ " + newProducts.length + ")");
+            let failed = 0;
+            const BATCH = 50;
+            for (let i = 0; i < rows.length; i += BATCH) {
+              const batch = rows.slice(i, i + BATCH);
+              await Promise.all(batch.map(r => insertProduct(r).then(res => { if (res.error) failed++ })));
+            }
+            if (failed > 0) alert("นำเข้าสำเร็จ " + (rows.length - failed) + "/" + rows.length + " รายการ");
+            else alert("นำเข้าสำเร็จ! " + rows.length + " รายการ");
           }}
         />
       )}
@@ -3459,7 +3466,7 @@ function CustomersTab({ customers, setCustomers }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 80px)" }}>
       <div style={{ flexShrink: 0 }}>
-      <Header title="ข้อมูลลูกค้า" subtitle="รายชื่อลูกค้าและผู้ส่งของรีไซเคิล">
+      <Header title="ข้อมูลลูกค้า" subtitle={`รายชื่อลูกค้าและผู้ส่งของรีไซเคิล | ทั้งหมด ${customers.length} รายการ`}>
         <button style={btnSecondary} onClick={() => setImportModal(true)}><FileSpreadsheet size={16} /> นำเข้าจาก Excel</button>
         <button style={btnPrimary} onClick={openAdd}><Plus size={16} /> เพิ่มลูกค้า</button>
       </Header>
@@ -3531,11 +3538,10 @@ function CustomersTab({ customers, setCustomers }) {
       {importModal && (
         <ImportCustomersModal
           onClose={() => setImportModal(false)}
-          onImport={(rows) => {
+          onImport={async (rows) => {
             const newCustomers = [];
             const updatedCustomers = [...customers];
             rows.forEach((r) => {
-              // ถ้าไม่มีรหัส ให้สร้างใหม่
               if (!r.id) r.id = genSeqId("C", updatedCustomers);
               const existing = updatedCustomers.findIndex(c => c.id === r.id);
               if (existing >= 0) {
@@ -3544,8 +3550,17 @@ function CustomersTab({ customers, setCustomers }) {
                 newCustomers.push(r);
               }
             });
-            setCustomers([...updatedCustomers, ...newCustomers]);
-            alert("นำเข้าสำเร็จ! " + rows.length + " รายการ (อัปเดต " + rows.filter(r => customers.find(c => c.id === r.id)).length + " / เพิ่มใหม่ " + newCustomers.length + ")");
+            const allUpdated = [...updatedCustomers, ...newCustomers];
+            setCustomers(allUpdated);
+            let failed = 0;
+            const BATCH = 50;
+            for (let i = 0; i < allUpdated.length; i += BATCH) {
+              const batch = allUpdated.slice(i, i + BATCH);
+              const ok = await saveToSupabase('customers', batch);
+              if (!ok) failed += batch.length;
+            }
+            if (failed > 0) alert("นำเข้าสำเร็จ " + (allUpdated.length - failed) + "/" + allUpdated.length + " รายการ");
+            else alert("นำเข้าสำเร็จ! " + rows.length + " รายการ");
           }}
         />
       )}
