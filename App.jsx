@@ -3318,7 +3318,7 @@ const save = async () => {
           onClose={() => setImportModal(false)}
           productCategories={productCategories}
           unitOptions={unitOptions}
-          onImport={(rows) => {
+          onImport={async (rows) => {
             const newProducts = [];
             const updatedProducts = [...products];
             rows.forEach((r) => {
@@ -3329,11 +3329,19 @@ const save = async () => {
                 newProducts.push(r);
               }
             });
-            setProducts([...updatedProducts, ...newProducts]);
-            // เพิ่มหมวดหมู่ใหม่ที่ไม่มีในระบบ
+            const allUpdated = [...updatedProducts, ...newProducts];
+            setProducts(allUpdated);
             const newTypes = [...new Set(rows.map(r => r.type).filter(Boolean))].filter(t => !productCategories.includes(t));
             if (newTypes.length > 0) setProductCategories([...productCategories, ...newTypes]);
-            alert("นำเข้าสำเร็จ! " + rows.length + " รายการ (อัปเดต " + rows.filter(r => products.find(p => p.id === r.id)).length + " / เพิ่มใหม่ " + newProducts.length + ")");
+            // Batch upsert ตรงไป Supabase ทีละ 50 รายการ
+            let failed = 0;
+            const BATCH = 50;
+            for (let i = 0; i < rows.length; i += BATCH) {
+              const batch = rows.slice(i, i + BATCH);
+              await Promise.all(batch.map(r => insertProduct(r).then(res => { if (res.error) failed++ })));
+            }
+            if (failed > 0) alert("นำเข้าสำเร็จ " + (rows.length - failed) + "/" + rows.length + " รายการ — กด โหลดข้อมูลล่าสุด เพื่อตรวจสอบ");
+            else alert("นำเข้าสำเร็จ! " + rows.length + " รายการ");
           }}
         />
       )}
@@ -3531,11 +3539,10 @@ function CustomersTab({ customers, setCustomers }) {
       {importModal && (
         <ImportCustomersModal
           onClose={() => setImportModal(false)}
-          onImport={(rows) => {
+          onImport={async (rows) => {
             const newCustomers = [];
             const updatedCustomers = [...customers];
             rows.forEach((r) => {
-              // ถ้าไม่มีรหัส ให้สร้างใหม่
               if (!r.id) r.id = genSeqId("C", updatedCustomers);
               const existing = updatedCustomers.findIndex(c => c.id === r.id);
               if (existing >= 0) {
@@ -3544,8 +3551,18 @@ function CustomersTab({ customers, setCustomers }) {
                 newCustomers.push(r);
               }
             });
-            setCustomers([...updatedCustomers, ...newCustomers]);
-            alert("นำเข้าสำเร็จ! " + rows.length + " รายการ (อัปเดต " + rows.filter(r => customers.find(c => c.id === r.id)).length + " / เพิ่มใหม่ " + newCustomers.length + ")");
+            const allUpdated = [...updatedCustomers, ...newCustomers];
+            setCustomers(allUpdated);
+            // Batch upsert ตรงไป Supabase ทีละ 50 รายการ
+            let failed = 0;
+            const BATCH = 50;
+            for (let i = 0; i < allUpdated.length; i += BATCH) {
+              const batch = allUpdated.slice(i, i + BATCH);
+              const ok = await saveToSupabase('customers', batch);
+              if (!ok) failed += batch.length;
+            }
+            if (failed > 0) alert("นำเข้าสำเร็จ " + (allUpdated.length - failed) + "/" + allUpdated.length + " รายการ — กด โหลดข้อมูลล่าสุด เพื่อตรวจสอบ");
+            else alert("นำเข้าสำเร็จ! " + rows.length + " รายการ");
           }}
         />
       )}
