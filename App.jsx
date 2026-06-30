@@ -2501,23 +2501,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
             {renderCard(purchaseCard)}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px" }}>
   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
     <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดซื้อ แบ่งตามประเภทสินค้า</h3>
     <LineShareBtn onClick={lineShareHandlers.purchaseByType} />
   </div>
-  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
-                <colgroup>
-                  <col style={{ width: "50%" }} />
-                  <col style={{ width: "20%" }} />
-                  <col style={{ width: "15%" }} />
-                  <col style={{ width: "15%" }} />
-                </colgroup>
+  <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th style={thStyle}>ประเภท</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>จำนวน</th>
-                    <th style={{ ...thStyle, textAlign: "right" }}>ราคาเฉลี่ย/หน่วย</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>มูลค่ารวม</th>
                   </tr>
                 </thead>
@@ -2526,18 +2519,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                     <tr key={g.type}>
                       <td style={tdStyle}><Badge text={g.type} /></td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.qty)}</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.avgCost)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(g.value)}</td>
                     </tr>
                   ))}
-                  {purchaseByType.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
+                  {purchaseByType.length === 0 && <tr><td colSpan={3} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
                 </tbody>
                 {purchaseByType.length > 0 && (
                   <tfoot>
                     <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(purchaseByType.reduce((s, g) => s + g.qty, 0))}</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>—</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(purchaseByType.reduce((s, g) => s + g.value, 0))}</td>
                     </tr>
                   </tfoot>
@@ -2545,23 +2536,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
               </table>
             </div>
 
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดซื้อ แบ่งตามรายการสินค้า</h3>
                 <LineShareBtn onClick={lineShareHandlers.purchaseByProduct} />
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
-                <colgroup>
-                  <col style={{ width: "50%" }} />
-                  <col style={{ width: "20%" }} />
-                  <col style={{ width: "15%" }} />
-                  <col style={{ width: "15%" }} />
-                </colgroup>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th style={thStyle}>สินค้า</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>จำนวน</th>
-                    <th style={{ ...thStyle, textAlign: "right" }}>ราคาเฉลี่ย/หน่วย</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>มูลค่ารวม</th>
                   </tr>
                 </thead>
@@ -2570,18 +2554,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                     <tr key={g.productId}>
                       <td style={tdStyle}>{prodName(g.productId)}</td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.qty)} {prodUnit(g.productId)}</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.avgCost)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(g.value)}</td>
                     </tr>
                   ))}
-                  {purchaseByProduct.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
+                  {purchaseByProduct.length === 0 && <tr><td colSpan={3} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
                 </tbody>
                 {purchaseByProduct.length > 0 && (
                   <tfoot>
                     <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>—</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>—</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(purchaseByProduct.reduce((s, g) => s + g.value, 0))}</td>
                     </tr>
                   </tfoot>
@@ -2690,17 +2672,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
             {renderCard(salesCard)}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดขาย แบ่งตามประเภทสินค้า</h3>
                 <LineShareBtn onClick={lineShareHandlers.salesByType} />
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th style={thStyle}>ประเภท</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>จำนวน</th>
-                    <th style={{ ...thStyle, textAlign: "right" }}>ราคาเฉลี่ย/หน่วย</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>มูลค่ารวม</th>
                   </tr>
                 </thead>
@@ -2709,18 +2690,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                     <tr key={g.type}>
                       <td style={tdStyle}><Badge text={g.type} /></td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.qty)}</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.avgCost)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(g.value)}</td>
                     </tr>
                   ))}
-                  {salesByType.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
+                  {salesByType.length === 0 && <tr><td colSpan={3} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
                 </tbody>
                 {salesByType.length > 0 && (
                   <tfoot>
                     <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(salesByType.reduce((s, g) => s + g.qty, 0))}</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>—</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#185fa5" }}>฿{fmt(salesByType.reduce((s, g) => s + g.value, 0))}</td>
                     </tr>
                   </tfoot>
@@ -2728,17 +2707,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
               </table>
             </div>
 
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดขาย แบ่งตามรายการสินค้า</h3>
                 <LineShareBtn onClick={lineShareHandlers.salesByProduct} />
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500  }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th style={thStyle}>สินค้า</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>จำนวน</th>
-                    <th style={{ ...thStyle, textAlign: "right" }}>ราคาเฉลี่ย/หน่วย</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>มูลค่ารวม</th>
                   </tr>
                 </thead>
@@ -2747,18 +2725,16 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                     <tr key={g.productId}>
                       <td style={tdStyle}>{prodName(g.productId)}</td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.qty)} {prodUnit(g.productId)}</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.avgCost)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(g.value)}</td>
                     </tr>
                   ))}
-                  {salesByProduct.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
+                  {salesByProduct.length === 0 && <tr><td colSpan={3} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
                 </tbody>
                 {salesByProduct.length > 0 && (
                   <tfoot>
                     <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>—</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>—</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#185fa5" }}>฿{fmt(salesByProduct.reduce((s, g) => s + g.value, 0))}</td>
                     </tr>
                   </tfoot>
@@ -2781,40 +2757,35 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 20 }}>
               {renderCard(expensesCard)}
             </div>
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px", overflowX: "auto" }}>
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ค่าใช้จ่าย แบ่งตามหมวดหมู่ย่อย</h3>
                 <LineShareBtn onClick={lineShareHandlers.expensesBySubCat} />
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 500 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th style={thStyle}>หมวดหมู่ย่อย</th>
-                    <th style={{ ...thStyle, textAlign: "right" }}>จำนวนรายการ</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>รายการ</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>ยอดรวม (บาท)</th>
-                    <th style={{ ...thStyle, textAlign: "right" }}>% ของทั้งหมด</th>
                   </tr>
                 </thead>
                 <tbody>
                   {expensesBySubCategory.map((g) => (
                     <tr key={g.subCategory}>
                       <td style={tdStyle}>{g.subCategory}</td>
-                      <td style={{ ...tdStyle, textAlign: "right" }}>{g.count} รายการ</td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>{g.count}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(g.amount)}</td>
-                      <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>
-                        {totalExpenses > 0 ? `${((g.amount / totalExpenses) * 100).toFixed(1)}%` : "-"}
-                      </td>
                     </tr>
                   ))}
-                  {expensesBySubCategory.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
+                  {expensesBySubCategory.length === 0 && <tr><td colSpan={3} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
                 </tbody>
                 {expensesBySubCategory.length > 0 && (
                   <tfoot>
                     <tr>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{expensesBySubCategory.reduce((s, g) => s + g.count, 0)} รายการ</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{expensesBySubCategory.reduce((s, g) => s + g.count, 0)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(totalExpenses)}</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>100%</td>
                     </tr>
                   </tfoot>
                 )}
@@ -2931,10 +2902,9 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                 )}
               </div>
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 300 }}>
               <thead>
                 <tr>
-                  <th style={{ ...thStyle, width: 36, textAlign: "center" }}>แชร์</th>
                   <th style={thStyle}>ประเภทสินค้า / รายการสินค้า</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>คงเหลือ/{stockByType[0]?.items[0]?.unit || "หน่วย"}</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>มูลค่าคงเหลือ</th>
@@ -2958,23 +2928,25 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                             onMouseEnter={(e) => { e.currentTarget.style.background = "#f3f4f6"; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
                           >
-                            <td style={{ ...tdStyle, textAlign: "center" }} onClick={toggleCheck}><input type="checkbox" checked={isChecked} onChange={toggleCheck} onClick={e=>e.stopPropagation()} style={{ width:15,height:15,cursor:"pointer",accentColor:LINE_GREEN }} /></td>
-                            <td style={{ ...tdStyle, fontWeight: 700, color: "#1E4D8C" }}>{g.type}</td>
+                            <td style={{ ...tdStyle, fontWeight: 700, color: "#1E4D8C" }}>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                                <input type="checkbox" checked={isChecked} onChange={toggleCheck} onClick={e=>e.stopPropagation()} style={{ width:15,height:15,cursor:"pointer",accentColor:LINE_GREEN,flexShrink:0 }} />
+                                {g.type}
+                              </span>
+                            </td>
                             <td style={tdStyle}></td>
                             <td style={tdStyle}></td>
                             <td style={tdStyle}></td>
                           </tr>
                           {visibleItems.map((s) => (
                             <tr key={s.productId}>
-                              <td style={tdStyle}></td>
-                              <td style={{ ...tdStyle, color: "#111827", paddingLeft: 24 }}>- {s.name}</td>
+                              <td style={{ ...tdStyle, color: "#111827", paddingLeft: 32 }}>- {s.name}</td>
                               <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(s.qty)}</td>
                               <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C" }}>{fmt(s.totalCost)}</td>
                               <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(s.avgCost)}</td>
                             </tr>
                           ))}
                           <tr style={{ background: "#1f2937" }}>
-                            <td style={tdStyle}></td>
                             <td style={{ ...tdStyle, fontWeight: 700, color: "#fff" }}>{g.type} (ยอดรวม)</td>
                             <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fff" }}>{fmt(g.qty)}</td>
                             <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fca5a5" }}>{fmt(g.value)}</td>
@@ -2989,8 +2961,12 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                           onMouseEnter={(e) => { e.currentTarget.style.background = "#374151"; }}
                           onMouseLeave={(e) => { e.currentTarget.style.background = isChecked ? "#064e3b" : "#1f2937"; }}
                         >
-                          <td style={{ ...tdStyle, textAlign: "center" }} onClick={toggleCheck}><input type="checkbox" checked={isChecked} onChange={toggleCheck} onClick={e=>e.stopPropagation()} style={{ width:15,height:15,cursor:"pointer",accentColor:LINE_GREEN }} /></td>
-                          <td style={{ ...tdStyle, fontWeight: 700, color: "#fff" }}>{g.type} (ยอดรวม)</td>
+                          <td style={{ ...tdStyle, fontWeight: 700, color: "#fff" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                              <input type="checkbox" checked={isChecked} onChange={toggleCheck} onClick={e=>e.stopPropagation()} style={{ width:15,height:15,cursor:"pointer",accentColor:LINE_GREEN,flexShrink:0 }} />
+                              {g.type} (ยอดรวม)
+                            </span>
+                          </td>
                           <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fff" }}>{fmt(g.qty)}</td>
                           <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fca5a5" }}>{fmt(g.value)}</td>
                           <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#fff" }}>{fmt(g.avgCost)}</td>
@@ -3000,13 +2976,12 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                   );
                 })}
                 {stockByType.every((g) => g.items.every((s) => s.qty === 0)) && (
-                  <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลสต๊อก</td></tr>
+                  <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลสต๊อก</td></tr>
                 )}
               </tbody>
               {stockByType.length > 0 && (
                 <tfoot>
                   <tr style={{ borderTop: "3px solid #1B3A6B" }}>
-                    <td style={tdStyle}></td>
                     <td style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>ผลรวม</td>
                     <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>{fmt(stockByType.reduce((s, g) => s + g.qty, 0))}</td>
                     <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>{fmt(stockByType.reduce((s, g) => s + g.value, 0))}</td>
@@ -3233,111 +3208,62 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
                 <div style={{ background: "#185fa5", color: "#fff", padding: "12px 16px", fontWeight: 700, fontSize: 14 }}>
                   ยอดเงินในธนาคารแต่ละบัญชี{dateRange ? ` — ${periodLabel}` : ""}
                 </div>
-                <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 420, fontSize: 12 }}>
                   <thead><tr>
-                    <th style={{ ...thStyle, width: "28%" }}>ธนาคาร</th>
-                    <th style={{ ...thStyle, width: "18%" }}>เลขบัญชี</th>
-                    <th style={{ ...thStyle, textAlign: "right", width: "14%" }}>{dateRange ? "ยอดยกมา (ก่อนช่วง)" : "ยอดยกมา"}</th>
-                    <th style={{ ...thStyle, textAlign: "right", color: "#1B3A6B", width: "13%" }}>รับเข้า</th>
-                    <th style={{ ...thStyle, textAlign: "right", color: "#1E4D8C", width: "13%" }}>จ่ายออก</th>
-                    <th style={{ ...thStyle, textAlign: "right", width: "14%" }}>คงเหลือ</th>
+                    <th style={{ ...thStyle, fontSize: 11 }}>ธนาคาร</th>
+                    <th style={{ ...thStyle, textAlign: "right", fontSize: 11, color: "#1B3A6B" }}>รับเข้า</th>
+                    <th style={{ ...thStyle, textAlign: "right", fontSize: 11, color: "#1E4D8C" }}>จ่ายออก</th>
+                    <th style={{ ...thStyle, textAlign: "right", fontSize: 11 }}>คงเหลือ</th>
                   </tr></thead>
                   <tbody>
                     {bankGroupRows.length > 0 && (
-                      <tr style={{ background: "#fff" }}>
-                        <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, color: "#185fa5", display: "flex", alignItems: "center", gap: 6 }}>
-                          <Landmark size={13} /> ธนาคาร
-                        </td>
+                      <tr style={{ background: "#f0f4f8" }}>
+                        <td colSpan={4} style={{ ...tdStyle, fontWeight: 700, color: "#185fa5", fontSize: 11 }}>🏦 ธนาคาร</td>
                       </tr>
                     )}
                     {bankGroupRows.map((b) => (
                       <tr key={b.id}>
-                        <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 24 }}>{b.bankName}</td>
-                        <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 12 }}>{b.accountNo}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>{b.ob !== 0 ? `฿${fmt(b.ob)}` : "-"}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
+                        <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 16, fontSize: 12 }}>{b.bankName}<br/><span style={{ fontFamily: "monospace", fontSize: 10, color: "#6b7280" }}>{b.accountNo}</span></td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600, fontSize: 12 }}>฿{fmt(b.inflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600, fontSize: 12 }}>฿{fmt(b.outflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 13, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
                       </tr>
                     ))}
-
-
                     {cashGroupRows.length > 0 && (
-                      <tr style={{ background: "#fff" }}>
-                        <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B", display: "flex", alignItems: "center", gap: 6 }}>
-                          <Wallet size={13} /> เงินสด
-                        </td>
+                      <tr style={{ background: "#f0f4f8" }}>
+                        <td colSpan={4} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B", fontSize: 11 }}>💵 เงินสด</td>
                       </tr>
                     )}
                     {cashGroupRows.map((b) => (
                       <tr key={b.id}>
-                        <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 24 }}>{b.bankName}</td>
-                        <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 12 }}>{b.accountNo}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>{b.ob !== 0 ? `฿${fmt(b.ob)}` : "-"}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
+                        <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 16, fontSize: 12 }}>{b.bankName}<br/><span style={{ fontFamily: "monospace", fontSize: 10, color: "#6b7280" }}>{b.accountNo}</span></td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600, fontSize: 12 }}>฿{fmt(b.inflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600, fontSize: 12 }}>฿{fmt(b.outflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 13, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
                       </tr>
                     ))}
-
-
                     {unsetGroupRows.length > 0 && (
                       <tr style={{ background: "#f3f4f6" }}>
-                        <td colSpan={6} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B" }}>
-                          ยังไม่ระบุประเภท
-                        </td>
+                        <td colSpan={4} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B", fontSize: 11 }}>ยังไม่ระบุประเภท</td>
                       </tr>
                     )}
                     {unsetGroupRows.map((b) => (
                       <tr key={b.id}>
-                        <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 24 }}>{b.bankName}</td>
-                        <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 12 }}>{b.accountNo}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>{b.ob !== 0 ? `฿${fmt(b.ob)}` : "-"}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600 }}>฿{fmt(b.inflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600 }}>฿{fmt(b.outflow)}</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 14, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
+                        <td style={{ ...tdStyle, fontWeight: 600, paddingLeft: 16, fontSize: 12 }}>{b.bankName}<br/><span style={{ fontFamily: "monospace", fontSize: 10, color: "#6b7280" }}>{b.accountNo}</span></td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B", fontWeight: 600, fontSize: 12 }}>฿{fmt(b.inflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#1E4D8C", fontWeight: 600, fontSize: 12 }}>฿{fmt(b.outflow)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 13, color: b.balance >= 0 ? "#185fa5" : "#2456A4" }}>฿{fmt(b.balance)}</td>
                       </tr>
                     ))}
-                    {unsetGroupRows.length > 0 && (
-                      <tr style={{ background: "#f9fafb" }}>
-                        <td colSpan={5} style={{ ...tdStyle, fontWeight: 600, color: "#1B3A6B", paddingLeft: 24 }}>รวมกลุ่มยังไม่ระบุประเภท</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(unsetGroupTotal)}</td>
-                      </tr>
-                    )}
-
-                    {bankRows.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ยังไม่มีบัญชีธนาคาร</td></tr>}
+                    {bankRows.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ยังไม่มีบัญชีธนาคาร</td></tr>}
                   </tbody>
                   {bankRows.length > 0 && (
                     <tfoot>
-
-                      {(() => {
-                        const depOpening = customers.reduce((s,c) => s + (Number(c.depositOpening)||0), 0);
-                        const depIn = (deposits||[]).reduce((s,d) => s + (Number(d.amount)||0), 0);
-                        const depOut = purchases.reduce((s,po) => s + (po.payments||[]).filter(p=>p.fromStoreBankId==="DEPOSIT").reduce((s2,p)=>s2+(Number(p.amount)||0),0), 0);
-                        return (
-                          <tr style={{ background: "#fff" }}>
-                            <td colSpan={2} style={{ ...tdStyle, fontWeight: 700, color: "#1B3A6B" }}>เงินมัดจำคงเหลือรวม</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#6b7280" }}>฿{fmt(depOpening)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>+฿{fmt(depIn)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>-฿{fmt(depOut)}</td>
-                            <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#1B3A6B" }}>฿{fmt(totalDeposit)}</td>
-                          </tr>
-                        );
-                      })()}
-                      <tr style={{ borderTop: "3px solid #185fa5" }}>
-                        <td colSpan={2} style={{ ...tdStyle, fontWeight: 700, color: "#185fa5", fontSize: 14 }}>ยอดรวมทั้งหมด (ธนาคาร + เงินสด + มัดจำ)</td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#374151", fontSize: 14 }}>
-                          ฿{fmt(bankRows.reduce((s,b)=>s+b.ob,0) + customers.reduce((s,c)=>s+(Number(c.depositOpening)||0),0))}
-                        </td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 14 }}>
-                          +฿{fmt(bankRows.reduce((s,b)=>s+b.inflow,0) + (deposits||[]).reduce((s,d)=>s+(Number(d.amount)||0),0))}
-                        </td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C", fontSize: 14 }}>
-                          -฿{fmt(bankRows.reduce((s,b)=>s+b.outflow,0) + purchases.reduce((s,po)=>s+(po.payments||[]).filter(p=>p.fromStoreBankId==="DEPOSIT").reduce((s2,p)=>s2+(Number(p.amount)||0),0),0))}
-                        </td>
-                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#185fa5", fontSize: 15 }}>
-                          ฿{fmt(totalBankBalance + totalDeposit)}
-                        </td>
+                      <tr style={{ borderTop: "3px solid #185fa5", background: "#e6f1fb" }}>
+                        <td style={{ ...tdStyle, fontWeight: 700, color: "#185fa5", fontSize: 13 }}>ยอดรวม (ธนาคาร + เงินสด)</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B", fontSize: 13 }}>+฿{fmt(bankRows.reduce((s,b)=>s+b.inflow,0))}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C", fontSize: 13 }}>-฿{fmt(bankRows.reduce((s,b)=>s+b.outflow,0))}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#185fa5", fontSize: 14 }}>฿{fmt(totalBankBalance)}</td>
                       </tr>
                     </tfoot>
                   )}
