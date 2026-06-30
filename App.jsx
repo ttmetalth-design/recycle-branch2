@@ -4496,6 +4496,18 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
               🚛 ทะเบียนรถ: <strong>{po.vehiclePlate}</strong>
             </div>
           )}
+          {(() => {
+            const b = (customer?.bankAccounts || []).find((x) => x.id === po.receivingCustomerBankId);
+            if (!b) return null;
+            return (
+              <div style={{ marginTop: 8, padding: "8px 10px", background: "#f9fafb", borderRadius: 6, border: "1px solid #e5e7eb" }}>
+                <div style={{ fontWeight: 600, fontSize: 11, marginBottom: 4, color: "#374151" }}>บัญชีธนาคารที่ใช้รับเงิน</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#1B3A6B" }}>
+                  {b.bankName} — {b.accountNo} ({b.accountName})
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, tableLayout: "fixed" }}>
