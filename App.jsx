@@ -5968,13 +5968,13 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
       accs.size === 0 || (doc.payments||[]).some(p => accs.has(p[field]));
 
     const dayCost = allPurchaseRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "fromStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && !getWithdrawn(r) && hasAccPayment(r.doc, "fromStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayExp  = allExpenseRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "fromStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && !getWithdrawn(r) && hasAccPayment(r.doc, "fromStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayRev  = allSaleRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && hasAccPayment(r.doc, "toStoreBankId"))
+      .filter(r => r.date === creditDate && r.payStatus === "paid" && !getWithdrawn(r) && hasAccPayment(r.doc, "toStoreBankId"))
       .reduce((s,r)=>s+r.total,0);
     const dayNet  = dayCost + dayExp - dayRev;
 
@@ -6181,10 +6181,16 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
             <input type="date" value={creditDate} onChange={(e) => setCreditDate(e.target.value)}
               style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, color: "#fff", padding: "3px 8px", fontSize: 13 }} />
           </div>
-          <button onClick={() => printAsPDF("credit-day-summary-print", `สรุปยอดใช้เงิน ${creditDate}`)}
-            style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, color: "#fff", padding: "4px 12px", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-            <Printer size={13} /> พิมพ์
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button onClick={() => setShowCreditSetting(true)}
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, color: "#fff", padding: "4px 12px", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+              <Settings size={13} /> ตั้งค่าบัญชี
+            </button>
+            <button onClick={() => printAsPDF("credit-day-summary-print", `สรุปยอดใช้เงิน ${creditDate}`)}
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, color: "#fff", padding: "4px 12px", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+              <Printer size={13} /> พิมพ์
+            </button>
+          </div>
         </div>
         <div id="credit-day-summary-print">
           <div style={{ padding: "8px 14px", fontWeight: 700, fontSize: 14, borderBottom: "1px solid #e5e7eb" }}>
@@ -6410,7 +6416,22 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
               placeholder="เช่น 500000" />
           </Field>
           <div style={{ marginTop: 16 }}>
-            <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>เลือกบัญชีที่นับในวงเงิน</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <div style={{ fontWeight: 600, fontSize: 14 }}>เลือกบัญชีที่นับในวงเงิน</div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
+                  onClick={() => setCompanySettings(prev => ({ ...prev, creditAccounts: storeBankAccounts.map(a => a.id) }))}>
+                  เลือกทั้งหมด
+                </button>
+                <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
+                  onClick={() => setCompanySettings(prev => ({ ...prev, creditAccounts: [] }))}>
+                  ล้างทั้งหมด
+                </button>
+              </div>
+            </div>
+            <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 8 }}>
+              ถ้าไม่เลือกบัญชีใดเลย ระบบจะนับรวมทุกบัญชี — เลือกเฉพาะบัญชีที่ต้องการให้คิดเข้าสรุปยอดใช้เงิน
+            </div>
             {storeBankAccounts.map((acc) => (
               <label key={acc.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 13, cursor: "pointer" }}>
                 <input type="checkbox"
