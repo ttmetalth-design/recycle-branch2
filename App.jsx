@@ -12,6 +12,17 @@ import {
 import { isSupabaseReady } from './supabase'
 import { useSupabaseSync, loadAllFromSupabase, useSyncStatus, saveToSupabase } from './useSupabaseSync'
 import { loadProducts, insertProduct, updateProduct, deleteProduct, useProductsRealtime } from './useProductsSync'
+// ---------- Hook: ตรวจสอบว่าหน้าจอเป็นมือถือหรือไม่ (responsive) ----------
+function useIsMobile(breakpoint = 700) {
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth < breakpoint : false);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 // ---------- Seed data ----------
 const initialProducts = [];
  // ลูกค้าแต่ละคนสามารถมีบัญชีธนาคารได้หลายบัญชี: bankAccounts = [{id, bankName, accountNo, accountName}]
@@ -3860,6 +3871,7 @@ function CustomersTab({ customers, setCustomers }) {
 // PURCHASES TAB (ใบรับสินค้า)
 // ===================================================================
 function PurchasesTab({ products, customers, purchases, setPurchases, storeBankAccounts, deposits, companySettings }) {
+  const isMobile = useIsMobile();
   const [modal, setModal] = useState(null); // {mode:'add'|'edit'|'view', item}
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -4230,6 +4242,54 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
           </p>
 
           <div style={{ marginTop: 8, marginBottom: 8, fontWeight: 600, fontSize: 14 }}>สินค้า</div>
+          {isMobile ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {form.items.map((it, idx) => {
+                const qty = Math.round((Number(it.qty) || 0) * 100) / 100;
+                const deductPct = Number(it.deductPct) || 0;
+                const deductKg = Math.round((Number(it.deductKg) || 0) * 100) / 100;
+                const totalDeductKg = Math.round(((qty * deductPct / 100) + deductKg) * 100) / 100;
+                const net = Math.round((qty - totalDeductKg) * 100) / 100;
+                return (
+                  <div key={idx} style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: 12, background: "#fafbfc" }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <ProductSelect products={products} value={it.productId} onChange={(pid) => updateItem(idx, "productId", pid)} />
+                      </div>
+                      <button style={btnDanger} onClick={() => removeItem(idx)}><Trash2 size={14} /></button>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>จำนวน ({prodUnit(it.productId) || "หน่วย"})</label>
+                        <NumInput style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }} value={it.qty != null ? (Math.round((Number(it.qty)||0)*100)/100) : ""} onChange={(e) => updateItem(idx, "qty", e.target.value)} onKeyDown={(e) => handleEnterNavigate(e, save)} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>ราคา/หน่วย</label>
+                        <NumInput style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }} value={it.price} onChange={(e) => updateItem(idx, "price", e.target.value)} onKeyDown={(e) => handleEnterNavigate(e, save)} />
+                      </div>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>หัก %</label>
+                        <input type="number" min={0} max={100} style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }} value={it.deductPct || ""} placeholder="0" onChange={(e) => updateItem(idx, "deductPct", e.target.value)} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>หัก (กก.)</label>
+                        <input type="number" min={0} style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }} value={it.deductKg != null ? (Math.round((Number(it.deductKg)||0)*100)/100) : ""} placeholder="0" onChange={(e) => updateItem(idx, "deductKg", e.target.value)} />
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, paddingTop: 8, borderTop: "1px dashed #d1d5db" }}>
+                      <span style={{ color: "#6b7280" }}>รวมหัก: <b style={{ color: totalDeductKg > 0 ? "#1E4D8C" : "#9ca3af" }}>{fmt(totalDeductKg)}</b></span>
+                      <span style={{ color: "#6b7280" }}>สุทธิ: <b>{fmt(net)}</b></span>
+                    </div>
+                    <div style={{ textAlign: "right", marginTop: 6, fontWeight: 700, color: "#1E4D8C", fontSize: 15 }}>
+                      ฿{fmt(net * (Number(it.price) || 0))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 750, tableLayout: "fixed" }}>
               <thead>
@@ -4273,6 +4333,7 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
               </tbody>
             </table>
           </div>
+          )}
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, flexWrap: "wrap", gap: 10 }}>
             <button style={btnSecondary} onClick={addItem}><Plus size={14} /> เพิ่มรายการสินค้า</button>
@@ -4606,6 +4667,7 @@ function syncWithdrawalsToSales(sales, withdrawalLots) {
 }
 
 function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, setWithdrawals, inventory, customers, companySettings }) {
+  const isMobile = useIsMobile();
   const cs = companySettings || {};
   const [modal, setModal] = useState(null); // {mode:'add'|'edit'}
   const [search, setSearch] = useState("");
@@ -4980,6 +5042,48 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
           </p>
 
           <div style={{ marginTop: 8, marginBottom: 8, fontWeight: 600, fontSize: 14 }}>รายการเบิกสินค้า</div>
+          {isMobile ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {form.items.map((it, idx) => {
+                const p = previews[idx] || { value: 0, shortfall: 0 };
+                const qty = Number(it.qty) || 0;
+                const avgCost = qty > 0 ? p.value / qty : 0;
+                const remain = stockRemaining[idx] ?? 0;
+                return (
+                  <div key={idx} style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: 12, background: "#fafbfc" }}>
+                    <div style={{ marginBottom: 8 }}>
+                      <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>สินค้าที่เบิก (ต้นทาง)</label>
+                      <ProductSelect products={products} value={it.sourceProductId} onChange={(pid) => updateLineItem(idx, "sourceProductId", pid)} />
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>จำนวนที่เบิก</label>
+                        <input type="number" style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }} value={it.qty} onChange={(e) => updateLineItem(idx, "qty", e.target.value)} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>คงเหลือสต๊อก</label>
+                        <div style={{ ...inputStyle, textAlign: "right", color: remain < 0 ? "#2456A4" : "#6b7280" }}>{fmt(remain)} {prodUnit(it.sourceProductId)}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#6b7280", paddingTop: 8, borderTop: "1px dashed #d1d5db", marginBottom: 8 }}>
+                      <span>มูลค่าที่เบิก: <b style={{ color: "#3c3489" }}>฿{fmt(p.value)}</b></span>
+                      <span>ราคาเฉลี่ย: <b>฿{fmt(avgCost)}</b>{p.shortfall > 0 && <span style={{ color: "#2456A4" }}> (ขาด {fmt(p.shortfall)})</span>}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <ArrowRight size={16} color="#9ca3af" style={{ flexShrink: 0 }} />
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>นำไปขายเป็นสินค้า (เป้าหมาย)</label>
+                        <ProductSelect products={products} value={it.targetProductId} onChange={(pid) => updateLineItem(idx, "targetProductId", pid)} />
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <button style={btnDanger} onClick={() => removeLineItem(idx)}><Trash2 size={14} /> ลบรายการ</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
               <thead>
@@ -5023,6 +5127,7 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
               </tbody>
             </table>
           </div>
+          )}
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, flexWrap: "wrap", gap: 10 }}>
             <button style={btnSecondary} onClick={addLineItem}><Plus size={14} /> เพิ่มรายการเบิก</button>
@@ -5130,6 +5235,7 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
   );
 }
 function SalesTab({ products, customers, sales, setSales, inventory, withdrawals, storeBankAccounts, companySettings }) {
+  const isMobile = useIsMobile();
   const [modal, setModal] = useState(null);
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -5308,6 +5414,86 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
           </div>
 
           <div style={{ marginTop: 8, marginBottom: 8, fontWeight: 600, fontSize: 14 }}>รายการสินค้า</div>
+          {isMobile ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {form.items.map((it, idx) => {
+                const stock = inventory.summary.find((s) => s.productId === it.productId);
+                const net = lineNet(it);
+                const fromW = !!it.fromWithdrawal;
+                const insufficient = !fromW && stock && net > stock.qty;
+                return (
+                  <div key={idx} style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: 12, background: fromW ? "#eeedfe" : "#fafbfc" }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <ProductSelect products={products} value={it.productId} onChange={(pid) => updateItem(idx, "productId", pid)} disabled={fromW} labelWithId={false} />
+                        {fromW && (
+                          <div style={{ fontSize: 11, color: "#534ab7", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                            <PackageMinus size={12} /> มาจากการเบิกสินค้า
+                          </div>
+                        )}
+                      </div>
+                      <button style={btnDanger} onClick={() => removeItem(idx)}><Trash2 size={14} /></button>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>จำนวน</label>
+                        {fromW ? (
+                          <div style={{ ...inputStyle, textAlign: "right", color: "#534ab7", fontWeight: 500 }}>{fmt(it.qty)}</div>
+                        ) : (
+                          <input type="number" style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }} value={it.qty} onChange={(e) => updateItem(idx, "qty", e.target.value)} onKeyDown={(e) => handleEnterNavigate(e, save)} />
+                        )}
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>ราคา/หน่วย</label>
+                        <input type="number" style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }} value={it.price} onChange={(e) => updateItem(idx, "price", e.target.value)} onKeyDown={(e) => handleEnterNavigate(e, save)} />
+                      </div>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>จำนวนสุทธิ</label>
+                        <input
+                          type="number"
+                          style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }}
+                          value={it.net != null ? it.net : net}
+                          onChange={(e) => {
+                            const newNet = e.target.value;
+                            const newDeduct = (Number(it.qty) || 0) - (Number(newNet) || 0);
+                            const items = [...form.items];
+                            items[idx] = { ...items[idx], net: newNet, deduct: newDeduct };
+                            setForm({ ...form, items });
+                          }}
+                          onKeyDown={(e) => handleEnterNavigate(e, save)}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 11, color: "#6b7280", marginBottom: 3, display: "block" }}>จำนวนหัก</label>
+                        <input
+                          type="number"
+                          style={{ ...inputStyle, width: "100%", textAlign: "right", fontSize: 16 }}
+                          value={it.deduct}
+                          onChange={(e) => {
+                            const newDeduct = e.target.value;
+                            const newNet = (Number(it.qty) || 0) - (Number(newDeduct) || 0);
+                            const items = [...form.items];
+                            items[idx] = { ...items[idx], deduct: newDeduct, net: newNet };
+                            setForm({ ...form, items });
+                          }}
+                          onKeyDown={(e) => handleEnterNavigate(e, save)}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, paddingTop: 8, borderTop: "1px dashed #d1d5db", color: "#6b7280" }}>
+                      <span>ต้นทุนเฉลี่ย: <b style={{ color: fromW ? "#534ab7" : "#9ca3af" }}>{fromW ? fmt(it.withdrawalCost || 0) : "—"}</b></span>
+                      <span>คงเหลือสต๊อก: <b style={{ color: insufficient ? "#2456A4" : "#374151" }}>{fromW ? "—" : (stock ? fmt(stock.qty) : "-") + " " + prodUnit(it.productId)}</b></span>
+                    </div>
+                    <div style={{ textAlign: "right", marginTop: 6, fontWeight: 700, color: "#185fa5", fontSize: 15 }}>
+                      ฿{fmt(lineTotal(it))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
               <thead>
@@ -5391,6 +5577,7 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
               </tbody>
             </table>
           </div>
+          )}
           <button style={{ ...btnSecondary, marginTop: 8 }} onClick={addItem}><Plus size={14} /> เพิ่มรายการสินค้า</button>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0 16px", marginTop: 16 }}>
