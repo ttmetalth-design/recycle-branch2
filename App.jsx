@@ -4513,12 +4513,10 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, tableLayout: "fixed" }}>
           <thead>
             <tr style={{ background: primaryColor + "22" }}>
-              <th style={{ ...thCompact, color: primaryColor, width: "35%" }}>สินค้า</th>
-              <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "13%" }}>จำนวน</th>
-              <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "13%" }}>รวมหัก</th>
-              <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "13%" }}>สุทธิ</th>
-              <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "13%" }}>ราคา/หน่วย</th>
-              <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "13%" }}>จำนวนเงิน</th>
+              <th style={{ ...thCompact, color: primaryColor, width: "45%" }}>สินค้า</th>
+              <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "18%" }}>จำนวนสุทธิ</th>
+              <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "18%" }}>ราคา/หน่วย</th>
+              <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "19%" }}>จำนวนเงิน</th>
             </tr>
           </thead>
           <tbody>
@@ -4526,15 +4524,12 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
               const p = prodInfo(it.productId);
               const qty = Number(it.qty) || 0;
               const net = calcNet(it);
-              const deducted = qty - net;
               const discountPct = Number(it.discountPct) || 0;
               const amount = net * (Number(it.price) || 0) * (1 - discountPct / 100);
               return (
                 <tr key={idx}>
                   <td style={{ ...tdCompact, wordBreak: "break-word" }}>{p.name}</td>
-                  <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(qty)} {p.unit}</td>
-                  <td style={{ ...tdCompact, textAlign: "right", color: deducted > 0 ? "#1E4D8C" : "#9ca3af" }}>{deducted > 0 ? fmt(deducted) : "0"}</td>
-                  <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(net)}</td>
+                  <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(net)} {p.unit}</td>
                   <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(it.price)}</td>
                   <td style={{ ...tdCompact, textAlign: "right", fontWeight: 600 }}>{fmt(amount)}</td>
                 </tr>
@@ -4543,20 +4538,16 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
           </tbody>
           <tfoot>
             {(() => {
-              const totalQty = po.items.reduce((s, it) => s + (Number(it.qty) || 0), 0);
               const totalNet = po.items.reduce((s, it) => {
                 const qty = Number(it.qty) || 0;
                 const net = it.deductType === "pct" ? qty*(1-(Number(it.deductPct)||0)/100) : qty - (Number(it.deduct)||0);
                 return s + net;
               }, 0);
-              const totalDeducted = totalQty - totalNet;
               const unit = po.items[0] ? (products.find(p=>p.id===po.items[0].productId)?.unit || "") : "";
               return (
                 <tr style={{ background: "#f9fafb" }}>
                   <td style={{ ...tdCompact, fontWeight: 700, color: "#374151" }}>รวมทั้งหมด</td>
-                  <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700 }}>{fmt(totalQty)}</td>
-                  <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>{fmt(totalDeducted)}</td>
-                  <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700 }}>{fmt(totalNet)}</td>
+                  <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700 }}>{fmt(totalNet)} {unit}</td>
                   <td style={{ ...tdCompact }}></td>
                   <td style={{ ...tdCompact }}></td>
                 </tr>
@@ -4564,18 +4555,18 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
             })()}
             {po.vatRate > 0 && (
               <tr>
-                <td colSpan={5} style={{ ...tdCompact, textAlign: "right", fontSize: 11 }}>ยอดก่อน VAT</td>
+                <td colSpan={3} style={{ ...tdCompact, textAlign: "right", fontSize: 11 }}>ยอดก่อน VAT</td>
                 <td style={{ ...tdCompact, textAlign: "right", fontSize: 11 }}>{fmt(subtotal)} บาท</td>
               </tr>
             )}
             {po.vatRate > 0 && (
               <tr>
-                <td colSpan={5} style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#1E4D8C" }}>VAT {po.vatRate}%</td>
+                <td colSpan={3} style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#1E4D8C" }}>VAT {po.vatRate}%</td>
                 <td style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#1E4D8C" }}>+{fmt(vat)} บาท</td>
               </tr>
             )}
             <tr style={{ background: "#f0fdf4" }}>
-              <td colSpan={5} style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 13 }}>จำนวนเงินสุทธิ</td>
+              <td colSpan={3} style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 13 }}>จำนวนเงินสุทธิ</td>
               <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 13, color: "#1B3A6B" }}>{fmt(total)}</td>
             </tr>
           </tfoot>
@@ -5949,14 +5940,14 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
   const creditBalance = useMemo(() => {
     if (!creditLimit) return null;
     const getWithdrawn = (r) => !!payFlags[`${r.id}_withdrawn`];
-    const totalBuy = allPurchaseRows.filter(r => getWithdrawn(r)).reduce((s, r) => s + r.total, 0);
-    const totalExp = allExpenseRows.filter(r => getWithdrawn(r)).reduce((s, r) => s + r.total, 0);
-    const totalSale = allSaleRows.filter(r => getWithdrawn(r)).reduce((s, r) => s + r.total, 0);
+    const totalBuy = allPurchaseRows.filter(r => getWithdrawn(r)).reduce((s, r) => s + r.paid, 0);
+    const totalExp = allExpenseRows.filter(r => getWithdrawn(r)).reduce((s, r) => s + r.paid, 0);
+    const totalSale = allSaleRows.filter(r => getWithdrawn(r)).reduce((s, r) => s + r.paid, 0);
     const netOut = totalBuy + totalExp - totalSale;
     const balance = creditLimit - netOut;
-    const pendingBuy = allPurchaseRows.filter(r => r.payStatus === "paid" && !getWithdrawn(r)).reduce((s, r) => s + r.total, 0);
-    const pendingExp = allExpenseRows.filter(r => r.payStatus === "paid" && !getWithdrawn(r)).reduce((s, r) => s + r.total, 0);
-    const pendingSale = allSaleRows.filter(r => r.payStatus === "paid" && !getWithdrawn(r)).reduce((s, r) => s + r.total, 0);
+    const pendingBuy = allPurchaseRows.filter(r => r.payStatus === "paid" && !getWithdrawn(r)).reduce((s, r) => s + r.paid, 0);
+    const pendingExp = allExpenseRows.filter(r => r.payStatus === "paid" && !getWithdrawn(r)).reduce((s, r) => s + r.paid, 0);
+    const pendingSale = allSaleRows.filter(r => r.payStatus === "paid" && !getWithdrawn(r)).reduce((s, r) => s + r.paid, 0);
     const pendingNet = pendingBuy + pendingExp - pendingSale;
     return { limit: creditLimit, netOut, balance, pendingNet, totalBuy, totalExp, totalSale };
   }, [creditLimit, payFlags, allPurchaseRows, allExpenseRows, allSaleRows]);
@@ -5969,19 +5960,19 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
 
     const dayCost = allPurchaseRows
       .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
-      .reduce((s,r)=>s+r.total,0);
+      .reduce((s,r)=>s+r.paid,0);
     const dayExp  = allExpenseRows
       .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
-      .reduce((s,r)=>s+r.total,0);
+      .reduce((s,r)=>s+r.paid,0);
     const dayRev  = allSaleRows
       .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "toStoreBankId"))
-      .reduce((s,r)=>s+r.total,0);
+      .reduce((s,r)=>s+r.paid,0);
     const dayNet  = dayCost + dayExp - dayRev;
 
     const pendingBefore =
-      allPurchaseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+r.total,0)
-      + allExpenseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+r.total,0)
-      - allSaleRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"toStoreBankId")).reduce((s,r)=>s+r.total,0);
+      allPurchaseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+r.paid,0)
+      + allExpenseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+r.paid,0)
+      - allSaleRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"toStoreBankId")).reduce((s,r)=>s+r.paid,0);
 
     const manual = Number(creditManual) || 0;
     return { dayCost, dayExp, dayRev, dayNet, pendingBefore, manual, total: dayNet + pendingBefore + manual };
