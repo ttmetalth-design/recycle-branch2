@@ -9536,23 +9536,20 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
   const [draft, setDraft] = useState(() => ({ ...(settings || {}) }));
   const [draftSP, setDraftSP] = useState(() => ({ ...(shopProfile || {}) }));
   const [saved, setSaved] = useState(false);
+  const initializedRef = React.useRef(false);
 
-  // sync draft เมื่อ settings โหลดครั้งแรกจาก Supabase (dbLoaded)
-  const prevSettingsRef = React.useRef(null);
+  // sync draft เฉพาะครั้งแรกที่ข้อมูลโหลดจาก Supabase มาถึง
   useEffect(() => {
-    const str = JSON.stringify(settings);
-    if (str !== prevSettingsRef.current) {
-      prevSettingsRef.current = str;
-      // อัปเดต draft เฉพาะตอนยังไม่มีการแก้ไข (saved state)
-      if (!saved) setDraft(settings || {});
+    if (!initializedRef.current && settings && Object.keys(settings).length > 0) {
+      setDraft({ ...settings });
+      initializedRef.current = true;
     }
   }, [settings]);
-  const prevSPRef = React.useRef(null);
+  const initializedSPRef = React.useRef(false);
   useEffect(() => {
-    const str = JSON.stringify(shopProfile);
-    if (str !== prevSPRef.current) {
-      prevSPRef.current = str;
-      if (!saved) setDraftSP(shopProfile || {});
+    if (!initializedSPRef.current && shopProfile && Object.keys(shopProfile).length > 0) {
+      setDraftSP({ ...shopProfile });
+      initializedSPRef.current = true;
     }
   }, [shopProfile]);
 
