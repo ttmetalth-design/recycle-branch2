@@ -6398,50 +6398,62 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
       </Card>
 
       {/* Modal ตั้งค่าวงเงินหมุนเวียน */}
-      {showCreditSetting && (
-        <Modal title="ตั้งค่าวงเงินหมุนเวียนร้าน" onClose={() => setShowCreditSetting(false)}>
-          <Field label="วงเงินตั้งต้น (บาท)">
-            <input type="number" style={{ ...inputStyle, textAlign: "right" }}
-              value={companySettings?.creditLimit || ""}
-              onChange={(e) => setCompanySettings(prev => ({ ...prev, creditLimit: Number(e.target.value) || 0 }))}
-              placeholder="เช่น 500000" />
-          </Field>
-          <div style={{ marginTop: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>เลือกบัญชีที่นับในวงเงิน</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
-                  onClick={() => setCompanySettings(prev => ({ ...prev, creditAccounts: storeBankAccounts.map(a => a.id) }))}>
-                  เลือกทั้งหมด
-                </button>
-                <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
-                  onClick={() => setCompanySettings(prev => ({ ...prev, creditAccounts: [] }))}>
-                  ล้างทั้งหมด
-                </button>
+      {showCreditSetting && (() => {
+        // ใช้ local draft เพื่อกันไม่ให้ realtime subscription ทับค่าระหว่างแก้
+        const [draft, setDraft] = React.useState({
+          creditLimit: companySettings?.creditLimit || 0,
+          creditAccounts: companySettings?.creditAccounts || [],
+        });
+        const handleSave = () => {
+          setCompanySettings(prev => ({ ...prev, creditLimit: draft.creditLimit, creditAccounts: draft.creditAccounts }));
+          setShowCreditSetting(false);
+        };
+        return (
+          <Modal title="ตั้งค่าวงเงินหมุนเวียนร้าน" onClose={() => setShowCreditSetting(false)}>
+            <Field label="วงเงินตั้งต้น (บาท)">
+              <input type="number" style={{ ...inputStyle, textAlign: "right" }}
+                value={draft.creditLimit || ""}
+                onChange={(e) => setDraft(d => ({ ...d, creditLimit: Number(e.target.value) || 0 }))}
+                placeholder="เช่น 500000" />
+            </Field>
+            <div style={{ marginTop: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>เลือกบัญชีที่นับในวงเงิน</div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
+                    onClick={() => setDraft(d => ({ ...d, creditAccounts: storeBankAccounts.map(a => a.id) }))}>
+                    เลือกทั้งหมด
+                  </button>
+                  <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
+                    onClick={() => setDraft(d => ({ ...d, creditAccounts: [] }))}>
+                    ล้างทั้งหมด
+                  </button>
+                </div>
               </div>
+              <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 8 }}>
+                ถ้าไม่เลือกบัญชีใดเลย ระบบจะนับรวมทุกบัญชี
+              </div>
+              {storeBankAccounts.map((acc) => (
+                <label key={acc.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 13, cursor: "pointer" }}>
+                  <input type="checkbox"
+                    checked={draft.creditAccounts.includes(acc.id)}
+                    onChange={(e) => {
+                      const next = e.target.checked
+                        ? [...draft.creditAccounts, acc.id]
+                        : draft.creditAccounts.filter(id => id !== acc.id);
+                      setDraft(d => ({ ...d, creditAccounts: next }));
+                    }}
+                    style={{ width: 16, height: 16 }} />
+                  {acc.bankName} — {acc.accountNo} ({acc.accountName || ""})
+                </label>
+              ))}
             </div>
-            <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 8 }}>
-              ถ้าไม่เลือกบัญชีใดเลย ระบบจะนับรวมทุกบัญชี — เลือกเฉพาะบัญชีที่ต้องการให้คิดเข้าสรุปยอดใช้เงิน
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+              <button style={btnPrimary} onClick={handleSave}><Check size={14} /> บันทึก</button>
             </div>
-            {storeBankAccounts.map((acc) => (
-              <label key={acc.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 13, cursor: "pointer" }}>
-                <input type="checkbox"
-                  checked={(companySettings?.creditAccounts || []).includes(acc.id)}
-                  onChange={(e) => {
-                    const cur = companySettings?.creditAccounts || [];
-                    const next = e.target.checked ? [...cur, acc.id] : cur.filter(id => id !== acc.id);
-                    setCompanySettings(prev => ({ ...prev, creditAccounts: next }));
-                  }}
-                  style={{ width: 16, height: 16 }} />
-                {acc.bankName} — {acc.accountNo} ({acc.accountName || ""})
-              </label>
-            ))}
-          </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
-            <button style={btnPrimary} onClick={() => setShowCreditSetting(false)}><Check size={14} /> บันทึก</button>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        );
+      })()}
 
       {/* Modal ตั้งโอน — เลือกบัญชีและยอด */}
       {transferDetailModal && (
@@ -9521,11 +9533,31 @@ function AssetsTab({ assets, setAssets }) {
 // COMPANY SETTINGS TAB (ตั้งค่าร้าน / โลโก้)
 // ===================================================================
 function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile }) {
-  const cs = settings || {};
-  const sp = shopProfile || {};
-  const set = (field, value) => setSettings((prev) => ({ ...prev, [field]: value }));
-  const setSP = (field, value) => setShopProfile((prev) => ({ ...prev, [field]: value }));
+  const [draft, setDraft] = useState(() => ({ ...(settings || {}) }));
+  const [draftSP, setDraftSP] = useState(() => ({ ...(shopProfile || {}) }));
   const [saved, setSaved] = useState(false);
+
+  // sync draft เมื่อ settings โหลดครั้งแรกจาก Supabase (dbLoaded)
+  const prevSettingsRef = React.useRef(null);
+  useEffect(() => {
+    const str = JSON.stringify(settings);
+    if (str !== prevSettingsRef.current) {
+      prevSettingsRef.current = str;
+      // อัปเดต draft เฉพาะตอนยังไม่มีการแก้ไข (saved state)
+      if (!saved) setDraft(settings || {});
+    }
+  }, [settings]);
+  const prevSPRef = React.useRef(null);
+  useEffect(() => {
+    const str = JSON.stringify(shopProfile);
+    if (str !== prevSPRef.current) {
+      prevSPRef.current = str;
+      if (!saved) setDraftSP(shopProfile || {});
+    }
+  }, [shopProfile]);
+
+  const set = (field, value) => setDraft((prev) => ({ ...prev, [field]: value }));
+  const setSP = (field, value) => setDraftSP((prev) => ({ ...prev, [field]: value }));
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
@@ -9546,10 +9578,14 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
   };
 
   const handleSave = () => {
+    setSettings(draft);
+    setShopProfile(draftSP);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const cs = draft;
+  const sp = draftSP;
   const sCard = { background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "20px 24px", marginBottom: 16 };
 
   return (
