@@ -1939,13 +1939,13 @@ export default function App() {
       </div>
 
       {/* Main content — independently scrollable */}
-      <div style={{ flex: 1, padding: "28px 32px", overflowY: "auto", overflowX: "auto", minHeight: "100vh", marginLeft: sidebarOpen ? 220 : 64, transition: "margin-left 0.2s ease", boxSizing: "border-box", width: sidebarOpen ? "calc(100vw - 220px)" : "calc(100vw - 64px)" }}>        {tab === "dashboard" && <Dashboard products={products} customers={customers} purchases={purchases} sales={sales} inventory={inventory} expenses={expenses} loans={loans} storeBankAccounts={storeBankAccounts} deposits={deposits} bankTransfers={bankTransfers} expenseCategories={expenseCategories} prepayments={prepayments} />}
+      <div style={{ flex: 1, padding: "28px 32px", overflowY: "auto", overflowX: "auto", minHeight: "100vh", marginLeft: sidebarOpen ? 220 : 64, transition: "margin-left 0.2s ease", boxSizing: "border-box", width: sidebarOpen ? "calc(100vw - 220px)" : "calc(100vw - 64px)" }}>        {tab === "dashboard" && <Dashboard products={products} customers={customers} purchases={purchases} sales={sales} inventory={inventory} expenses={expenses} loans={loans} storeBankAccounts={storeBankAccounts} deposits={deposits} bankTransfers={bankTransfers} expenseCategories={expenseCategories} prepayments={prepayments} assets={assets} />}
         {tab === "products" && <ProductsTab products={products} setProducts={setProducts} unitOptions={unitOptions} setUnitOptions={setUnitOptions} productCategories={productCategories} setProductCategories={setProductCategories} />}
         {tab === "customers" && <CustomersTab customers={customers} setCustomers={setCustomers} />}
         {tab === "purchases" && <PurchasesTab products={products} customers={customers} purchases={purchases} setPurchases={setPurchases} storeBankAccounts={storeBankAccounts} deposits={deposits} companySettings={companySettings} />}
         {tab === "withdrawals" && <WithdrawalsTab products={products} purchases={purchases} sales={sales} setSales={setSales} withdrawals={withdrawals} setWithdrawals={setWithdrawals} inventory={inventory} customers={customers} companySettings={companySettings} />}
         {tab === "sales" && <SalesTab products={products} customers={customers} sales={sales} setSales={setSales} inventory={inventory} withdrawals={withdrawals} storeBankAccounts={storeBankAccounts} companySettings={companySettings} />}
-        {tab === "payments" && <PaymentsTab purchases={purchases} setPurchases={setPurchases} sales={sales} setSales={setSales} customers={customers} storeBankAccounts={storeBankAccounts} deposits={deposits} expenses={expenses} setExpenses={setExpenses} companySettings={companySettings} setCompanySettings={setCompanySettings} bankTransfers={bankTransfers} />}
+        {tab === "payments" && <PaymentsTab purchases={purchases} setPurchases={setPurchases} sales={sales} setSales={setSales} customers={customers} setCustomers={setCustomers} storeBankAccounts={storeBankAccounts} deposits={deposits} expenses={expenses} setExpenses={setExpenses} companySettings={companySettings} setCompanySettings={setCompanySettings} bankTransfers={bankTransfers} />}
         {tab === "delivery" && <DeliveryTab deliveries={deliveries} setDeliveries={setDeliveries} products={products} customers={customers} sales={sales} companySettings={companySettings} />}
         {tab === "inventory" && <InventoryTab products={products} inventory={inventory} storeBankAccounts={storeBankAccounts} />}
         {tab === "deposits" && <DepositsTab customers={customers} setCustomers={setCustomers} deposits={deposits} setDeposits={setDeposits} purchases={purchases} storeBankAccounts={storeBankAccounts} />}
@@ -1968,7 +1968,7 @@ export default function App() {
 // ===================================================================
 // DASHBOARD
 // ===================================================================
-function Dashboard({ products, customers, purchases, sales, inventory, expenses, loans, storeBankAccounts, deposits, bankTransfers, expenseCategories, prepayments }) {
+function Dashboard({ products, customers, purchases, sales, inventory, expenses, loans, storeBankAccounts, deposits, bankTransfers, expenseCategories, prepayments, assets }) {
   // ---------- หมวดหมู่แดชบอร์ด ----------
   const [dashSubTab, setDashSubTab] = useState("purchases"); // "purchases" | "sales" | "expenses" | "stock" | "loans"
   const [expandedStockTypes, setExpandedStockTypes] = useState({}); // { [type]: bool } ติ๊กเลือกเพื่อดูรายการสินค้าในประเภทนั้น
@@ -3019,20 +3019,109 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
             <span style={{ fontSize: 13, color: "#6b7280" }}>ยอดคงเหลือ ณ วันที่ {today}</span>
             <ExportToolbar onPDF={exportHandlers.loans.pdf} onExcel={exportHandlers.loans.excel} onImage={exportHandlers.loans.image} onLine={lineShareHandlers.loans} />
           </div>
-          <div id="dash-export-loans" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
-            {renderCard(loanCard, true)}
-            {totalOpeningBankBalance > 0 && (
-              <div style={{ background: "#e6f1fb", borderRadius: 12, border: "1px solid #b3d0f0", padding: "14px 18px" }}>
-                <div style={{ fontSize: 12, color: "#0c447c", marginBottom: 4, fontWeight: 600 }}>ยอดธนาคารยกมา</div>
-                <div style={{ fontWeight: 700, fontSize: 18, color: "#185fa5" }}>฿{fmt(totalOpeningBankBalance)}</div>
-                <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>
-                  {storeBankAccounts.filter(a => Number(a.openingBalance) > 0).map(a => (
-                    <div key={a.id}>{a.bankName}: ฿{fmt(a.openingBalance)}</div>
-                  ))}
+          <div id="dash-export-loans">
+            {/* Summary card */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 20 }}>
+              {renderCard(loanCard, true)}
+              {(assets||[]).length > 0 && (
+                <div style={{ background: "#f0fdf4", borderRadius: 12, border: "1px solid #bbf7d0", padding: "14px 18px" }}>
+                  <div style={{ fontSize: 12, color: "#166534", marginBottom: 4, fontWeight: 600 }}>มูลค่าทรัพย์สินรวม</div>
+                  <div style={{ fontWeight: 700, fontSize: 18, color: "#15803d" }}>฿{fmt((assets||[]).reduce((s,a)=>s+Number(a.cost),0))}</div>
+                  <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>{(assets||[]).length} รายการ</div>
                 </div>
+              )}
+            </div>
+
+            {/* ตารางรายการเงินกู้ */}
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", marginBottom: 16 }}>
+              <div style={{ background: "#1E3A5F", color: "#fff", padding: "12px 16px", borderRadius: "12px 12px 0 0", fontWeight: 700, fontSize: 14 }}>
+                รายการสินเชื่อ / เงินกู้
+              </div>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>ชื่อสัญญา</th>
+                    <th style={thStyle}>ประเภท</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>เงินต้น</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>ผ่อนแล้ว</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>คงเหลือ</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>งวดที่เหลือ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(loans||[]).length === 0 && (
+                    <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีรายการสินเชื่อ</td></tr>
+                  )}
+                  {(loans||[]).map((l) => {
+                    const principal = Number(l.principal) || 0;
+                    const paidCount = (l.paidInstallments||[]).length;
+                    const totalInst = Number(l.totalInstallments) || 0;
+                    const paidAmt = (l.paidInstallments||[]).reduce((s,p)=>s+(Number(p.principalPortion)||0),0);
+                    const remaining = Math.max(0, principal - paidAmt);
+                    return (
+                      <tr key={l.id}>
+                        <td style={{ ...tdStyle, fontWeight: 600 }}>{l.name}</td>
+                        <td style={tdStyle}><Badge text={l.type || "—"} /></td>
+                        <td style={{ ...tdStyle, textAlign: "right" }}>฿{fmt(principal)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", color: "#15803d" }}>฿{fmt(paidAmt)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(remaining)}</td>
+                        <td style={{ ...tdStyle, textAlign: "right" }}>{totalInst - paidCount} / {totalInst} งวด</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                {(loans||[]).length > 0 && (
+                  <tfoot>
+                    <tr style={{ borderTop: "2px solid #e5e7eb", background: "#f9fafb" }}>
+                      <td colSpan={2} style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt((loans||[]).reduce((s,l)=>s+Number(l.principal||0),0))}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#15803d" }}>฿{fmt((loans||[]).reduce((s,l)=>s+(l.paidInstallments||[]).reduce((s2,p)=>s2+(Number(p.principalPortion)||0),0),0))}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(totalLoanRemaining)}</td>
+                      <td style={tdStyle}></td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+
+            {/* ตารางทรัพย์สิน */}
+            {(assets||[]).length > 0 && (
+              <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb" }}>
+                <div style={{ background: "#166534", color: "#fff", padding: "12px 16px", borderRadius: "12px 12px 0 0", fontWeight: 700, fontSize: 14 }}>
+                  ทะเบียนทรัพย์สิน
+                </div>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th style={thStyle}>ชื่อทรัพย์สิน</th>
+                      <th style={thStyle}>หมวดหมู่</th>
+                      <th style={thStyle}>วันที่ซื้อ</th>
+                      <th style={{ ...thStyle, textAlign: "right" }}>ราคาทุน</th>
+                      <th style={thStyle}>หมายเหตุ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(assets||[]).map((a) => (
+                      <tr key={a.id}>
+                        <td style={{ ...tdStyle, fontWeight: 600 }}>{a.name}</td>
+                        <td style={tdStyle}><Badge text={a.category} /></td>
+                        <td style={tdStyle}>{a.purchaseDate}</td>
+                        <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#15803d" }}>฿{fmt(a.cost)}</td>
+                        <td style={{ ...tdStyle, color: "#6b7280", fontSize: 12 }}>{a.note}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ borderTop: "2px solid #e5e7eb", background: "#f9fafb" }}>
+                      <td colSpan={3} style={{ ...tdStyle, fontWeight: 700 }}>รวม {(assets||[]).length} รายการ</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#15803d" }}>฿{fmt((assets||[]).reduce((s,a)=>s+Number(a.cost),0))}</td>
+                      <td style={tdStyle}></td>
+                    </tr>
+                  </tfoot>
+                </table>
               </div>
             )}
-        </div>{/* end dash-export-loans */}
+          </div>{/* end dash-export-loans */}
         </>
       )}
 
@@ -3110,7 +3199,11 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
         const unsetGroupTotal = unsetGroupRows.reduce((s, b) => s + b.balance, 0);
 
         // 2. ลูกหนี้ค้างรับ (ยอดคงค้าง ณ ปัจจุบันเสมอ — ตรงกับหน้ารับ/จ่ายชำระ)
-        const totalReceivable = sales.reduce((s, inv) => {
+        // ยอดยกมาลูกหนี้/เจ้าหนี้
+        const openingReceivableTotal = customers.reduce((s, c) => s + (Number(c.openingReceivable) || 0), 0);
+        const openingPayableTotal = customers.reduce((s, c) => s + (Number(c.openingPayable) || 0), 0);
+
+        const totalReceivable = openingReceivableTotal + sales.reduce((s, inv) => {
           const subtotal = inv.items.reduce((ss, it) => ss + (it.net || 0) * (it.price || 0), 0);
           const ad = subtotal - (inv.discount || 0);
           const total = ad + ad * ((inv.vatRate || 0) / 100);
@@ -3121,7 +3214,7 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
         }, 0);
 
         // 3. เจ้าหนี้ค้างจ่าย (ยอดคงค้าง ณ ปัจจุบัน — ตรงกับหน้ารับ/จ่ายชำระ)
-        const totalPayable = purchases.filter(po => (po.status || "") !== "ยกเลิก").reduce((s, po) => {
+        const totalPayable = openingPayableTotal + purchases.filter(po => (po.status || "") !== "ยกเลิก").reduce((s, po) => {
           const subtotal = po.items.reduce((ss, it) => ss + (it.net || 0) * (it.price || 0), 0);
           const vat = subtotal * ((Number(po.vatRate) || 0) / 100);
           const total = subtotal + vat;
@@ -3199,8 +3292,8 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
               {/* การ์ดสรุป */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 14 }}>
                 {cfCard(dateRange ? "เงินในธนาคารรวม (ช่วงที่เลือก)" : "เงินในธนาคารรวม", bankGroupTotal, "#185fa5", "#e6f1fb", `${bankGroupRows.length} บัญชี`)}
-                {cfCard("ลูกหนี้ค้างรับ", totalReceivable, "#1B3A6B", "#E8EEF8", "รอรับชำระ (ปัจจุบัน)")}
-                {cfCard("เจ้าหนี้ค้างจ่าย", totalPayable, "#1E4D8C", "#E8EEF8", "รอจ่ายชำระ (ปัจจุบัน)")}
+                {cfCard("ลูกหนี้ค้างรับ", totalReceivable, "#1B3A6B", "#E8EEF8", openingReceivableTotal > 0 ? `รวมยกมา ฿${fmt(openingReceivableTotal)}` : "รอรับชำระ (ปัจจุบัน)")}
+                {cfCard("เจ้าหนี้ค้างจ่าย", totalPayable, "#1E4D8C", "#E8EEF8", openingPayableTotal > 0 ? `รวมยกมา ฿${fmt(openingPayableTotal)}` : "รอจ่ายชำระ (ปัจจุบัน)")}
                 {cfCard("เงินมัดจำคงเหลือ", totalDeposit, "#1B3A6B", "#E8EEF8", "มัดจำที่ยังไม่ใช้ (ปัจจุบัน)")}
                 {cfCard("รับล่วงหน้าคงเหลือ", totalPrepayment, "#1d4ed8", "#eff6ff", "ลูกค้าจ่ายล่วงหน้าที่ยังไม่ได้ตัด")}
                 {cfCard("มูลค่าสต๊อก (ทุน)", stockVal, "#2855A0", "#E8EEF8", "สินค้าคงเหลือ (ปัจจุบัน)")}
@@ -3644,7 +3737,7 @@ function CustomersTab({ customers, setCustomers }) {
   const [search, setSearch] = useState("");
   const [importModal, setImportModal] = useState(false);
   const [viewIdCard, setViewIdCard] = useState(null); // รูปบัตรประชาชนที่เปิดดูเต็ม
-  const blank = { id: "", name: "", taxId: "", address: "", phone: "", line: "", email: "", deliveries: 0, bankAccounts: [], idCardImage: "" };
+  const blank = { id: "", name: "", taxId: "", address: "", phone: "", line: "", email: "", deliveries: 0, bankAccounts: [], idCardImage: "", openingReceivable: 0, openingPayable: 0 };
   const [form, setForm] = useState(blank);
 
   const filtered = [...customers].filter((c) => c.name.includes(search) || c.id.includes(search) || (c.phone || "").includes(search)).sort((a, b) => { const na = parseInt((a.id || "").replace(/\D/g, "")) || 0; const nb = parseInt((b.id || "").replace(/\D/g, "")) || 0; return nb - na; });
@@ -3813,6 +3906,19 @@ function CustomersTab({ customers, setCustomers }) {
           <Field label="ที่อยู่">
             <textarea style={{ ...inputStyle, minHeight: 60, resize: "vertical" }} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
           </Field>
+
+          {/* ยอดยกมา */}
+          <div style={{ background: "#f9fafb", borderRadius: 8, border: "1px solid #e5e7eb", padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10, color: "#374151" }}>ยอดยกมา (Opening Balance)</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
+              <Field label="ลูกหนี้ยกมา (บาท) — ลูกค้าค้างจ่ายเรา">
+                <input type="number" min={0} style={{ ...inputStyle, textAlign: "right" }} value={form.openingReceivable || ""} placeholder="0" onChange={(e) => setForm({ ...form, openingReceivable: Number(e.target.value) || 0 })} />
+              </Field>
+              <Field label="เจ้าหนี้ยกมา (บาท) — เราค้างจ่ายลูกค้า">
+                <input type="number" min={0} style={{ ...inputStyle, textAlign: "right" }} value={form.openingPayable || ""} placeholder="0" onChange={(e) => setForm({ ...form, openingPayable: Number(e.target.value) || 0 })} />
+              </Field>
+            </div>
+          </div>
 
           {/* รูปภาพบัตรประชาชน */}
           <div style={{ marginTop: 8, marginBottom: 16 }}>
@@ -5840,8 +5946,10 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
 // ===================================================================
 // PAYMENTS TAB (รับชำระ/จ่ายชำระ — รวมรายการค้างชำระจากใบรับสินค้าและใบขาย)
 // ===================================================================
-function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, storeBankAccounts, deposits, expenses, setExpenses, companySettings, setCompanySettings, bankTransfers }) {
+function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setCustomers, storeBankAccounts, deposits, expenses, setExpenses, companySettings, setCompanySettings, bankTransfers }) {
   const [showCreditSetting, setShowCreditSetting] = React.useState(false);
+  const [openingPayModal, setOpeningPayModal] = React.useState(null); // { customer, type: "receivable"|"payable" }
+  const [openingPayForm, setOpeningPayForm] = React.useState({ amount: "", bankId: "", date: new Date().toISOString().slice(0,10), note: "" });
   const [creditDate, setCreditDate] = React.useState(new Date().toISOString().slice(0, 10));
   const [creditManual, setCreditManual] = React.useState(0); // ยอดตกหล่น กรอกมือ
   const [returnBankName, setReturnBankName] = React.useState(""); // ธนาคารโอนคืน
@@ -6003,8 +6111,13 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
 
   const { paged: pagedCombined, page: combinedPage, setPage: setCombinedPage, totalPages: combinedTotalPages, total: combinedTotal, start: combinedStart, end: combinedEnd } = usePagination(combined);
 
-  const totalPayable = unpaidPurchases.reduce((s, r) => s + r.remaining, 0);
-  const totalReceivable = unpaidSales.reduce((s, r) => s + r.remaining, 0);
+  const openingRecPaid = customers.reduce((s,c)=>(c.openingPayments||[]).filter(p=>p.type==="receivable").reduce((s2,p)=>s2+(Number(p.amount)||0),s),0);
+  const openingPayPaid = customers.reduce((s,c)=>(c.openingPayments||[]).filter(p=>p.type==="payable").reduce((s2,p)=>s2+(Number(p.amount)||0),s),0);
+  const openingRecRemain = Math.max(0, customers.reduce((s,c)=>s+(Number(c.openingReceivable)||0),0) - openingRecPaid);
+  const openingPayRemain = Math.max(0, customers.reduce((s,c)=>s+(Number(c.openingPayable)||0),0) - openingPayPaid);
+
+  const totalPayable = unpaidPurchases.reduce((s, r) => s + r.remaining, 0) + openingPayRemain;
+  const totalReceivable = unpaidSales.reduce((s, r) => s + r.remaining, 0) + openingRecRemain;
   const totalPayableExpense = unpaidExpenses.reduce((s, r) => s + r.remaining, 0);
 
   // ---------- ฟอร์มบันทึกการจ่าย/รับเงิน (รองรับแบ่งจ่ายหลายงวดในครั้งเดียว) ----------
@@ -6279,6 +6392,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
           { key: "unpaid-purchase", label: `ค้างจ่าย (ใบรับสินค้า) (${unpaidPurchases.length})` },
           { key: "unpaid-sale", label: `ค้างรับ (ใบขาย) (${unpaidSales.length})` },
           { key: "unpaid-expense", label: `ค้างจ่าย (ค่าใช้จ่าย) (${unpaidExpenses.length})` },
+          { key: "opening-balance", label: `ยอดยกมา (ลูกหนี้/เจ้าหนี้) (${customers.filter(c=>(Number(c.openingReceivable)||0)+(Number(c.openingPayable)||0)>0).length})` },
           { key: "purchase", label: `จ่ายชำระแล้ว (${allPurchaseRows.filter(r=>r.payStatus==="paid").length})` },
           { key: "sale", label: `รับชำระแล้ว (${allSaleRows.filter(r=>r.payStatus==="paid").length})` },
           { key: "expense", label: `ค่าใช้จ่ายชำระแล้ว (${allExpenseRows.filter(r=>r.payStatus==="paid").length})` },
@@ -6306,7 +6420,149 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
 
       <SearchBar value={search} onChange={setSearch} placeholder="ค้นหาเลขที่ใบ หรือชื่อลูกค้า..." dateFrom={dateFrom} dateTo={dateTo} onDateFromChange={setDateFrom} onDateToChange={setDateTo} />
 
-      <Card>
+      {/* ===== แท็บยอดยกมา ===== */}
+      {activeView === "opening-balance" && (() => {
+        const rows = customers.filter(c => (Number(c.openingReceivable)||0) + (Number(c.openingPayable)||0) > 0)
+          .filter(c => !search || c.name.includes(search) || c.id.includes(search));
+        return (
+          <Card>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>ลูกค้า</th>
+                  <th style={{ ...thStyle, textAlign: "right" }}>ลูกหนี้ยกมา</th>
+                  <th style={{ ...thStyle, textAlign: "right" }}>ชำระแล้ว</th>
+                  <th style={{ ...thStyle, textAlign: "right" }}>คงค้าง (ลูกหนี้)</th>
+                  <th style={{ ...thStyle, textAlign: "right" }}>เจ้าหนี้ยกมา</th>
+                  <th style={{ ...thStyle, textAlign: "right" }}>จ่ายแล้ว</th>
+                  <th style={{ ...thStyle, textAlign: "right" }}>คงค้าง (เจ้าหนี้)</th>
+                  <th style={thStyle}>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.length === 0 && <tr><td colSpan={8} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มียอดยกมา</td></tr>}
+                {rows.map(c => {
+                  const recOrig = Number(c.openingReceivable) || 0;
+                  const payOrig = Number(c.openingPayable) || 0;
+                  const payments = c.openingPayments || [];
+                  const recPaid = payments.filter(p=>p.type==="receivable").reduce((s,p)=>s+(Number(p.amount)||0),0);
+                  const payPaid = payments.filter(p=>p.type==="payable").reduce((s,p)=>s+(Number(p.amount)||0),0);
+                  const recRemain = Math.max(0, recOrig - recPaid);
+                  const payRemain = Math.max(0, payOrig - payPaid);
+                  return (
+                    <tr key={c.id}>
+                      <td style={{ ...tdStyle, fontWeight: 600 }}>{c.name}<div style={{ fontSize: 11, color: "#9ca3af" }}>{c.id}</div></td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>{recOrig > 0 ? `฿${fmt(recOrig)}` : "—"}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", color: "#15803d" }}>{recPaid > 0 ? `฿${fmt(recPaid)}` : "—"}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: recRemain > 0 ? "#1B3A6B" : "#9ca3af" }}>{recOrig > 0 ? `฿${fmt(recRemain)}` : "—"}</td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>{payOrig > 0 ? `฿${fmt(payOrig)}` : "—"}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", color: "#15803d" }}>{payPaid > 0 ? `฿${fmt(payPaid)}` : "—"}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: payRemain > 0 ? "#1E4D8C" : "#9ca3af" }}>{payOrig > 0 ? `฿${fmt(payRemain)}` : "—"}</td>
+                      <td style={tdStyle}>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          {recRemain > 0 && (
+                            <button style={{ ...btnSecondary, fontSize: 11, padding: "3px 8px" }}
+                              onClick={() => { setOpeningPayModal({ customer: c, type: "receivable" }); setOpeningPayForm({ amount: "", bankId: "", date: new Date().toISOString().slice(0,10), note: "" }); }}>
+                              รับชำระ
+                            </button>
+                          )}
+                          {payRemain > 0 && (
+                            <button style={{ ...btnSecondary, fontSize: 11, padding: "3px 8px" }}
+                              onClick={() => { setOpeningPayModal({ customer: c, type: "payable" }); setOpeningPayForm({ amount: "", bankId: "", date: new Date().toISOString().slice(0,10), note: "" }); }}>
+                              จ่ายชำระ
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              {rows.length > 0 && (() => {
+                const totRecOrig = rows.reduce((s,c)=>s+(Number(c.openingReceivable)||0),0);
+                const totPayOrig = rows.reduce((s,c)=>s+(Number(c.openingPayable)||0),0);
+                const totRecPaid = rows.reduce((s,c)=>s+(c.openingPayments||[]).filter(p=>p.type==="receivable").reduce((s2,p)=>s2+(Number(p.amount)||0),0),0);
+                const totPayPaid = rows.reduce((s,c)=>s+(c.openingPayments||[]).filter(p=>p.type==="payable").reduce((s2,p)=>s2+(Number(p.amount)||0),0),0);
+                return (
+                  <tfoot>
+                    <tr style={{ borderTop: "2px solid #e5e7eb", background: "#f9fafb" }}>
+                      <td style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(totRecOrig)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#15803d" }}>฿{fmt(totRecPaid)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(totRecOrig-totRecPaid)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(totPayOrig)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#15803d" }}>฿{fmt(totPayPaid)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(totPayOrig-totPayPaid)}</td>
+                      <td style={tdStyle}></td>
+                    </tr>
+                  </tfoot>
+                );
+              })()}
+            </table>
+          </Card>
+        );
+      })()}
+
+      {/* ===== Modal บันทึกรับ/จ่ายยอดยกมา ===== */}
+      {openingPayModal && (() => {
+        const { customer: c, type } = openingPayModal;
+        const isRec = type === "receivable";
+        const orig = Number(isRec ? c.openingReceivable : c.openingPayable) || 0;
+        const paid = (c.openingPayments||[]).filter(p=>p.type===type).reduce((s,p)=>s+(Number(p.amount)||0),0);
+        const remain = Math.max(0, orig - paid);
+        const saveOpeningPay = () => {
+          const amt = Number(openingPayForm.amount) || 0;
+          if (amt <= 0) { alert("กรุณาระบุจำนวนเงิน"); return; }
+          if (amt > remain) { alert(`จำนวนเงินเกินยอดคงค้าง ฿${fmt(remain)}`); return; }
+          const newPayment = { id: `OP-${Date.now()}`, type, amount: amt, bankId: openingPayForm.bankId, date: openingPayForm.date, note: openingPayForm.note };
+          setCustomers(customers.map(cu => cu.id === c.id ? { ...cu, openingPayments: [...(cu.openingPayments||[]), newPayment] } : cu));
+          setOpeningPayModal(null);
+        };
+        return (
+          <Modal title={`${isRec ? "รับชำระ" : "จ่ายชำระ"}ยอดยกมา — ${c.name}`} onClose={() => setOpeningPayModal(null)}>
+            <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13 }}>
+              <div>ยอดยกมาทั้งหมด: <b>฿{fmt(orig)}</b></div>
+              <div>ชำระแล้ว: <b style={{ color: "#15803d" }}>฿{fmt(paid)}</b></div>
+              <div>คงค้าง: <b style={{ color: "#1B3A6B" }}>฿{fmt(remain)}</b></div>
+            </div>
+            <Field label="วันที่"><input type="date" style={inputStyle} value={openingPayForm.date} onChange={e=>setOpeningPayForm(f=>({...f,date:e.target.value}))} /></Field>
+            <Field label="จำนวนเงิน (บาท)">
+              <input type="number" min={0} max={remain} style={{ ...inputStyle, textAlign: "right" }} value={openingPayForm.amount} placeholder={`฿${fmt(remain)}`} onChange={e=>setOpeningPayForm(f=>({...f,amount:e.target.value}))} />
+            </Field>
+            <Field label="บัญชีธนาคาร">
+              <select style={inputStyle} value={openingPayForm.bankId} onChange={e=>setOpeningPayForm(f=>({...f,bankId:e.target.value}))}>
+                <option value="">— เงินสด —</option>
+                {storeBankAccounts.map(a=><option key={a.id} value={a.id}>{a.bankName} — {a.accountNo}</option>)}
+              </select>
+            </Field>
+            <Field label="หมายเหตุ"><input style={inputStyle} value={openingPayForm.note} onChange={e=>setOpeningPayForm(f=>({...f,note:e.target.value}))} /></Field>
+
+            {/* ประวัติการชำระ */}
+            {(c.openingPayments||[]).filter(p=>p.type===type).length > 0 && (
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>ประวัติการชำระ</div>
+                {(c.openingPayments||[]).filter(p=>p.type===type).map((p,i) => (
+                  <div key={p.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "4px 0", borderBottom: "1px solid #f3f4f6", color: "#374151" }}>
+                    <span>{p.date} {p.note && `· ${p.note}`}</span>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                      <span style={{ color: "#15803d", fontWeight: 600 }}>฿{fmt(p.amount)}</span>
+                      <button style={{ ...btnDanger, padding: "1px 6px", fontSize: 11 }} onClick={() => setCustomers(customers.map(cu=>cu.id===c.id?{...cu,openingPayments:(cu.openingPayments||[]).filter(q=>q.id!==p.id)}:cu))}>
+                        <X size={11} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+              <button style={btnSecondary} onClick={() => setOpeningPayModal(null)}>ปิด</button>
+              {remain > 0 && <button style={btnPrimary} onClick={saveOpeningPay}><Check size={14} /> บันทึกชำระ</button>}
+            </div>
+          </Modal>
+        );
+      })()}
+
+      {activeView !== "opening-balance" && <Card>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -6395,7 +6651,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, stor
           </tbody>
         </table>
         <Pagination page={combinedPage} totalPages={combinedTotalPages} setPage={setCombinedPage} total={combinedTotal} start={combinedStart} end={combinedEnd} />
-      </Card>
+      </Card>}
 
       {/* Modal ตั้งค่าวงเงินหมุนเวียน */}
       {showCreditSetting && (() => {
@@ -9394,11 +9650,14 @@ function AssetsTab({ assets, setAssets }) {
 
   const annualDepreciation = (a) => a.depreciationMethod === "เส้นตรง" ? Number(a.cost) / Number(a.lifeYears) : 0;
   const monthlyDepreciation = (a) => annualDepreciation(a) / 12;
-  const yearsUsed = (a) => {
-    const ms = new Date() - new Date(a.purchaseDate);
-    return ms / (1000 * 60 * 60 * 24 * 365.25);
+  const monthsUsed = (a) => {
+    if (!a.purchaseDate) return 0;
+    const buy = new Date(a.purchaseDate);
+    const today = new Date();
+    // นับเดือนเต็มๆ ไม่รวมเวลา ไม่ทำให้กระพือ
+    return (today.getFullYear() - buy.getFullYear()) * 12 + (today.getMonth() - buy.getMonth());
   };
-  const accumulatedDepreciation = (a) => Math.min(Number(a.cost), annualDepreciation(a) * yearsUsed(a));
+  const accumulatedDepreciation = (a) => Math.min(Number(a.cost), monthlyDepreciation(a) * monthsUsed(a));
   const bookValue = (a) => Math.max(0, Number(a.cost) - accumulatedDepreciation(a));
 
   const filtered = assets.filter((a) => a.name.includes(search) || a.category.includes(search) || a.id.includes(search)).filter((a) => (!dateFrom || (a.purchaseDate || "") >= dateFrom) && (!dateTo || (a.purchaseDate || "") <= dateTo))
@@ -9413,32 +9672,22 @@ function AssetsTab({ assets, setAssets }) {
   };
 
   const totalCost = assets.reduce((s, a) => s + Number(a.cost), 0);
-  const totalBookValue = assets.reduce((s, a) => s + bookValue(a), 0);
-  const totalAccDep = assets.reduce((s, a) => s + accumulatedDepreciation(a), 0);
 
   return (
     <div>
-      <Header title="ทะเบียนทรัพย์สิน" subtitle="บันทึกและคำนวณค่าเสื่อมราคาทรัพย์สินของร้าน">
+      <Header title="ทะเบียนทรัพย์สิน" subtitle="บันทึกทรัพย์สินของร้าน">
         <button style={btnPrimary} onClick={() => { setForm(blankForm()); setModal({ mode: "add" }); }}><Plus size={16} /> เพิ่มทรัพย์สิน</button>
       </Header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
-        {[
-          { label: "ราคาทุนรวมทั้งหมด", value: fmt(totalCost), color: "#185fa5", bg: "#e6f1fb" },
-          { label: "ค่าเสื่อมราคาสะสม", value: fmt(totalAccDep), color: "#1B3A6B", bg: "#E8EEF8" },
-          { label: "มูลค่าตามบัญชีรวม", value: fmt(totalBookValue), color: "#1B3A6B", bg: "#E8EEF8" },
-        ].map((c) => (
-          <div key={c.label} style={{ background: c.bg, borderRadius: 12, padding: "14px 18px" }}>
-            <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>{c.label}</div>
-            <div style={{ fontWeight: 700, fontSize: 20, color: c.color }}>฿{c.value}</div>
-          </div>
-        ))}
+      <div style={{ background: "#e6f1fb", borderRadius: 12, padding: "14px 18px", marginBottom: 20, display: "inline-block" }}>
+        <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>ราคาทุนรวมทั้งหมด</div>
+        <div style={{ fontWeight: 700, fontSize: 20, color: "#185fa5" }}>฿{fmt(totalCost)}</div>
       </div>
 
       <SearchBar value={search} onChange={setSearch} placeholder="ค้นหาชื่อทรัพย์สิน, หมวดหมู่..." dateFrom={dateFrom} dateTo={dateTo} onDateFromChange={setDateFrom} onDateToChange={setDateTo} />
 
       <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
           <thead>
             <tr>
               <th style={thStyle}>รหัส</th>
@@ -9446,10 +9695,7 @@ function AssetsTab({ assets, setAssets }) {
               <th style={thStyle}>หมวดหมู่</th>
               <th style={thStyle}>วันที่ซื้อ</th>
               <th style={{ ...thStyle, textAlign: "right" }}>ราคาทุน</th>
-              <th style={{ ...thStyle, textAlign: "right" }}>อายุ (ปี)</th>
-              <th style={{ ...thStyle, textAlign: "right" }}>เสื่อม/ปี</th>
-              <th style={{ ...thStyle, textAlign: "right" }}>ค่าเสื่อมสะสม</th>
-              <th style={{ ...thStyle, textAlign: "right" }}>มูลค่าตามบัญชี</th>
+              <th style={thStyle}>หมายเหตุ</th>
               <th style={{ ...thStyle, textAlign: "right" }}>จัดการ</th>
             </tr>
           </thead>
@@ -9460,37 +9706,27 @@ function AssetsTab({ assets, setAssets }) {
                 <td style={{ ...tdStyle, fontWeight: 600 }}>{a.name}</td>
                 <td style={tdStyle}><Badge text={a.category} /></td>
                 <td style={tdStyle}>{a.purchaseDate}</td>
-                <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(a.cost)}</td>
-                <td style={{ ...tdStyle, textAlign: "right" }}>{a.lifeYears}</td>
-                <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(annualDepreciation(a))}</td>
-                <td style={{ ...tdStyle, textAlign: "right", color: "#1B3A6B" }}>{fmt(accumulatedDepreciation(a))}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#1B3A6B" }}>{fmt(bookValue(a))}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#185fa5" }}>฿{fmt(a.cost)}</td>
+                <td style={{ ...tdStyle, color: "#6b7280", fontSize: 12 }}>{a.note}</td>
                 <td style={{ ...tdStyle, textAlign: "right" }}>
                   <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                     <button style={iconBtn} onClick={() => { setForm({ ...a }); setModal({ mode: "edit", item: a }); }}><Edit2 size={14} /></button>
-                    <button style={btnDanger} onClick={() => confirmAction(`ต้องการลบทรัพย์สิน "${a.name}" ใช่หรือไม่?`, () => setAssets(assets.filter((x) => x.id !== a.id)))}><Trash2 size={14} /></button>
+                    <button style={iconBtn} onClick={() => setAssets(assets.filter(x => x.id !== a.id))}><Trash2 size={14} /></button>
                   </div>
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={10} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่พบทรัพย์สิน</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={7} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ยังไม่มีทรัพย์สิน</td></tr>}
           </tbody>
-          {assets.length > 0 && (
-            <tfoot>
-              <tr>
-                <td colSpan={4} style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(totalCost)}</td>
-                <td style={tdStyle}></td>
-                <td style={tdStyle}></td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>{fmt(totalAccDep)}</td>
-                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>{fmt(totalBookValue)}</td>
-                <td style={tdStyle}></td>
-              </tr>
-            </tfoot>
-          )}
+          <tfoot>
+            <tr style={{ borderTop: "2px solid #e5e7eb", background: "#f9fafb" }}>
+              <td colSpan={4} style={{ ...tdStyle, fontWeight: 700 }}>รวม {filtered.length} รายการ</td>
+              <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#185fa5" }}>฿{fmt(filtered.reduce((s,a)=>s+Number(a.cost),0))}</td>
+              <td colSpan={2}></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
-
       {modal && (
         <Modal title={modal.mode === "add" ? "เพิ่มทรัพย์สิน" : "แก้ไขทรัพย์สิน"} onClose={() => setModal(null)} wide>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
@@ -9503,21 +9739,8 @@ function AssetsTab({ assets, setAssets }) {
             </Field>
             <Field label="วันที่ซื้อ"><input type="date" style={inputStyle} value={form.purchaseDate} onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })} /></Field>
             <Field label="ราคาทุน (บาท)"><input type="number" min={0} style={inputStyle} value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} /></Field>
-            <Field label="อายุการใช้งาน (ปี)"><input type="number" min={1} max={50} style={inputStyle} value={form.lifeYears} onChange={(e) => setForm({ ...form, lifeYears: e.target.value })} /></Field>
-            <Field label="วิธีเสื่อมราคา">
-              <select style={inputStyle} value={form.depreciationMethod} onChange={(e) => setForm({ ...form, depreciationMethod: e.target.value })}>
-                <option value="เส้นตรง">เส้นตรง (Straight-Line)</option>
-                <option value="ยอดคงเหลือลดลง">ยอดคงเหลือลดลง</option>
-              </select>
-            </Field>
           </div>
           <Field label="หมายเหตุ"><input style={inputStyle} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></Field>
-          {Number(form.cost) > 0 && Number(form.lifeYears) > 0 && (
-            <div style={{ background: "#f9fafb", borderRadius: 8, padding: "12px 16px", marginTop: 8, fontSize: 13 }}>
-              <Row label="ค่าเสื่อมราคาต่อปี" value={`฿${fmt(Number(form.cost) / Number(form.lifeYears))}`} />
-              <Row label="ค่าเสื่อมราคาต่อเดือน" value={`฿${fmt(Number(form.cost) / Number(form.lifeYears) / 12)}`} />
-            </div>
-          )}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
             <button style={btnSecondary} onClick={() => setModal(null)}>ยกเลิก</button>
             <button style={btnPrimary} onClick={save}><Save size={16} /> บันทึก</button>
