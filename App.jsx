@@ -2416,10 +2416,25 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
     if (chosen.length === 0) { alert("กรุณาเลือกอย่างน้อย 1 ประเภทก่อนแชร์"); return; }
     const totalQ = chosen.reduce((s,g)=>s+g.qty,0);
     const totalV = chosen.reduce((s,g)=>s+g.value,0);
+    // แตกรายการย่อย: header ประเภท + แต่ละสินค้า
+    const rows = [];
+    chosen.forEach(g => {
+      const visItems = g.items.filter(s => s.qty > 0);
+      if (visItems.length <= 1) {
+        // ประเภทเดียว/ไม่มีรายการย่อย — แสดงแค่แถวเดียว
+        rows.push([g.type, g.qty, g.value, g.avgCost]);
+      } else {
+        // มีรายการย่อย — แสดงหัวประเภทแล้วตามด้วยรายการย่อย
+        rows.push([`▶ ${g.type} (รวม)`, g.qty, g.value, g.avgCost]);
+        visItems.forEach(s => {
+          rows.push([`  - ${s.name}`, s.qty, s.totalCost, s.avgCost]);
+        });
+      }
+    });
     shareTableImage({
       title: "สต็อกสินค้า (เลือกประเภท)", subtitle: `ณ วันที่ ${today}`,
-      headers: ["ประเภทสินค้า", "จำนวน", "มูลค่า (฿)", "ราคาเฉลี่ย"],
-      rows: chosen.map(g => [g.type, g.qty, g.value, g.avgCost]),
+      headers: ["ประเภทสินค้า / รายการ", "จำนวน", "มูลค่า (฿)", "ราคาเฉลี่ย"],
+      rows,
       footerRow: ["ผลรวม", totalQ, totalV, ""],
       accentColor: "#0A1E3D", filename: `สต็อกเลือก_${today}.png`,
     });
