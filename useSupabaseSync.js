@@ -20,6 +20,15 @@ const ARRAY_TABLES = {
   shareholders: 'shareholders',
 }
 
+// tables ที่ต้อง realtime (เปลี่ยนบ่อย / หลายคนใช้พร้อมกัน)
+const REALTIME_TABLES = new Set([
+  'purchases', 'sales', 'customers', 'expenses',
+  'withdrawals', 'deposits',
+])
+
+// tables ที่ใช้ polling แทน realtime (เปลี่ยนน้อย)
+const POLL_INTERVAL_MS = 5 * 60 * 1000 // 5 นาที
+
 const SETTINGS_KEYS = [
   'shopProfile', 'companySettings', 'unitOptions',
   'expenseCategories', 'productCategories',
@@ -34,17 +43,10 @@ function setGlobalStatus(status) {
   globalStatus = status
   statusListeners.forEach(fn => fn(status))
 }
-
-function incrementPending() {
-  pendingCount++
-  setGlobalStatus('saving')
-}
-
+function incrementPending() { pendingCount++; setGlobalStatus('saving') }
 function decrementPending(success) {
   pendingCount = Math.max(0, pendingCount - 1)
-  if (pendingCount === 0) {
-    setGlobalStatus(success ? 'synced' : 'error')
-  }
+  if (pendingCount === 0) setGlobalStatus(success ? 'synced' : 'error')
 }
 
 export function useSyncStatus() {
@@ -132,7 +134,7 @@ export async function loadAllFromSupabase() {
   return result
 }
 
-// ---------- saveToSupabase (เรียกตรงๆ สำหรับกรณีพิเศษ) ----------
+// ---------- saveToSupabase ----------
 export async function saveToSupabase(key, items) {
   const tableName = ARRAY_TABLES[key]
   if (tableName) return await saveArrayTable(tableName, items)
@@ -153,6 +155,8 @@ export function useSupabaseSync(key, value, setValue, loaded) {
   const tableName = ARRAY_TABLES[key]
   const isArrayTable = !!tableName
   const isSettingsKey = SETTINGS_KEYS.includes(key)
+  const useRealtime = isArrayTable && REALTIME_TABLES.has(key)
+  const usePolling = isArrayTable && !REALTIME_TABLES.has(key)
 
   // ---------- SAVE ----------
   useEffect(() => {
@@ -216,46 +220,56 @@ export function useSupabaseSync(key, value, setValue, loaded) {
     }
   }, [key, value, loaded])
 
-  // ---------- REALTIME ----------
+  // ---------- REALTIME (เฉพาะ tables ที่เปลี่ยนบ่อย) ----------
   useEffect(() => {
-    if (!isSupabaseReady || !loaded) return
+    if (!isSupabaseReady || !loaded || !useRealtime) return
 
-    if (isArrayTable) {
-      const channel = supabase
-        .channel(`rt-${tableName}-${DEVICE_ID}`)
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: tableName }, (payload) => {
-          const item = payload.new?.data
-          if (!item || item._updated_by === DEVICE_ID) return
-          setValue(prev => {
-            if (prev.some(x => x.id === item.id)) return prev
-            return [...prev, item]
-          })
+    const channel = supabase
+      .channel(`rt-${tableName}-${DEVICE_ID}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: tableName }, (payload) => {
+        const item = payload.new?.data
+        if (!item || item._updated_by === DEVICE_ID) return
+        setValue(prev => {
+          if (prev.some(x => x.id === item.id)) return prev
+          return [...prev, item]
         })
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: tableName }, (payload) => {
-          const item = payload.new?.data
-          if (!item || item._updated_by === DEVICE_ID) return
-          setValue(prev => prev.map(x => x.id === item.id ? item : x))
-        })
-        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: tableName }, (payload) => {
-          const id = payload.old?.id
-          if (!id) return
-          setValue(prev => prev.filter(x => x.id !== id))
-        })
-        .subscribe()
-      return () => { supabase.removeChannel(channel) }
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: tableName }, (payload) => {
+        const item = payload.new?.data
+        if (!item || item._updated_by === DEVICE_ID) return
+        setValue(prev => prev.map(x => x.id === item.id ? item : x))
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: tableName }, (payload) => {
+        const id = payload.old?.id
+        if (!id) return
+        setValue(prev => prev.filter(x => x.id !== id))
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [key, setValue, loaded, useRealtime, tableName])
+
+  // ---------- POLLING (tables ที่เปลี่ยนน้อย เช่น loans, assets, shareholders) ----------
+  useEffect(() => {
+    if (!isSupabaseReady || !loaded || !usePolling) return
+
+    const poll = async () => {
+      if (isSaving.current) return // ไม่ poll ระหว่างกำลัง save
+      const fresh = await loadArrayTable(tableName)
+      if (!fresh || fresh.length === 0) return
+      setValue(prev => {
+        // merge: ถ้าข้อมูลเหมือนเดิมไม่ทำอะไร
+        const prevStr = JSON.stringify([...prev].sort((a,b)=>(a.id||'').localeCompare(b.id||'')))
+        const freshStr = JSON.stringify([...fresh].sort((a,b)=>(a.id||'').localeCompare(b.id||'')))
+        if (prevStr === freshStr) return prev
+        return fresh
+      })
     }
 
-    if (isSettingsKey) {
-      const channel = supabase
-        .channel(`rt-settings-${key}-${DEVICE_ID}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'app_settings', filter: `key=eq.${key}` }, (payload) => {
-          const updatedBy = payload.new?.data?._updated_by
-          if (updatedBy === DEVICE_ID) return
-          const newValue = payload.new?.data?.value
-          if (newValue !== undefined) setValue(newValue)
-        })
-        .subscribe()
-      return () => { supabase.removeChannel(channel) }
-    }
-  }, [key, setValue, loaded, tableName, isArrayTable, isSettingsKey])
+    const timer = setInterval(poll, POLL_INTERVAL_MS)
+    return () => clearInterval(timer)
+  }, [key, setValue, loaded, usePolling, tableName])
+
+  // ---------- Settings: fetch-only ไม่ subscribe realtime ----------
+  // (settings โหลดครั้งเดียวตอน loadAllFromSupabase แล้ว ไม่ต้อง subscribe)
 }
