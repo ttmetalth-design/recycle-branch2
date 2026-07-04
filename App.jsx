@@ -728,6 +728,147 @@ function LineShareBtn({ onClick, style = {} }) {
   );
 }
 
+async function shareCreditSummaryImage({ creditDate, dayCost, dayExp, dayRev, dayNet, pendingBefore, manual, total, bankName, bankNo, bankOwner, filename }) {
+  const DPR = 3;
+  const W = 900;
+  const FONT = "'Noto Sans Thai','Sarabun','Prompt',sans-serif";
+  const PAD = 0;
+  const TITLE_H = 52;
+  const COL_HEAD_H = 44;
+  const ROW_H = 46;
+  const TOTAL_ROW_H = 52;
+  const BANK_H = bankName || bankNo ? 100 : 0;
+  const ROWS = 3; // ค่าสินค้า / ค่าใช้จ่าย / หัก
+  const H = TITLE_H + COL_HEAD_H + ROWS * ROW_H + TOTAL_ROW_H + BANK_H + 8;
+  const HALF = W / 2;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W * DPR; canvas.height = H * DPR;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(DPR, DPR);
+
+  const fmtN = (n) => {
+    if (typeof n !== "number") return String(n ?? "");
+    return n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+  const drawText = (text, x, y, { size = 13, bold = false, color = "#1a2a4a", align = "left" } = {}) => {
+    ctx.fillStyle = color;
+    ctx.font = `${bold ? "bold " : ""}${size}px ${FONT}`;
+    ctx.textAlign = align;
+    ctx.fillText(text, x, y);
+    ctx.textAlign = "left";
+  };
+
+  // background
+  ctx.fillStyle = "#f0f4f8";
+  ctx.fillRect(0, 0, W, H);
+
+  // ===== Title =====
+  ctx.fillStyle = "#1a1a1a";
+  ctx.fillRect(0, 0, W, TITLE_H);
+  drawText(`สรุปยอดใช้เงิน — ${creditDate}`, 20, TITLE_H / 2 + 6, { size: 17, bold: true, color: "#fff" });
+
+  // ===== Column headers =====
+  let y = TITLE_H;
+  // ซ้าย
+  ctx.fillStyle = "#6b1f1f";
+  ctx.fillRect(0, y, HALF, COL_HEAD_H);
+  drawText("ยอดใช้เงินต่อวัน / ยอดรับต่อวัน", 20, y + COL_HEAD_H / 2 + 6, { size: 13, bold: true, color: "#fff" });
+  // ขวา
+  ctx.fillStyle = "#1a3a5c";
+  ctx.fillRect(HALF, y, HALF, COL_HEAD_H);
+  drawText("ยอดใช้ที่ต้องเบิกคืน", HALF + 20, y + COL_HEAD_H / 2 + 6, { size: 13, bold: true, color: "#fff" });
+
+  // ===== Data rows =====
+  y += COL_HEAD_H;
+  const leftRows = [
+    { label: "ค่าสินค้า", value: dayCost },
+    { label: "ค่าใช้จ่าย", value: dayExp },
+    { label: "หัก รายได้จากสินค้า", value: dayRev > 0 ? `(${fmtN(dayRev)})` : "0.00" },
+  ];
+  const rightRows = [
+    { label: "ยอดใช้วันนี้", value: dayNet },
+    { label: "ยอดค้างเบิก", value: pendingBefore },
+    { label: "ยอดตกหล่น", value: manual, dim: true },
+  ];
+  const rowBgs = ["#E8EEF8", "#ffffff", "#E8EEF8"];
+
+  leftRows.forEach((r, i) => {
+    ctx.fillStyle = rowBgs[i];
+    ctx.fillRect(0, y + i * ROW_H, HALF, ROW_H);
+    drawText(r.label, 20, y + i * ROW_H + ROW_H / 2 + 5, { size: 13, color: "#374151" });
+    const val = typeof r.value === "string" ? r.value : fmtN(r.value);
+    drawText(val, HALF - 20, y + i * ROW_H + ROW_H / 2 + 5, { size: 14, bold: false, color: "#1E4D8C", align: "right" });
+  });
+  rightRows.forEach((r, i) => {
+    ctx.fillStyle = i === 0 ? "#ddeeff" : rowBgs[i];
+    ctx.fillRect(HALF, y + i * ROW_H, HALF, ROW_H);
+    drawText(r.label, HALF + 20, y + i * ROW_H + ROW_H / 2 + 5, { size: 13, color: "#374151" });
+    const val = r.dim ? fmtN(r.value) : fmtN(r.value);
+    const color = r.value < 0 ? "#c53030" : "#1E4D8C";
+    drawText(val, W - 20, y + i * ROW_H + ROW_H / 2 + 5, { size: 14, bold: i === 0, color, align: "right" });
+  });
+
+  // divider line between rows
+  for (let i = 0; i <= ROWS; i++) {
+    ctx.strokeStyle = "#dde3ec"; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(0, y + i * ROW_H); ctx.lineTo(W, y + i * ROW_H); ctx.stroke();
+  }
+  // center divider
+  ctx.strokeStyle = "#c0c8d8"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(HALF, TITLE_H); ctx.lineTo(HALF, y + ROWS * ROW_H + TOTAL_ROW_H); ctx.stroke();
+
+  y += ROWS * ROW_H;
+
+  // ===== Total rows =====
+  // ซ้าย total
+  ctx.fillStyle = "#e8d4d4";
+  ctx.fillRect(0, y, HALF, TOTAL_ROW_H);
+  drawText("รวมยอดใช้วันนี้", 20, y + TOTAL_ROW_H / 2 + 6, { size: 14, bold: true, color: "#4a1e1e" });
+  drawText(fmtN(dayNet), HALF - 20, y + TOTAL_ROW_H / 2 + 6, { size: 16, bold: true, color: "#4a1e1e", align: "right" });
+  // ขวา total
+  ctx.fillStyle = "#d0e4f7";
+  ctx.fillRect(HALF, y, HALF, TOTAL_ROW_H);
+  drawText("ยอดรวมที่ต้องเบิก", HALF + 20, y + TOTAL_ROW_H / 2 + 6, { size: 14, bold: true, color: "#1a3a5c" });
+  const totalColor = total < 0 ? "#c53030" : "#1a3a5c";
+  drawText(fmtN(total), W - 20, y + TOTAL_ROW_H / 2 + 6, { size: 16, bold: true, color: totalColor, align: "right" });
+
+  y += TOTAL_ROW_H;
+
+  // ===== Bank section =====
+  if (BANK_H > 0) {
+    ctx.fillStyle = "#f9fafb";
+    ctx.fillRect(0, y, W, BANK_H);
+    ctx.strokeStyle = "#e5e7eb"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    drawText("โอนคืนวงเงินผ่าน", 20, y + 22, { size: 12, bold: true, color: "#374151" });
+    const bankLine = [bankName, bankNo, bankOwner].filter(Boolean).join("  |  ");
+    drawText(bankLine, 20, y + 46, { size: 13, color: "#185fa5" });
+    drawText(`ยอดโอนคืน: ฿${fmtN(total)}`, 20, y + 70, { size: 14, bold: true, color: "#1B3A6B" });
+  }
+
+  // watermark
+  ctx.fillStyle = "rgba(0,0,0,0.12)"; ctx.font = `10px ${FONT}`;
+  ctx.textAlign = "right";
+  ctx.fillText(new Date().toLocaleDateString("th-TH"), W - 12, H - 4);
+  ctx.textAlign = "left";
+
+  return new Promise((resolve) => {
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], filename || `สรุปยอดใช้เงิน_${creditDate}.png`, { type: "image/png" });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: `สรุปยอดใช้เงิน ${creditDate}` }); } catch {}
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a"); a.href = url; a.download = file.name; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 3000);
+        alert("💾 บันทึกรูปแล้ว!\nกรุณาเปิด LINE แล้วแนบรูปจากคลังรูปภาพได้เลยครับ");
+      }
+      resolve();
+    }, "image/png");
+  });
+}
+
 // ExportToolbar component — renders 3 export buttons for a section
 function ExportToolbar({ onPDF, onExcel, onImage, onLine, label = "" }) {
   return (
@@ -6769,19 +6910,18 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
               style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, color: "#fff", padding: "3px 8px", fontSize: 13 }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button onClick={() => shareTableImage({
-              title: `สรุปยอดใช้เงิน — ${creditDate}`, subtitle: "",
-              headers: ["รายการ", "ยอด (฿)"],
-              rows: [
-                ["ค่าสินค้า", creditDaySummary.dayCost],
-                ["ค่าใช้จ่าย", creditDaySummary.dayExp],
-                ["หัก รายได้จากสินค้า", -creditDaySummary.dayRev],
-                ["รวมยอดใช้วันนี้", creditDaySummary.dayNet],
-                ["ยอดค้างเบิก", creditDaySummary.pendingBefore],
-                ["ยอดตกหล่น", Number(creditManual)||0],
-                ["ยอดรวมที่ต้องเบิก", creditDaySummary.total],
-              ],
-              footerRow: null, accentColor: "#4a1e1e",
+            <button onClick={() => shareCreditSummaryImage({
+              creditDate,
+              dayCost: creditDaySummary.dayCost,
+              dayExp: creditDaySummary.dayExp,
+              dayRev: creditDaySummary.dayRev,
+              dayNet: creditDaySummary.dayNet,
+              pendingBefore: creditDaySummary.pendingBefore,
+              manual: Number(creditManual) || 0,
+              total: creditDaySummary.total,
+              bankName: returnBankName,
+              bankNo: returnBankNo,
+              bankOwner: returnBankOwner,
               filename: `สรุปยอดใช้เงิน_${creditDate}.png`,
             })}
               style={{ background: LINE_GREEN, border: "none", borderRadius: 6, color: "#fff", padding: "4px 10px", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontWeight: 600 }}>
