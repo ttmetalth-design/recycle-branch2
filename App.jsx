@@ -7162,38 +7162,70 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
         const orig = Number(isRec ? c.openingReceivable : c.openingPayable) || 0;
         const paid = (c.openingPayments||[]).filter(p=>p.type===type).reduce((s,p)=>s+(Number(p.amount)||0),0);
         const remain = Math.max(0, orig - paid);
+
+        // openingPayForm เก็บ array ของงวด
+        const payItems = Array.isArray(openingPayForm.items) ? openingPayForm.items : [{ date: openingPayForm.date, amount: openingPayForm.amount || "", bankId: openingPayForm.bankId || "", note: openingPayForm.note || "" }];
+        const setItems = (items) => setOpeningPayForm(f => ({ ...f, items }));
+        const updateItem = (i, field, val) => { const next = [...payItems]; next[i] = { ...next[i], [field]: val }; setItems(next); };
+        const addItem = () => setItems([...payItems, { date: new Date().toISOString().slice(0,10), amount: "", bankId: "", note: "" }]);
+        const removeItem = (i) => setItems(payItems.filter((_,j)=>j!==i));
+        const itemsTotal = payItems.reduce((s,p)=>s+(Number(p.amount)||0),0);
+
         const saveOpeningPay = () => {
-          const amt = Number(openingPayForm.amount) || 0;
-          if (amt <= 0) { alert("กรุณาระบุจำนวนเงิน"); return; }
-          if (amt > remain) { alert(`จำนวนเงินเกินยอดคงค้าง ฿${fmt(remain)}`); return; }
-          const newPayment = { id: `OP-${Date.now()}`, type, amount: amt, bankId: openingPayForm.bankId, date: openingPayForm.date, note: openingPayForm.note };
-          setCustomers(customers.map(cu => cu.id === c.id ? { ...cu, openingPayments: [...(cu.openingPayments||[]), newPayment] } : cu));
+          const validItems = payItems.filter(p => Number(p.amount) > 0);
+          if (validItems.length === 0) { alert("กรุณาระบุจำนวนเงิน"); return; }
+          if (itemsTotal > remain + 0.01) { alert(`ยอดรวม ฿${fmt(itemsTotal)} เกินยอดคงค้าง ฿${fmt(remain)}`); return; }
+          const newPayments = validItems.map(p => ({ id: `OP-${Date.now()}-${Math.random().toString(36).slice(2,5)}`, type, amount: Number(p.amount), bankId: p.bankId, date: p.date, note: p.note }));
+          setCustomers(customers.map(cu => cu.id === c.id ? { ...cu, openingPayments: [...(cu.openingPayments||[]), ...newPayments] } : cu));
           setOpeningPayModal(null);
         };
         return (
-          <Modal title={`${isRec ? "รับชำระ" : "จ่ายชำระ"}ยอดยกมา — ${c.name}`} onClose={() => setOpeningPayModal(null)}>
+          <Modal title={`${isRec ? "รับชำระ" : "จ่ายชำระ"}ยอดยกมา — ${c.name}`} onClose={() => setOpeningPayModal(null)} wide>
             <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 13 }}>
               <div>ยอดยกมาทั้งหมด: <b>฿{fmt(orig)}</b></div>
               <div>ชำระแล้ว: <b style={{ color: "#15803d" }}>฿{fmt(paid)}</b></div>
               <div>คงค้าง: <b style={{ color: "#1B3A6B" }}>฿{fmt(remain)}</b></div>
             </div>
-            <Field label="วันที่"><input type="date" style={inputStyle} value={openingPayForm.date} onChange={e=>setOpeningPayForm(f=>({...f,date:e.target.value}))} /></Field>
-            <Field label="จำนวนเงิน (บาท)">
-              <input type="number" min={0} max={remain} style={{ ...inputStyle, textAlign: "right" }} value={openingPayForm.amount} placeholder={`฿${fmt(remain)}`} onChange={e=>setOpeningPayForm(f=>({...f,amount:e.target.value}))} />
-            </Field>
-            <Field label="บัญชีธนาคาร">
-              <select style={inputStyle} value={openingPayForm.bankId} onChange={e=>setOpeningPayForm(f=>({...f,bankId:e.target.value}))}>
-                <option value="">— เงินสด —</option>
-                {storeBankAccounts.map(a=><option key={a.id} value={a.id}>{a.bankName} — {a.accountNo}</option>)}
-              </select>
-            </Field>
-            <Field label="หมายเหตุ"><input style={inputStyle} value={openingPayForm.note} onChange={e=>setOpeningPayForm(f=>({...f,note:e.target.value}))} /></Field>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div style={{ fontWeight: 600, fontSize: 14 }}>รายการชำระ (แบ่งชำระได้หลายงวด)</div>
+              <button style={btnSecondary} onClick={addItem}><Plus size={14} /> เพิ่มงวด</button>
+            </div>
+
+            {payItems.map((p, idx) => (
+              <div key={idx} style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: 12, marginBottom: 10, background: "#fafbfc" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontWeight: 600, fontSize: 12, color: "#6b7280" }}>งวดที่ {idx + 1}</div>
+                  {payItems.length > 1 && <button style={btnDanger} onClick={() => removeItem(idx)}><Trash2 size={14} /></button>}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }}>
+                  <Field label="วันที่"><input type="date" style={inputStyle} value={p.date} onChange={e=>updateItem(idx,"date",e.target.value)} /></Field>
+                  <Field label="จำนวนเงิน (บาท)"><input type="number" min={0} style={{ ...inputStyle, textAlign: "right" }} value={p.amount} placeholder={idx===0?`฿${fmt(remain)}`:"0"} onChange={e=>updateItem(idx,"amount",e.target.value)} /></Field>
+                  <Field label="บัญชีธนาคาร">
+                    <select style={inputStyle} value={p.bankId} onChange={e=>updateItem(idx,"bankId",e.target.value)}>
+                      <option value="">— เงินสด —</option>
+                      {storeBankAccounts.map(a=><option key={a.id} value={a.id}>{a.bankName} — {a.accountNo}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="หมายเหตุ"><input style={inputStyle} value={p.note} onChange={e=>updateItem(idx,"note",e.target.value)} /></Field>
+                </div>
+              </div>
+            ))}
+
+            <div style={{ background: "#f0f4f8", borderRadius: 8, padding: "8px 14px", marginBottom: 12, fontSize: 13 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span>รวมที่จะบันทึก</span><b>฿{fmt(itemsTotal)}</b>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", color: (remain - itemsTotal) > 0.01 ? "#1B3A6B" : "#15803d" }}>
+                <span>คงค้างหลังบันทึก</span><b>฿{fmt(Math.max(0, remain - itemsTotal))}</b>
+              </div>
+            </div>
 
             {/* ประวัติการชำระ */}
             {(c.openingPayments||[]).filter(p=>p.type===type).length > 0 && (
-              <div style={{ marginTop: 12 }}>
-                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>ประวัติการชำระ</div>
-                {(c.openingPayments||[]).filter(p=>p.type===type).map((p,i) => (
+              <div style={{ marginTop: 4, marginBottom: 12 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>ประวัติการชำระก่อนหน้า</div>
+                {(c.openingPayments||[]).filter(p=>p.type===type).map((p) => (
                   <div key={p.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "4px 0", borderBottom: "1px solid #f3f4f6", color: "#374151" }}>
                     <span>{p.date} {p.note && `· ${p.note}`}</span>
                     <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -7206,7 +7238,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
                 ))}
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
               <button style={btnSecondary} onClick={() => setOpeningPayModal(null)}>ปิด</button>
               {remain > 0 && <button style={btnPrimary} onClick={saveOpeningPay}><Check size={14} /> บันทึกชำระ</button>}
             </div>
