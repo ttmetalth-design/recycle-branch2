@@ -737,7 +737,8 @@ async function shareCreditSummaryImage({ creditDate, dayCost, dayExp, dayRev, da
   const COL_HEAD_H = 44;
   const ROW_H = 46;
   const TOTAL_ROW_H = 52;
-  const BANK_H = bankName || bankNo ? 100 : 0;
+  const hasBankInfo = !!(bankName?.trim() || bankNo?.trim() || bankOwner?.trim());
+  const BANK_H = hasBankInfo ? 110 : 0;
   const ROWS = 3; // ค่าสินค้า / ค่าใช้จ่าย / หัก
   const H = TITLE_H + COL_HEAD_H + ROWS * ROW_H + TOTAL_ROW_H + BANK_H + 8;
   const HALF = W / 2;
@@ -836,7 +837,7 @@ async function shareCreditSummaryImage({ creditDate, dayCost, dayExp, dayRev, da
   y += TOTAL_ROW_H;
 
   // ===== Bank section =====
-  if (BANK_H > 0) {
+  if (hasBankInfo) {
     ctx.fillStyle = "#f9fafb";
     ctx.fillRect(0, y, W, BANK_H);
     ctx.strokeStyle = "#e5e7eb"; ctx.lineWidth = 1;
