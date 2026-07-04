@@ -23,6 +23,21 @@ function useIsMobile(breakpoint = 700) {
   return isMobile;
 }
 
+// ---------- ลำดับประเภทสต็อก ----------
+const STOCK_TYPE_ORDER = [
+  "ทองแดง","ทองเหลือง","สแตนเลส","อลูมิเนียม","กระดาษ","แก้ว","ขวดลัง","พลาสติก","เหล็ก","PVC","น้ำมัน","อื่นๆ"
+];
+function sortStockGroups(groups) {
+  return [...groups].sort((a, b) => {
+    const ai = STOCK_TYPE_ORDER.indexOf(a.type);
+    const bi = STOCK_TYPE_ORDER.indexOf(b.type);
+    if (ai === -1 && bi === -1) return a.type.localeCompare(b.type, "th");
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+}
+
 // ---------- Seed data ----------
 const initialProducts = [];
  // ลูกค้าแต่ละคนสามารถมีบัญชีธนาคารได้หลายบัญชี: bankAccounts = [{id, bankName, accountNo, accountName}]
@@ -849,8 +864,8 @@ const roundBtn = {
   cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, color: "#1B3A6B", lineHeight: 1, flexShrink: 0, minWidth: 38,
 };
 
-const thStyle = { textAlign: "left", padding: "10px 12px", fontSize: 12, fontWeight: 600, color: "#6b7280", borderBottom: "1px solid #e5e7eb", whiteSpace: "nowrap" };
-const tdStyle = { padding: "10px 12px", fontSize: 14, borderBottom: "1px solid #f3f4f6", whiteSpace: "nowrap" };
+const thStyle = { textAlign: "left", padding: "6px 12px", fontSize: 14, fontWeight: 600, color: "#6b7280", borderBottom: "1px solid #e5e7eb", whiteSpace: "nowrap" };
+const tdStyle = { padding: "6px 12px", fontSize: 16, borderBottom: "1px solid #f3f4f6", whiteSpace: "nowrap" };
 
 function genId(prefix, list, dateStr) {
   const now = dateStr ? new Date(dateStr + "T00:00:00") : new Date();
@@ -2094,9 +2109,9 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
       groups[type].value += s.totalCost;
       groups[type].items.push(s);
     });
-    return Object.values(groups)
-      .map((g) => ({ ...g, avgCost: g.qty > 0 ? g.value / g.qty : 0 }))
-      .sort((a, b) => b.value - a.value);
+    return sortStockGroups(
+      Object.values(groups).map((g) => ({ ...g, avgCost: g.qty > 0 ? g.value / g.qty : 0 }))
+    );
   }, [inventory.summary, products]);
 
   // ---------- คงเหลือสินเชื่อ/เงินกู้ — ยอดเงินต้นคงเหลือรวมทุกสัญญา ณ ปัจจุบัน ----------
@@ -3316,10 +3331,17 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
               </div>
 
               {/* กรอบสรุปยอดเงินหมุนทั้งหมด — ใหญ่ที่สุด รวมทุกประเภท */}
-              <div style={{ background: grandTotal >= 0 ? "#E8EEF8" : "#E8EEF8", borderRadius: 16, padding: "24px 28px", border: `3px solid ${grandTotal >= 0 ? "#1B3A6B" : "#2456A4"}`, marginBottom: 20 }}>
-                <div style={{ fontSize: 14, color: grandTotal >= 0 ? "#1B3A6B" : "#2456A4", marginBottom: 6, fontWeight: 700 }}>เงินหมุนยอดทั้งหมด</div>
-                <div style={{ fontWeight: 700, fontSize: 32, color: grandTotal >= 0 ? "#1B3A6B" : "#2456A4" }}>฿{fmt(grandTotal)}</div>
-                <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6 }}>ธนาคาร + เงินสด + เงินมัดจำ + ลูกหนี้ − เจ้าหนี้</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px,1fr))", gap: 14, marginBottom: 20 }}>
+                <div style={{ background: "#E8EEF8", borderRadius: 16, padding: "24px 28px", border: `3px solid ${grandTotal >= 0 ? "#1B3A6B" : "#2456A4"}` }}>
+                  <div style={{ fontSize: 14, color: grandTotal >= 0 ? "#1B3A6B" : "#2456A4", marginBottom: 6, fontWeight: 700 }}>เงินหมุนยอดทั้งหมด</div>
+                  <div style={{ fontWeight: 900, fontSize: 36, color: grandTotal >= 0 ? "#1B3A6B" : "#2456A4" }}>฿{fmt(grandTotal)}</div>
+                  <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6 }}>ธนาคาร + เงินสด + เงินมัดจำ + ลูกหนี้ − เจ้าหนี้</div>
+                </div>
+                <div style={{ background: "#e6f9f0", borderRadius: 16, padding: "24px 28px", border: "3px solid #15803d" }}>
+                  <div style={{ fontSize: 14, color: "#15803d", marginBottom: 6, fontWeight: 700 }}>เงินหมุน + สต็อกคงเหลือ</div>
+                  <div style={{ fontWeight: 900, fontSize: 36, color: "#15803d" }}>฿{fmt(grandTotal + stockVal)}</div>
+                  <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6 }}>เงินหมุน ฿{fmt(grandTotal)} + สต็อก ฿{fmt(stockVal)}</div>
+                </div>
               </div>
 
               {/* ตารางรายละเอียดธนาคาร */}
@@ -5966,10 +5988,16 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
   const [openingPayModal, setOpeningPayModal] = React.useState(null); // { customer, type: "receivable"|"payable" }
   const [openingPayForm, setOpeningPayForm] = React.useState({ amount: "", bankId: "", date: new Date().toISOString().slice(0,10), note: "" });
   const [creditDate, setCreditDate] = React.useState(new Date().toISOString().slice(0, 10));
-  const [creditManual, setCreditManual] = React.useState(0); // ยอดตกหล่น กรอกมือ
-  const [returnBankName, setReturnBankName] = React.useState(""); // ธนาคารโอนคืน
-  const [returnBankNo, setReturnBankNo] = React.useState("");   // เลขที่บัญชีโอนคืน
-  const [returnBankOwner, setReturnBankOwner] = React.useState(""); // ชื่อบัญชีโอนคืน
+  const [creditManual, setCreditManual] = React.useState(() => { try { return Number(localStorage.getItem("creditManual") || 0); } catch { return 0; } });
+  const [returnBankName, setReturnBankName] = React.useState(() => { try { return localStorage.getItem("returnBankName") || ""; } catch { return ""; } });
+  const [returnBankNo, setReturnBankNo] = React.useState(() => { try { return localStorage.getItem("returnBankNo") || ""; } catch { return ""; } });
+  const [returnBankOwner, setReturnBankOwner] = React.useState(() => { try { return localStorage.getItem("returnBankOwner") || ""; } catch { return ""; } });
+
+  // persist ทุกครั้งที่เปลี่ยน
+  React.useEffect(() => { try { localStorage.setItem("creditManual", creditManual); } catch {} }, [creditManual]);
+  React.useEffect(() => { try { localStorage.setItem("returnBankName", returnBankName); } catch {} }, [returnBankName]);
+  React.useEffect(() => { try { localStorage.setItem("returnBankNo", returnBankNo); } catch {} }, [returnBankNo]);
+  React.useEffect(() => { try { localStorage.setItem("returnBankOwner", returnBankOwner); } catch {} }, [returnBankOwner]);
   const creditLimit = Number(companySettings?.creditLimit) || 0;
   const creditAccounts = companySettings?.creditAccounts || []; // array of storeBankAccount ids ที่นับในวงเงิน
 
@@ -6075,27 +6103,31 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
     return { limit: creditLimit, netOut, balance, pendingNet, totalBuy, totalExp, totalSale };
   }, [creditLimit, payFlags, allPurchaseRows, allExpenseRows, allSaleRows]);
 
-  // คำนวณยอดรายวัน — เฉพาะรายการที่ชำระครบแล้ว และมี payment ผ่านบัญชีที่เลือก
+  // คำนวณยอดรายวัน — ใช้ยอดโอนจริง (Math.floor ต่อบิล) filter วันที่ payment จริง (p.date)
   const creditDaySummary = useMemo(() => {
     const accs = new Set(creditAccounts);
     const hasAccPayment = (doc, field) =>
       accs.size === 0 || (doc.payments||[]).some(p => accs.has(p[field]));
 
-    const dayCost = allPurchaseRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
-      .reduce((s,r)=>s+r.paid,0);
-    const dayExp  = allExpenseRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
-      .reduce((s,r)=>s+r.paid,0);
-    const dayRev  = allSaleRows
-      .filter(r => r.date === creditDate && r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "toStoreBankId"))
-      .reduce((s,r)=>s+r.paid,0);
+    // ยอดที่จ่ายจริงในวันที่ creditDate (ตาม p.date ของ payment ไม่ใช่วันบิล) ปัดลงต่อบิล
+    const sumActualPaid = (rows, field) =>
+      rows
+        .filter(r => !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, field))
+        .reduce((s, r) => {
+          const dayPayments = (r.doc.payments||[]).filter(p => (p.date||r.date) === creditDate && (accs.size === 0 || accs.has(p[field])));
+          return s + Math.floor(dayPayments.reduce((ps, p) => ps + (Number(p.amount)||0), 0));
+        }, 0);
+
+    const dayCost = sumActualPaid(allPurchaseRows, "fromStoreBankId");
+    const dayExp  = sumActualPaid(allExpenseRows,  "fromStoreBankId");
+    const dayRev  = sumActualPaid(allSaleRows,     "toStoreBankId");
     const dayNet  = dayCost + dayExp - dayRev;
 
+    // ยอดค้างเบิก = บิลก่อน creditDate ที่ยังไม่ได้เบิก (ใช้ r.paid เหมือนเดิม)
     const pendingBefore =
-      allPurchaseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+r.paid,0)
-      + allExpenseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+r.paid,0)
-      - allSaleRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"toStoreBankId")).reduce((s,r)=>s+r.paid,0);
+      allPurchaseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+Math.floor(r.paid),0)
+      + allExpenseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+Math.floor(r.paid),0)
+      - allSaleRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"toStoreBankId")).reduce((s,r)=>s+Math.floor(r.paid),0);
 
     const manual = Number(creditManual) || 0;
     return { dayCost, dayExp, dayRev, dayNet, pendingBefore, manual, total: dayNet + pendingBefore + manual };
@@ -6301,6 +6333,25 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
               style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, color: "#fff", padding: "3px 8px", fontSize: 13 }} />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button onClick={() => shareTableImage({
+              title: `สรุปยอดใช้เงิน — ${creditDate}`, subtitle: "",
+              headers: ["รายการ", "ยอด (฿)"],
+              rows: [
+                ["ค่าสินค้า", creditDaySummary.dayCost],
+                ["ค่าใช้จ่าย", creditDaySummary.dayExp],
+                ["หัก รายได้จากสินค้า", -creditDaySummary.dayRev],
+                ["รวมยอดใช้วันนี้", creditDaySummary.dayNet],
+                ["ยอดค้างเบิก", creditDaySummary.pendingBefore],
+                ["ยอดตกหล่น", Number(creditManual)||0],
+                ["ยอดรวมที่ต้องเบิก", creditDaySummary.total],
+              ],
+              footerRow: null, accentColor: "#4a1e1e",
+              filename: `สรุปยอดใช้เงิน_${creditDate}.png`,
+            })}
+              style={{ background: LINE_GREEN, border: "none", borderRadius: 6, color: "#fff", padding: "4px 10px", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontWeight: 600 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d={LINE_SVG_PATH} /></svg>
+              LINE
+            </button>
             <button onClick={() => setShowCreditSetting(true)}
               style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, color: "#fff", padding: "4px 12px", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
               <Settings size={13} /> ตั้งค่าบัญชี
@@ -6315,7 +6366,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
           <div style={{ padding: "8px 14px", fontWeight: 700, fontSize: 14, borderBottom: "1px solid #e5e7eb" }}>
             สรุปยอดใช้เงิน — {creditDate}
           </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 0 }}>
           {/* ซ้าย: ยอดใช้เงินต่อวัน */}
           <div>
             <div style={{ background: "#6b1f1f", color: "#fff", padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>ยอดใช้เงินต่อวัน / ยอดรับต่อวัน</div>
@@ -6326,8 +6377,8 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
               { label: "รวมยอดใช้วันนี้", value: creditDaySummary.dayNet, color: "#e8d4d4", bold: true },
             ].map((row, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 14px", background: row.color, borderBottom: "1px solid #f3f0f0" }}>
-                <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 400 }}>{row.label}</span>
-                <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 600, color: row.value < 0 ? "#1B3A6B" : row.value > 0 ? "#1E4D8C" : "#374151" }}>
+                <span style={{ fontSize: 14, fontWeight: row.bold ? 700 : 400 }}>{row.label}</span>
+                <span style={{ fontSize: 14, fontWeight: row.bold ? 700 : 600, color: row.value < 0 ? "#1B3A6B" : row.value > 0 ? "#1E4D8C" : "#374151" }}>
                   {row.value < 0 ? `(${fmt(Math.abs(row.value))})` : fmt(row.value)}
                 </span>
               </div>
@@ -6343,12 +6394,12 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
               { label: "ยอดรวมที่ต้องเบิก", value: creditDaySummary.total, color: "#d0e4f7", bold: true },
             ].map((row, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 14px", background: row.color, borderBottom: "1px solid #f0f4f8" }}>
-                <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 400 }}>{row.label}</span>
+                <span style={{ fontSize: 14, fontWeight: row.bold ? 700 : 400 }}>{row.label}</span>
                 {row.input ? (
                   <input type="number" value={creditManual} onChange={(e) => setCreditManual(e.target.value)}
-                    style={{ width: 100, textAlign: "right", border: "1px solid #d1d5db", borderRadius: 6, padding: "2px 8px", fontSize: 13 }} />
+                    style={{ width: 100, textAlign: "right", border: "1px solid #d1d5db", borderRadius: 6, padding: "2px 8px", fontSize: 14 }} />
                 ) : (
-                  <span style={{ fontSize: 13, fontWeight: row.bold ? 700 : 600, color: row.value < 0 ? "#1B3A6B" : row.value > 0 ? "#1E4D8C" : "#374151" }}>
+                  <span style={{ fontSize: 14, fontWeight: row.bold ? 700 : 600, color: row.value < 0 ? "#1B3A6B" : row.value > 0 ? "#1E4D8C" : "#374151" }}>
                     {row.value < 0 ? `(${fmt(Math.abs(row.value))})` : fmt(row.value)}
                   </span>
                 )}
@@ -6359,22 +6410,22 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
         {/* ธนาคารที่จะโอนคืนวงเงิน */}
         <div style={{ borderTop: "1px solid #e5e7eb", padding: "10px 14px", background: "#f9fafb" }}>
           <div style={{ fontWeight: 600, fontSize: 13, color: "#374151", marginBottom: 8 }}>โอนคืนวงเงินผ่าน</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0 12px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "8px 12px" }}>
             <div>
-              <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 3 }}>ธนาคาร</div>
-              <input style={inputStyle} value={returnBankName} onChange={(e) => setReturnBankName(e.target.value)} placeholder="เช่น กสิกรไทย" />
+              <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 3 }}>ธนาคาร</div>
+              <input style={{ ...inputStyle, fontSize: 16 }} value={returnBankName} onChange={(e) => setReturnBankName(e.target.value)} placeholder="เช่น กสิกรไทย" />
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 3 }}>เลขที่บัญชี</div>
-              <input style={inputStyle} value={returnBankNo} onChange={(e) => setReturnBankNo(e.target.value)} placeholder="xxx-x-xxxxx-x" />
+              <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 3 }}>เลขที่บัญชี</div>
+              <input style={{ ...inputStyle, fontSize: 16 }} value={returnBankNo} onChange={(e) => setReturnBankNo(e.target.value)} placeholder="xxx-x-xxxxx-x" />
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 3 }}>ชื่อบัญชี</div>
-              <input style={inputStyle} value={returnBankOwner} onChange={(e) => setReturnBankOwner(e.target.value)} placeholder="ชื่อเจ้าของบัญชี" />
+              <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 3 }}>ชื่อบัญชี</div>
+              <input style={{ ...inputStyle, fontSize: 16 }} value={returnBankOwner} onChange={(e) => setReturnBankOwner(e.target.value)} placeholder="ชื่อเจ้าของบัญชี" />
             </div>
           </div>
           {(returnBankName || returnBankNo) && (
-            <div style={{ marginTop: 8, fontSize: 13, color: "#185fa5", fontWeight: 600 }}>
+            <div style={{ marginTop: 8, fontSize: 14, color: "#185fa5", fontWeight: 600 }}>
               ยอดโอนคืน: ฿{fmt(creditDaySummary.total)}
             </div>
           )}
@@ -9791,8 +9842,8 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
     }
   }, [shopProfile]);
 
-  const set = (field, value) => setDraft((prev) => ({ ...prev, [field]: value }));
-  const setSP = (field, value) => setDraftSP((prev) => ({ ...prev, [field]: value }));
+  const set = (field, value) => { setDraft((prev) => ({ ...prev, [field]: value })); setSaved(false); };
+  const setSP = (field, value) => { setDraftSP((prev) => ({ ...prev, [field]: value })); setSaved(false); };
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
@@ -9826,8 +9877,8 @@ function CompanySettingsTab({ settings, setSettings, shopProfile, setShopProfile
   return (
     <div>
       <Header title="ตั้งค่ากิจการ" subtitle="แยกเป็น 2 ส่วน — โปรไฟล์หน้าแอป (sidebar) และข้อมูลเอกสาร/บิล">
-        <button style={btnPrimary} onClick={handleSave}>
-          {saved ? <><CheckCircle2 size={16} /> บันทึกแล้ว!</> : <><Save size={16} /> บันทึก</>}
+        <button style={{ ...btnPrimary, background: saved ? "#185fa5" : "#ea580c" }} onClick={handleSave}>
+          {saved ? <><CheckCircle2 size={16} /> บันทึกแล้ว!</> : <><Save size={16} /> บันทึก (มีการแก้ไข)</>}
         </button>
       </Header>
 
