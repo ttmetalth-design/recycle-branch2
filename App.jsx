@@ -3813,20 +3813,29 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
         // ยอดยกมาลูกหนี้/เจ้าหนี้
         const openingReceivableTotal = customers.reduce((s, c) => s + (Number(c.openingReceivable) || 0), 0);
         const openingPayableTotal = customers.reduce((s, c) => s + (Number(c.openingPayable) || 0), 0);
+        const openingRecPaidDash = customers.reduce((s,c)=>(c.openingPayments||[]).filter(p=>p.type==="receivable").reduce((s2,p)=>s2+(Number(p.amount)||0),s),0);
+        const openingPayPaidDash = customers.reduce((s,c)=>(c.openingPayments||[]).filter(p=>p.type==="payable").reduce((s2,p)=>s2+(Number(p.amount)||0),s),0);
+        const openingRecRemainDash = Math.max(0, openingReceivableTotal - openingRecPaidDash);
+        const openingPayRemainDash = Math.max(0, openingPayableTotal - openingPayPaidDash);
 
-        const totalReceivable = openingReceivableTotal + sales.reduce((s, inv) => {
-          const subtotal = inv.items.reduce((ss, it) => ss + (it.net || 0) * (it.price || 0), 0);
-          const ad = subtotal - (inv.discount || 0);
-          const total = ad + ad * ((inv.vatRate || 0) / 100);
+        const totalReceivable = openingRecRemainDash + sales.reduce((s, inv) => {
+          const subtotal = inv.items.reduce((ss, it) => ss + (it.net || 0) * (Number(it.price) || 0), 0);
+          const ad = subtotal - (Number(inv.discount) || 0);
+          const total = ad + ad * ((Number(inv.vatRate) || 0) / 100);
           const paid = (inv.payments || []).reduce((ss, p) => ss + (Number(p.amount) || 0), 0);
           const remaining = total - paid;
           if (inv.writeOff || remaining <= 0.01) return s;
           return s + remaining;
         }, 0);
 
-        // 3. เจ้าหนี้ค้างจ่าย (ยอดคงค้าง ณ ปัจจุบัน — ตรงกับหน้ารับ/จ่ายชำระ)
-        const totalPayable = openingPayableTotal + purchases.filter(po => (po.status || "") !== "ยกเลิก").reduce((s, po) => {
-          const subtotal = po.items.reduce((ss, it) => ss + (it.net || 0) * (it.price || 0), 0);
+        // 3. เจ้าหนี้ค้างจ่าย
+        const totalPayable = openingPayRemainDash + purchases.filter(po => (po.status || "") !== "ยกเลิก").reduce((s, po) => {
+          const subtotal = po.items.reduce((ss, it) => {
+            const qty = Number(it.qty) || 0;
+            const deduct = Number(it.deduct) || 0;
+            const net = it.deductType === "pct" ? qty * (1 - deduct / 100) : (it.net != null ? Number(it.net) : qty - deduct);
+            return ss + net * (Number(it.price) || 0) * (1 - (Number(it.discountPct) || 0) / 100);
+          }, 0);
           const vat = subtotal * ((Number(po.vatRate) || 0) / 100);
           const total = subtotal + vat;
           const paid = (po.payments || []).reduce((ss, p) => ss + (Number(p.amount) || 0), 0);
@@ -7132,10 +7141,10 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวม</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(totRecOrig)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#15803d" }}>฿{fmt(totRecPaid)}</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(totRecOrig-totRecPaid)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1B3A6B" }}>฿{fmt(rows.reduce((s,c)=>s+Math.max(0,(Number(c.openingReceivable)||0)-(c.openingPayments||[]).filter(p=>p.type==="receivable").reduce((s2,p)=>s2+(Number(p.amount)||0),0)),0))}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>฿{fmt(totPayOrig)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#15803d" }}>฿{fmt(totPayPaid)}</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(totPayOrig-totPayPaid)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(rows.reduce((s,c)=>s+Math.max(0,(Number(c.openingPayable)||0)-(c.openingPayments||[]).filter(p=>p.type==="payable").reduce((s2,p)=>s2+(Number(p.amount)||0),0)),0))}</td>
                       <td style={tdStyle}></td>
                     </tr>
                   </tfoot>
