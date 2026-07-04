@@ -366,76 +366,176 @@ const LINE_GREEN = "#06C755";
 const LINE_SVG_PATH = "M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.630 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.630 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.630-.63.345 0 .63.285.63.630v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.630v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.630-.63.348 0 .630.285.630.630v4.141h1.756c.348 0 .629.283.629.630 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314";
 
 async function shareTableImage({ title, subtitle = "", headers = [], rows = [], footerRow = null, accentColor = "#0A1E3D", filename = "สรุป.png" }) {
-  const DPR = 2;
-  const PAD = 24;
-  const ROW_H = 36;
-  const HEAD_H = 52;
-  const TITLE_H = 54;
-  const FOOTER_H = footerRow ? 46 : 0;
+  const DPR = 3;
+  const W = 900;
+  const PAD = 28;
+  const TITLE_H = 72;
+  const HEAD_H = 48;
+  const ROW_H = 44;
+  const FOOTER_H = footerRow ? 52 : 0;
+  const BOTTOM_PAD = 24;
+  const H = TITLE_H + HEAD_H + rows.length * ROW_H + FOOTER_H + BOTTOM_PAD;
+
   const COL_COUNT = headers.length;
-  const TOTAL_W = Math.max(480, COL_COUNT * 130 + 40);
-  const COL_W = Array.from({ length: COL_COUNT }, (_, i) => i === 0 ? TOTAL_W - (COL_COUNT - 1) * 120 - PAD * 2 : 120);
-  const W = TOTAL_W;
-  const H = TITLE_H + HEAD_H + rows.length * ROW_H + FOOTER_H + 20;
+  // คอลัมน์แรกกว้างกว่า ที่เหลือเท่ากัน
+  const NUM_COL_W = 160;
+  const FIRST_COL_W = W - (COL_COUNT - 1) * NUM_COL_W - PAD * 2;
 
   const canvas = document.createElement("canvas");
-  canvas.width = W * DPR; canvas.height = H * DPR;
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
   const ctx = canvas.getContext("2d");
   ctx.scale(DPR, DPR);
 
-  const fmtN = (n) => typeof n === "number" ? n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : String(n != null ? n : "");
+  const FONT = "'Noto Sans Thai', 'Sarabun', 'Prompt', sans-serif";
+  const fmtN = (n) => typeof n === "number"
+    ? n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : String(n != null ? n : "");
 
-  ctx.fillStyle = "#f8fafc"; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = accentColor; ctx.fillRect(0, 0, W, TITLE_H);
-  ctx.fillStyle = "#fff"; ctx.font = "bold 16px sans-serif";
-  ctx.fillText(title, PAD, 28);
-  if (subtitle) { ctx.font = "12px sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.fillText(subtitle, PAD, 46); }
+  const colX = (ci) => {
+    if (ci === 0) return PAD;
+    return PAD + FIRST_COL_W + (ci - 1) * NUM_COL_W;
+  };
+  const colW = (ci) => ci === 0 ? FIRST_COL_W : NUM_COL_W;
 
+  // helper: rounded rect
+  const roundRect = (x, y, w, h, r) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  };
+
+  // --- พื้นหลัง ---
+  ctx.fillStyle = "#f0f4f8";
+  ctx.fillRect(0, 0, W, H);
+
+  // --- Title bar (gradient simulation) ---
+  const grad = ctx.createLinearGradient(0, 0, W, TITLE_H);
+  grad.addColorStop(0, accentColor);
+  grad.addColorStop(1, accentColor + "cc");
+  roundRect(0, 0, W, TITLE_H, 0);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // accent stripe ซ้าย
+  ctx.fillStyle = "rgba(255,255,255,0.25)";
+  ctx.fillRect(0, 0, 6, TITLE_H);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = `bold 26px ${FONT}`;
+  ctx.textAlign = "left";
+  ctx.fillText(title, PAD + 8, TITLE_H / 2 + 2);
+  if (subtitle) {
+    ctx.font = `14px ${FONT}`;
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.fillText(subtitle, PAD + 8, TITLE_H / 2 + 22);
+  }
+
+  // --- Column header ---
   let y = TITLE_H;
-  ctx.fillStyle = "#1E3A5F"; ctx.fillRect(0, y, W, HEAD_H);
-  let x = PAD;
-  headers.forEach((h, i) => {
-    const isNum = i > 0;
-    ctx.fillStyle = "#e2eaf4"; ctx.font = "bold 12px sans-serif";
+  ctx.fillStyle = "#1E3A5F";
+  ctx.fillRect(0, y, W, HEAD_H);
+
+  // header separator line bottom
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  ctx.fillRect(0, y + HEAD_H - 2, W, 2);
+
+  headers.forEach((h, ci) => {
+    const isNum = ci > 0;
+    ctx.fillStyle = "#c8d8f0";
+    ctx.font = `bold 14px ${FONT}`;
     ctx.textAlign = isNum ? "right" : "left";
-    ctx.fillText(h, isNum ? x + COL_W[i] - 6 : x + 4, y + HEAD_H / 2 + 5);
-    x += COL_W[i];
+    const tx = isNum ? colX(ci) + colW(ci) - 10 : colX(ci) + 4;
+    ctx.fillText(h, tx, y + HEAD_H / 2 + 5);
   });
   ctx.textAlign = "left";
 
+  // --- Data rows ---
   y += HEAD_H;
   rows.forEach((row, ri) => {
-    ctx.fillStyle = ri % 2 === 0 ? "#ffffff" : "#f0f4f8";
+    const isSubItem = typeof row[0] === "string" && row[0].startsWith("  -");
+    const bg = isSubItem
+      ? (ri % 2 === 0 ? "#eef3f9" : "#e6ecf5")
+      : (ri % 2 === 0 ? "#ffffff" : "#f4f7fb");
+    ctx.fillStyle = bg;
     ctx.fillRect(0, y, W, ROW_H);
-    ctx.strokeStyle = "#dde3ec"; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(0, y + ROW_H); ctx.lineTo(W, y + ROW_H); ctx.stroke();
-    x = PAD;
+
+    // ขีดแบ่งแถว
+    ctx.strokeStyle = "#dde5f0";
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(PAD, y + ROW_H);
+    ctx.lineTo(W - PAD, y + ROW_H);
+    ctx.stroke();
+
     row.forEach((val, ci) => {
       const isNum = ci > 0;
-      const display = typeof val === "number" ? (val < 0 ? "(" + fmtN(Math.abs(val)) + ")" : fmtN(val)) : String(val != null ? val : "");
-      ctx.fillStyle = ci === 0 ? "#1E3A5F" : ci === row.length - 1 ? "#1E4D8C" : "#374151";
-      ctx.font = ci === 0 ? "600 12px sans-serif" : "12px sans-serif";
+      const isHeader = typeof val === "string" && val.startsWith("▶");
+      const isSub = typeof val === "string" && val.startsWith("  -");
+      const display = typeof val === "number"
+        ? (val < 0 ? "(" + fmtN(Math.abs(val)) + ")" : fmtN(val))
+        : String(val != null ? val : "");
+
+      // สีตามประเภทแถว
+      if (ci === 0) {
+        ctx.fillStyle = isHeader ? accentColor : isSub ? "#4a5568" : "#1a2a4a";
+        ctx.font = isHeader ? `bold 15px ${FONT}` : isSub ? `13px ${FONT}` : `600 14px ${FONT}`;
+      } else if (ci === row.length - 1) {
+        ctx.fillStyle = val < 0 ? "#c53030" : "#1a4a8c";
+        ctx.font = `600 14px ${FONT}`;
+      } else {
+        ctx.fillStyle = "#374151";
+        ctx.font = `14px ${FONT}`;
+      }
+
       ctx.textAlign = isNum ? "right" : "left";
-      ctx.fillText(display, isNum ? x + COL_W[ci] - 6 : x + 4, y + ROW_H / 2 + 5);
-      x += COL_W[ci];
+      const tx = isNum ? colX(ci) + colW(ci) - 10 : colX(ci) + (isSub ? 16 : 4);
+      ctx.fillText(display, tx, y + ROW_H / 2 + 5);
     });
     ctx.textAlign = "left";
     y += ROW_H;
   });
 
+  // --- Footer ---
   if (footerRow) {
-    ctx.fillStyle = accentColor; ctx.fillRect(0, y, W, FOOTER_H);
-    x = PAD;
+    // gradient footer
+    const fgrad = ctx.createLinearGradient(0, y, W, y + FOOTER_H);
+    fgrad.addColorStop(0, accentColor);
+    fgrad.addColorStop(1, accentColor + "dd");
+    ctx.fillStyle = fgrad;
+    ctx.fillRect(0, y, W, FOOTER_H);
+
+    // top border highlight
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
+    ctx.fillRect(0, y, W, 2);
+
     footerRow.forEach((val, ci) => {
       const isNum = ci > 0;
       const display = typeof val === "number" ? fmtN(val) : String(val != null ? val : "");
-      ctx.fillStyle = "#fff"; ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = "#fff";
+      ctx.font = `bold 16px ${FONT}`;
       ctx.textAlign = isNum ? "right" : "left";
-      ctx.fillText(display, isNum ? x + COL_W[ci] - 6 : x + 4, y + FOOTER_H / 2 + 5);
-      x += COL_W[ci];
+      const tx = isNum ? colX(ci) + colW(ci) - 10 : colX(ci) + 4;
+      ctx.fillText(display, tx, y + FOOTER_H / 2 + 5);
     });
     ctx.textAlign = "left";
   }
+
+  // --- Bottom padding ---
+  // watermark เบาๆ
+  ctx.fillStyle = "rgba(0,0,0,0.08)";
+  ctx.font = `11px ${FONT}`;
+  ctx.textAlign = "right";
+  ctx.fillText(new Date().toLocaleDateString("th-TH"), W - PAD, H - 6);
+  ctx.textAlign = "left";
 
   return new Promise((resolve) => {
     canvas.toBlob(async (blob) => {
@@ -1526,6 +1626,28 @@ export default function App() {
   const [sales, setSales] = useState(initialSales);
   const [storeBankAccounts, setStoreBankAccounts] = useState(initialStoreBankAccounts);
 
+  // payFlags และ transferDetails ต้องอยู่ระดับ App เพื่อไม่ให้ reset เมื่อสลับแท็บ
+  const [payFlags, setPayFlags] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("payFlags") || "{}"); } catch { return {}; }
+  });
+  const setFlag = (id, flag, val) => {
+    setPayFlags(prev => {
+      const next = { ...prev, [`${id}_${flag}`]: val };
+      try { localStorage.setItem("payFlags", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+  const [transferDetails, setTransferDetails] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("transferDetails") || "{}"); } catch { return {}; }
+  });
+  const saveTransferDetail = (id, entries) => {
+    setTransferDetails(prev => {
+      const next = { ...prev, [id]: entries.filter(e => e.bankId || e.amount) };
+      try { localStorage.setItem("transferDetails", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
 
   // ตั้งค่ากิจการ (Company Settings) — ใช้ใน header ของใบรับ/ขายสินค้า
   // shopProfile — ชื่อ/โลโก้ใน sidebar (แยกจากข้อมูลบิล)
@@ -1960,7 +2082,7 @@ export default function App() {
         {tab === "purchases" && <PurchasesTab products={products} customers={customers} purchases={purchases} setPurchases={setPurchases} storeBankAccounts={storeBankAccounts} deposits={deposits} companySettings={companySettings} />}
         {tab === "withdrawals" && <WithdrawalsTab products={products} purchases={purchases} sales={sales} setSales={setSales} withdrawals={withdrawals} setWithdrawals={setWithdrawals} inventory={inventory} customers={customers} companySettings={companySettings} />}
         {tab === "sales" && <SalesTab products={products} customers={customers} sales={sales} setSales={setSales} inventory={inventory} withdrawals={withdrawals} storeBankAccounts={storeBankAccounts} companySettings={companySettings} />}
-        {tab === "payments" && <PaymentsTab purchases={purchases} setPurchases={setPurchases} sales={sales} setSales={setSales} customers={customers} setCustomers={setCustomers} storeBankAccounts={storeBankAccounts} deposits={deposits} expenses={expenses} setExpenses={setExpenses} companySettings={companySettings} setCompanySettings={setCompanySettings} bankTransfers={bankTransfers} />}
+        {tab === "payments" && <PaymentsTab purchases={purchases} setPurchases={setPurchases} sales={sales} setSales={setSales} customers={customers} setCustomers={setCustomers} storeBankAccounts={storeBankAccounts} deposits={deposits} expenses={expenses} setExpenses={setExpenses} companySettings={companySettings} setCompanySettings={setCompanySettings} bankTransfers={bankTransfers} payFlags={payFlags} setFlag={setFlag} transferDetails={transferDetails} saveTransferDetail={saveTransferDetail} />}
         {tab === "delivery" && <DeliveryTab deliveries={deliveries} setDeliveries={setDeliveries} products={products} customers={customers} sales={sales} companySettings={companySettings} />}
         {tab === "inventory" && <InventoryTab products={products} inventory={inventory} storeBankAccounts={storeBankAccounts} />}
         {tab === "deposits" && <DepositsTab customers={customers} setCustomers={setCustomers} deposits={deposits} setDeposits={setDeposits} purchases={purchases} storeBankAccounts={storeBankAccounts} />}
@@ -5983,7 +6105,7 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
 // ===================================================================
 // PAYMENTS TAB (รับชำระ/จ่ายชำระ — รวมรายการค้างชำระจากใบรับสินค้าและใบขาย)
 // ===================================================================
-function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setCustomers, storeBankAccounts, deposits, expenses, setExpenses, companySettings, setCompanySettings, bankTransfers }) {
+function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setCustomers, storeBankAccounts, deposits, expenses, setExpenses, companySettings, setCompanySettings, bankTransfers, payFlags, setFlag, transferDetails, saveTransferDetail }) {
   const [showCreditSetting, setShowCreditSetting] = React.useState(false);
   const [openingPayModal, setOpeningPayModal] = React.useState(null); // { customer, type: "receivable"|"payable" }
   const [openingPayForm, setOpeningPayForm] = React.useState({ amount: "", bankId: "", date: new Date().toISOString().slice(0,10), note: "" });
@@ -6001,28 +6123,10 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
   const creditLimit = Number(companySettings?.creditLimit) || 0;
   const creditAccounts = companySettings?.creditAccounts || []; // array of storeBankAccount ids ที่นับในวงเงิน
 
-  const [payFlags, setPayFlags] = React.useState(() => {
-    try { return JSON.parse(localStorage.getItem("payFlags") || "{}"); } catch { return {}; }
-  });
-  const [showTransferSheet, setShowTransferSheet] = React.useState(false);
+  const getFlag = (id, flag) => !!payFlags[`${id}_${flag}`];
   const [transferTab, setTransferTab] = React.useState("purchase"); // "purchase" | "expense"
   const [transferDetailModal, setTransferDetailModal] = React.useState(null); // { row }
   const [transferEntries, setTransferEntries] = React.useState([{ bankId: "", amount: "" }]);
-  // เก็บข้อมูลตั้งโอนแต่ละบิล { [id]: [{ bankId, amount }] }
-  const [transferDetails, setTransferDetails] = React.useState(() => {
-    try { return JSON.parse(localStorage.getItem("transferDetails") || "{}"); } catch { return {}; }
-  });
-  const saveTransferDetail = (id, entries) => {
-    const next = { ...transferDetails, [id]: entries.filter(e => e.bankId || e.amount) };
-    setTransferDetails(next);
-    try { localStorage.setItem("transferDetails", JSON.stringify(next)); } catch {}
-  };
-  const setFlag = (id, flag, val) => {
-    const next = { ...payFlags, [`${id}_${flag}`]: val };
-    setPayFlags(next);
-    try { localStorage.setItem("payFlags", JSON.stringify(next)); } catch {}
-  };
-  const getFlag = (id, flag) => !!payFlags[`${id}_${flag}`];
   const [activeView, setActiveView] = useState("unpaid-purchase");
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -6103,34 +6207,48 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
     return { limit: creditLimit, netOut, balance, pendingNet, totalBuy, totalExp, totalSale };
   }, [creditLimit, payFlags, allPurchaseRows, allExpenseRows, allSaleRows]);
 
-  // คำนวณยอดรายวัน — ใช้ยอดโอนจริง (Math.floor ต่อบิล) filter วันที่ payment จริง (p.date)
+  // คำนวณยอดรายวัน
+  // ฝั่งซ้าย: ยอดจ่าย/รับจริงออกจากธนาคาร เฉพาะวัน creditDate (ไม่ขึ้นกับติ๊กเบิก)
+  // ยอดค้างเบิก: ทุกบิลที่จ่ายแล้ว ยังไม่ติ๊ก (ทุกวัน) − ยอดใช้วันนี้ (เพราะรวมอยู่แล้ว)
   const creditDaySummary = useMemo(() => {
     const accs = new Set(creditAccounts);
     const hasAccPayment = (doc, field) =>
       accs.size === 0 || (doc.payments||[]).some(p => accs.has(p[field]));
 
-    // ยอดที่จ่ายจริงในวันที่ creditDate (ตาม p.date ของ payment ไม่ใช่วันบิล) ปัดลงต่อบิล
-    const sumActualPaid = (rows, field) =>
+    // ยอดจ่าย/รับจริงออกจากธนาคาร เฉพาะวัน creditDate (ทุกบิล ไม่ filter withdrawn)
+    const sumDayActual = (rows, field) =>
       rows
-        .filter(r => !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, field))
+        .filter(r => hasAccPayment(r.doc, field))
         .reduce((s, r) => {
-          const dayPayments = (r.doc.payments||[]).filter(p => (p.date||r.date) === creditDate && (accs.size === 0 || accs.has(p[field])));
-          return s + Math.floor(dayPayments.reduce((ps, p) => ps + (Number(p.amount)||0), 0));
+          const dayAmt = (r.doc.payments||[])
+            .filter(p => (p.date || r.date) === creditDate && (accs.size === 0 || accs.has(p[field])))
+            .reduce((ps, p) => ps + (Number(p.amount)||0), 0);
+          return s + dayAmt;
         }, 0);
 
-    const dayCost = sumActualPaid(allPurchaseRows, "fromStoreBankId");
-    const dayExp  = sumActualPaid(allExpenseRows,  "fromStoreBankId");
-    const dayRev  = sumActualPaid(allSaleRows,     "toStoreBankId");
+    const dayCost = sumDayActual(allPurchaseRows, "fromStoreBankId");
+    const dayExp  = sumDayActual(allExpenseRows,  "fromStoreBankId");
+    const dayRev  = sumDayActual(allSaleRows,     "toStoreBankId");
     const dayNet  = dayCost + dayExp - dayRev;
 
-    // ยอดค้างเบิก = บิลก่อน creditDate ที่ยังไม่ได้เบิก (ใช้ r.paid เหมือนเดิม)
-    const pendingBefore =
-      allPurchaseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+Math.floor(r.paid),0)
-      + allExpenseRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"fromStoreBankId")).reduce((s,r)=>s+Math.floor(r.paid),0)
-      - allSaleRows.filter(r => r.date < creditDate && r.payStatus==="paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc,"toStoreBankId")).reduce((s,r)=>s+Math.floor(r.paid),0);
+    // ยอดค้างเบิก = บิลที่จ่ายจริงแล้วทุกวัน ยังไม่ติ๊กเบิก รวมทุกวัน (ไม่ตัดด้วย creditDate)
+    // = (ออก-เข้า) ของทุกบิลที่ payStatus=paid และ !withdrawn และผ่านบัญชีที่เลือก
+    // แล้ว ลบ dayNet ออก (เพราะยอดวันนี้รวมอยู่ใน dayCost/dayExp/dayRev แล้ว)
+    const totalNotWithdrawnBuy = allPurchaseRows
+      .filter(r => r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
+      .reduce((s, r) => s + r.paid, 0);
+    const totalNotWithdrawnExp = allExpenseRows
+      .filter(r => r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "fromStoreBankId"))
+      .reduce((s, r) => s + r.paid, 0);
+    const totalNotWithdrawnRev = allSaleRows
+      .filter(r => r.payStatus === "paid" && !payFlags[`${r.id}_withdrawn`] && hasAccPayment(r.doc, "toStoreBankId"))
+      .reduce((s, r) => s + r.paid, 0);
+
+    const pendingBefore = (totalNotWithdrawnBuy + totalNotWithdrawnExp - totalNotWithdrawnRev) - dayNet;
 
     const manual = Number(creditManual) || 0;
-    return { dayCost, dayExp, dayRev, dayNet, pendingBefore, manual, total: dayNet + pendingBefore + manual };
+    const total = dayNet + pendingBefore + manual;
+    return { dayCost, dayExp, dayRev, dayNet, pendingBefore, manual, total };
   }, [creditDate, allPurchaseRows, allExpenseRows, allSaleRows, payFlags, creditManual, creditAccounts]);
 
   const unpaidPurchases = allPurchaseRows.filter((r) => r.payStatus !== "paid");
