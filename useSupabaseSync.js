@@ -27,7 +27,7 @@ const TABLE_TO_KEY = Object.fromEntries(
 
 const SETTINGS_KEYS = [
   'shopProfile', 'companySettings', 'unitOptions',
-  'expenseCategories', 'productCategories',
+  'expenseCategories', 'productCategories', 'payFlags',
 ]
 
 // ---------- Global sync status ----------
