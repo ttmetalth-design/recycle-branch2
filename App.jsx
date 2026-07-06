@@ -927,14 +927,10 @@ function computeInventory(products, purchases, sales, withdrawals = []) {
       events.push({ type: "in", date: po.date, ref: po.id, productId: it.productId, qty: it.net, price: it.price });
     });
   });
-  sales.forEach((inv) => {
-    inv.items.forEach((it) => {
-      if (it.fromWithdrawal) return; // สต๊อกถูกตัดไปแล้วตอนเบิก ไม่ต้องตัดซ้ำที่นี่
-      events.push({ type: "out", date: inv.date, ref: inv.id, productId: it.productId, qty: it.net });
-    });
-  });
+  // ข้อ 7: ตัดสต็อกจากใบเบิกเท่านั้น ใบขายไม่ตัดสต็อก (รายการที่ qty=0 ก็ไม่กระทบ)
   withdrawals.forEach((lot) => {
     (lot.items || []).forEach((it) => {
+      if ((Number(it.qty) || 0) <= 0) return; // qty=0 ไม่กระทบสต็อก
       events.push({ type: "withdraw", date: lot.date, ref: lot.id, productId: it.sourceProductId, qty: it.qty });
     });
   });
@@ -11253,31 +11249,43 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
     return value;
   };
 
-  // ฟังก์ชันคำนวณกำไรขาดทุนของเดือน/ปีใดๆ — ใช้ร่วมกันทั้งมุมมองรายเดือนและสรุปรายปี
+  // ฟังก์ชันคำนวณกำไรขาดทุนของเดือน/ปีใดๆ
+  // ต้นทุนขาย = ต้นงวด + ซื้อ − ปลายงวด (สมดุล)
+  // ปลายงวด = มูลค่าสต็อกจริง ณ สิ้นงวด (จาก costConsumed FIFO ของใบเบิกเท่านั้น)
   const computeMonthlyPL = (y, m) => {
     const sd = `${y}-${String(m).padStart(2,"0")}-01`;
-    const ed = `${y}-${String(m).padStart(2,"0")}-${String(new Date(y, m, 0).getDate()).padStart(2,"0")}`;
+    const lastDay = new Date(y, m, 0).getDate();
+    const ed = `${y}-${String(m).padStart(2,"0")}-${String(lastDay).padStart(2,"0")}`;
+    const nextDay = new Date(new Date(ed).getTime() + 86400000).toISOString().slice(0, 10);
     const inR = (d) => d >= sd && d <= ed;
     const ym = `${y}-${String(m).padStart(2,"0")}`;
 
+    // รายได้
     const salesInR = sales.filter((s) => inR(s.date));
     const totalRev = salesInR.reduce((sum, inv) => {
       const subtotal = inv.items.reduce((s, it) => s + (it.net || 0) * (it.price || 0), 0);
       const ad = subtotal - (inv.discount || 0);
       return sum + ad;
     }, 0);
-    const otherIncome = 0;
-    const income = totalRev + otherIncome;
 
+    // ต้นงวด = มูลค่าสต็อกจากทุก movement ก่อน sd
     const beginInv = stockValueBefore(sd);
-    const endInv = stockValueBefore(new Date(new Date(ed).getTime() + 86400000).toISOString().slice(0, 10));
+
+    // ปลายงวด = มูลค่าสต็อกจากทุก movement ก่อน nextDay (= ณ สิ้น ed)
+    const endInv = stockValueBefore(nextDay);
+
+    // ซื้อในงวด
     const purchInR = movements
       .filter((mv) => mv.type === "in" && !mv.isOpening && inR(mv.date))
       .reduce((s, mv) => s + (Number(mv.qty) || 0) * (Number(mv.price) || 0), 0);
+
+    // ต้นทุนขาย = ต้นงวด + ซื้อ − ปลายงวด
     const available = beginInv + purchInR;
     const cost = available - endInv;
-    const gross = income - cost;
 
+    const gross = totalRev - cost;
+
+    // ค่าใช้จ่าย
     const expensesInR = expenses.filter((e) => inR(e.billDate || e.date));
     const openingRows = [];
     Object.entries(expenseCategories || {}).forEach(([main, subs]) => {
@@ -11299,15 +11307,23 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
     const byCategory = Object.entries(groups).map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount);
     const totalExp = byCategory.reduce((s, c) => s + c.amount, 0);
 
-    // รวมยอดยกมาเข้าใน function โดยตรง
+    // ยอดยกมา
     const ymMatches = !openingMonth || openingMonth === ym;
     const addRev = ymMatches ? (Number(openingRevenue) || 0) : 0;
     const addCost = ymMatches ? (Number(openingCost) || 0) : 0;
-    const totalIncomeWithOpening = income + addRev;
+    const totalIncomeWithOpening = totalRev + addRev;
     const totalCostWithOpening = cost + addCost;
     const grossWithOpening = totalIncomeWithOpening - totalCostWithOpening;
     const net = grossWithOpening - totalExp;
-    return { totalRevenue: totalRev, totalOtherIncome: otherIncome, totalIncome: totalIncomeWithOpening, beginningInventory: beginInv, endingInventory: endInv, purchasesInRange: purchInR, goodsAvailableForSale: available, totalCost: totalCostWithOpening, grossProfit: grossWithOpening, expenseByCategory: byCategory, totalExpenses: totalExp, netProfit: net, openingRevenueApplied: addRev, openingCostApplied: addCost };
+
+    return {
+      totalRevenue: totalRev, totalOtherIncome: 0, totalIncome: totalIncomeWithOpening,
+      beginningInventory: beginInv, endingInventory: endInv,
+      purchasesInRange: purchInR, goodsAvailableForSale: available,
+      totalCost: totalCostWithOpening, grossProfit: grossWithOpening,
+      expenseByCategory: byCategory, totalExpenses: totalExp, netProfit: net,
+      openingRevenueApplied: addRev, openingCostApplied: addCost,
+    };
   };
 
   const startDate = `${year}-${String(month).padStart(2,"0")}-01`;
