@@ -2106,6 +2106,7 @@ export default function App() {
   useSupabaseSync('dividendPayments',  dividendPayments,  setDividendPayments,  dbLoaded)
   useSupabaseSync('deliveries',        deliveries,        setDeliveries,        dbLoaded)
   useSupabaseSync('prepayments',       prepayments,       setPrepayments,       dbLoaded)
+  useSupabaseSync('payFlags',          payFlags,          setPayFlags,          dbLoaded)
 
 // loadProducts ถูกเรียกใน loadAllFromSupabase แล้ว ไม่ต้องเรียกซ้ำที่นี่
 
@@ -3740,7 +3741,8 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
         // ===== ตัวกรองช่วงเวลาเฉพาะของ "เงินหมุนร้าน" =====
         const bankInflowsRange = {};
         sales.forEach((inv) => (inv.payments || []).forEach((p) => {
-          if (p.toStoreBankId && p.toStoreBankId !== "CASH" && p.toStoreBankId !== "PREPAYMENT" && inRange(p.date)) {
+          const pDate = p.date || inv.date;
+          if (p.toStoreBankId && p.toStoreBankId !== "CASH" && p.toStoreBankId !== "PREPAYMENT" && inRange(pDate)) {
             bankInflowsRange[p.toStoreBankId] = (bankInflowsRange[p.toStoreBankId] || 0) + (Number(p.amount) || 0);
           }
         }));
@@ -3761,7 +3763,7 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
           if (!inRange(date)) return;
           bankOutflowsRange[bankId] = (bankOutflowsRange[bankId] || 0) + amount;
         };
-        purchases.forEach((po) => (po.payments || []).forEach((p) => addOutflowRange(p.fromStoreBankId, Number(p.amount) || 0, p.date)));
+        purchases.forEach((po) => (po.payments || []).forEach((p) => addOutflowRange(p.fromStoreBankId, Number(p.amount) || 0, p.date || po.date)));
         (deposits || []).forEach((d) => addOutflowRange(d.fromStoreBankId, Number(d.amount) || 0, d.date));
         (expenses || []).forEach((e) => (e.payments || []).forEach((p) => addOutflowRange(p.fromStoreBankId, Number(p.amount) || 0, p.date || e.billDate || e.date)));
         (bankTransfers || []).forEach((t) => addOutflowRange(t.fromBankId, Number(t.amount) || 0, t.date));
@@ -3772,10 +3774,10 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
           storeBankAccounts.forEach((b) => {
             let bal = Number(b.openingBalance) || 0;
             sales.forEach((inv) => (inv.payments || []).forEach((p) => {
-              if (p.toStoreBankId === b.id && beforeDate(p.date)) bal += Number(p.amount) || 0;
+              if (p.toStoreBankId === b.id && beforeDate(p.date || inv.date)) bal += Number(p.amount) || 0;
             }));
             purchases.forEach((po) => (po.payments || []).forEach((p) => {
-              if (p.fromStoreBankId === b.id && beforeDate(p.date)) bal -= Number(p.amount) || 0;
+              if (p.fromStoreBankId === b.id && beforeDate(p.date || po.date)) bal -= Number(p.amount) || 0;
             }));
             (deposits || []).forEach((d) => {
               if (d.fromStoreBankId === b.id && beforeDate(d.date)) bal -= Number(d.amount) || 0;
