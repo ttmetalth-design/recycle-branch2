@@ -6532,10 +6532,6 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
           </div>
         </div>
 
-        <div style={{ marginTop: 8, fontSize: 13 }}>
-          สถานะ: <strong>{inv.paymentStatus}</strong>
-        </div>
-
         {/* ลายเซ็น */}
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 48, fontSize: 12 }}>
           <div style={{ textAlign: "center", width: "30%" }}>
