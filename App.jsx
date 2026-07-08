@@ -11274,8 +11274,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
   for (let y = 2024; y <= now.getFullYear() + 2; y++) yearOptions.push(y);
 
   const movements = inventory?.movements || [];
-  // stockValueBefore: คำนวณจาก movements เท่านั้น (costConsumed = costStored จากใบเบิก)
-  // ทำให้ beginInv + purchInR - endInv = cogsInR เสมอ (สมดุล)
+  // stockValueBefore: คำนวณจาก movements (ใช้สำหรับต้นงวดเดือนก่อนๆ)
   const stockValueBefore = (dateExclusive) => {
     let value = 0;
     movements.forEach((m) => {
@@ -11286,6 +11285,9 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
     return value;
   };
 
+  // มูลค่าสต็อกจริงปัจจุบัน (ตรงกับหน้าแดชบอร์ด)
+  const currentStockValue = inventory.summary.reduce((s, x) => s + x.totalCost, 0);
+
   const computeMonthlyPL = (y, m) => {
     const sd = `${y}-${String(m).padStart(2,"0")}-01`;
     const lastDay = new Date(y, m, 0).getDate();
@@ -11293,6 +11295,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
     const nextDay = new Date(new Date(ed).getTime() + 86400000).toISOString().slice(0, 10);
     const inR = (d) => d >= sd && d <= ed;
     const ym = `${y}-${String(m).padStart(2,"0")}`;
+    const todayStr = new Date().toISOString().slice(0, 10);
 
     // รายได้
     const salesInR = sales.filter((s) => inR(s.date));
@@ -11307,17 +11310,24 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
       .filter((mv) => mv.type === "in" && !mv.isOpening && inR(mv.date))
       .reduce((s, mv) => s + (Number(mv.qty) || 0) * (Number(mv.price) || 0), 0);
 
-    // ต้นทุนขาย = costConsumed ของใบเบิกในงวด (FIFO ที่บันทึกไว้ตอนสร้างใบเบิก)
+    // ต้นทุนขาย = costConsumed จากใบเบิกในงวด
     const cogsInR = movements
       .filter((mv) => mv.type === "withdraw" && inR(mv.date))
       .reduce((s, mv) => s + (Number(mv.costConsumed) || 0), 0);
 
-    // ต้นงวด / ปลายงวด — คำนวณจาก movements เดียวกัน ทำให้สมการสมดุลเสมอ
-    const beginInv = stockValueBefore(sd);
-    const endInv = stockValueBefore(nextDay);
-    const available = beginInv + purchInR;
+    // ปลายงวด: ถ้าเป็นเดือนปัจจุบัน ใช้ inventory.summary (ตรงกับแดชบอร์ด)
+    //          ถ้าเป็นเดือนก่อน คำนวณจาก movements
+    const isCurrentMonth = nextDay > todayStr;
+    const endInv = isCurrentMonth
+      ? currentStockValue
+      : stockValueBefore(nextDay);
 
-    // ต้นทุนขาย ใช้ cogsInR (= available - endInv เสมอเมื่อใช้ movements เดียวกัน)
+    // ต้นงวด = ปลายงวด + ต้นทุนขาย - ซื้อ (สมดุลเสมอ)
+    const beginInv = isCurrentMonth
+      ? endInv + cogsInR - purchInR
+      : stockValueBefore(sd);
+
+    const available = beginInv + purchInR;
     const cost = cogsInR;
 
     const gross = totalRev - cost;
