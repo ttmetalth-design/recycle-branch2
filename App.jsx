@@ -3797,6 +3797,17 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
           }
         });
 
+        const bankOutflowsRange = {};
+        const addOutflowRange = (bankId, amount, date) => {
+          if (!bankId || bankId === "CASH" || bankId === "DEPOSIT" || bankId === "PREPAYMENT") return;
+          if (!inRange(date)) return;
+          bankOutflowsRange[bankId] = (bankOutflowsRange[bankId] || 0) + amount;
+        };
+        purchases.forEach((po) => (po.payments || []).forEach((p) => addOutflowRange(p.fromStoreBankId, Number(p.amount) || 0, p.date || po.date)));
+        (deposits || []).forEach((d) => addOutflowRange(d.fromStoreBankId, Number(d.amount) || 0, d.date));
+        (expenses || []).forEach((e) => (e.payments || []).forEach((p) => addOutflowRange(p.fromStoreBankId, Number(p.amount) || 0, p.date || e.billDate || e.date)));
+        (bankTransfers || []).forEach((t) => addOutflowRange(t.fromBankId, Number(t.amount) || 0, t.date));
+
         // รวม openingPayments (รับชำระลูกหนี้ยกมา → inflow / จ่ายชำระเจ้าหนี้ยกมา → outflow)
         customers.forEach((c) => {
           (c.openingPayments || []).forEach((p) => {
@@ -3808,15 +3819,6 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
             }
           });
         });
-        const addOutflowRange = (bankId, amount, date) => {
-          if (!bankId || bankId === "CASH" || bankId === "DEPOSIT" || bankId === "PREPAYMENT") return;
-          if (!inRange(date)) return;
-          bankOutflowsRange[bankId] = (bankOutflowsRange[bankId] || 0) + amount;
-        };
-        purchases.forEach((po) => (po.payments || []).forEach((p) => addOutflowRange(p.fromStoreBankId, Number(p.amount) || 0, p.date || po.date)));
-        (deposits || []).forEach((d) => addOutflowRange(d.fromStoreBankId, Number(d.amount) || 0, d.date));
-        (expenses || []).forEach((e) => (e.payments || []).forEach((p) => addOutflowRange(p.fromStoreBankId, Number(p.amount) || 0, p.date || e.billDate || e.date)));
-        (bankTransfers || []).forEach((t) => addOutflowRange(t.fromBankId, Number(t.amount) || 0, t.date));
 
         const beforeRangeBalance = {};
         if (dateRange) {
