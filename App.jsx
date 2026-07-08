@@ -11270,7 +11270,6 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
 
     // ต้นงวด = มูลค่าสต็อกจากทุก movement ก่อน sd
     const beginInv = stockValueBefore(sd);
-
     // ปลายงวด = มูลค่าสต็อกจากทุก movement ก่อน nextDay (= ณ สิ้น ed)
     const endInv = stockValueBefore(nextDay);
 
@@ -11284,12 +11283,9 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
       .filter((mv) => mv.type === "in" && !mv.isOpening && inR(mv.date))
       .reduce((s, mv) => s + (Number(mv.qty) || 0) * (Number(mv.price) || 0), 0);
 
-    // ต้นงวด / ปลายงวด — ยังคงแสดงในงบเพื่อให้ครบสูตร แต่ต้นทุนขายใช้ cogsInR
-    const beginInv = stockValueBefore(sd);
-    const endInv = stockValueBefore(nextDay);
     const available = beginInv + purchInR;
 
-    // ใช้ cogsInR เป็นต้นทุนขายจริง (แทน available - endInv)
+    // ใช้ cogsInR เป็นต้นทุนขายจริง (FIFO จากใบเบิก)
     const cost = cogsInR;
 
     const gross = totalRev - cost;
