@@ -11274,14 +11274,23 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
     // ปลายงวด = มูลค่าสต็อกจากทุก movement ก่อน nextDay (= ณ สิ้น ed)
     const endInv = stockValueBefore(nextDay);
 
+    // ต้นทุนขาย = costConsumed ของใบเบิกในงวดนี้โดยตรง (FIFO จริง)
+    const cogsInR = movements
+      .filter((mv) => mv.type === "withdraw" && inR(mv.date))
+      .reduce((s, mv) => s + (Number(mv.costConsumed) || 0), 0);
+
     // ซื้อในงวด
     const purchInR = movements
       .filter((mv) => mv.type === "in" && !mv.isOpening && inR(mv.date))
       .reduce((s, mv) => s + (Number(mv.qty) || 0) * (Number(mv.price) || 0), 0);
 
-    // ต้นทุนขาย = ต้นงวด + ซื้อ − ปลายงวด
+    // ต้นงวด / ปลายงวด — ยังคงแสดงในงบเพื่อให้ครบสูตร แต่ต้นทุนขายใช้ cogsInR
+    const beginInv = stockValueBefore(sd);
+    const endInv = stockValueBefore(nextDay);
     const available = beginInv + purchInR;
-    const cost = available - endInv;
+
+    // ใช้ cogsInR เป็นต้นทุนขายจริง (แทน available - endInv)
+    const cost = cogsInR;
 
     const gross = totalRev - cost;
 
@@ -11323,6 +11332,7 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
       totalCost: totalCostWithOpening, grossProfit: grossWithOpening,
       expenseByCategory: byCategory, totalExpenses: totalExp, netProfit: net,
       openingRevenueApplied: addRev, openingCostApplied: addCost,
+      cogsFromWithdrawals: cogsInR,
     };
   };
 
@@ -11468,6 +11478,9 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
           <div style={{ borderTop: "1px solid #e5e7eb", margin: "6px 0 6px 16px" }} />
           <Row label="　สินค้าที่มีไว้เพื่อขาย" value={`฿${fmt(goodsAvailableForSale)}`} />
           <Row label="　หัก สินค้าคงเหลือปลายงวด" value={`-฿${fmt(endingInventory)}`} />
+          <div style={{ fontSize: 11, color: "#9ca3af", marginLeft: 16, marginBottom: 4 }}>
+            (ต้นทุนขายจริงคำนวณจาก costConsumed FIFO ของใบเบิกในงวด = ฿{fmt(currentMonthPL.cogsFromWithdrawals)})
+          </div>
           <div style={{ borderTop: "1px solid #e5e7eb", margin: "6px 0 6px 16px" }} />
           <Row label="　ต้นทุนขาย" value={`฿${fmt(totalCost)}`} bold />
 
