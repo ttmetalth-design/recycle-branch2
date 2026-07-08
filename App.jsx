@@ -2596,8 +2596,12 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
     (deposits || []).forEach((d) => add(d.fromStoreBankId, Number(d.amount) || 0));
     (expenses || []).forEach((e) => (e.payments || []).forEach((p) => add(p.fromStoreBankId, Number(p.amount) || 0)));
     (bankTransfers || []).forEach((t) => add(t.fromBankId, Number(t.amount) || 0));
+    // จ่ายชำระเจ้าหนี้ยกมา → outflow
+    customers.forEach((c) => (c.openingPayments || []).forEach((p) => {
+      if (p.type === "payable") add(p.bankId, Number(p.amount) || 0);
+    }));
     return out;
-  }, [purchases, deposits, expenses, bankTransfers]);
+  }, [purchases, deposits, expenses, bankTransfers, customers]);
 
   // ---------- ยอดรับเข้าแบงค์ — เงินที่รับเข้าบัญชีร้านแต่ละบัญชีจากการขาย (สะสมทั้งหมด ไม่ขึ้นกับช่วงเวลา) ----------
   const bankInflows = useMemo(() => {
@@ -2609,8 +2613,12 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
     sales.forEach((inv) => (inv.payments || []).forEach((p) => add(p.toStoreBankId, Number(p.amount) || 0)));
     (prepayments || []).forEach((p) => add(p.toStoreBankId, Number(p.amount) || 0));
     (bankTransfers || []).forEach((t) => add(t.toBankId, Number(t.amount) || 0));
+    // รับชำระลูกหนี้ยกมา → inflow
+    customers.forEach((c) => (c.openingPayments || []).forEach((p) => {
+      if (p.type === "receivable") add(p.bankId, Number(p.amount) || 0);
+    }));
     return inn;
-  }, [sales, bankTransfers, prepayments]);
+  }, [sales, bankTransfers, prepayments, customers]);
 
 
   // ---------- ซื้อ/ขาย แบ่งตามประเภทสินค้า และแบ่งตามรายการสินค้า ----------
@@ -3789,7 +3797,17 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
           }
         });
 
-        const bankOutflowsRange = {};
+        // รวม openingPayments (รับชำระลูกหนี้ยกมา → inflow / จ่ายชำระเจ้าหนี้ยกมา → outflow)
+        customers.forEach((c) => {
+          (c.openingPayments || []).forEach((p) => {
+            if (p.type === "receivable" && p.bankId && p.bankId !== "CASH" && inRange(p.date)) {
+              bankInflowsRange[p.bankId] = (bankInflowsRange[p.bankId] || 0) + (Number(p.amount) || 0);
+            }
+            if (p.type === "payable" && p.bankId && p.bankId !== "CASH") {
+              addOutflowRange(p.bankId, Number(p.amount) || 0, p.date);
+            }
+          });
+        });
         const addOutflowRange = (bankId, amount, date) => {
           if (!bankId || bankId === "CASH" || bankId === "DEPOSIT" || bankId === "PREPAYMENT") return;
           if (!inRange(date)) return;
@@ -3820,6 +3838,13 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
             (bankTransfers || []).forEach((t) => {
               if (t.fromBankId === b.id && beforeDate(t.date)) bal -= Number(t.amount) || 0;
               if (t.toBankId === b.id && beforeDate(t.date)) bal += Number(t.amount) || 0;
+            });
+            // openingPayments ยกมา
+            customers.forEach((c) => {
+              (c.openingPayments || []).forEach((p) => {
+                if (p.type === "receivable" && p.bankId === b.id && beforeDate(p.date)) bal += Number(p.amount) || 0;
+                if (p.type === "payable" && p.bankId === b.id && beforeDate(p.date)) bal -= Number(p.amount) || 0;
+              });
             });
             beforeRangeBalance[b.id] = bal;
           });
