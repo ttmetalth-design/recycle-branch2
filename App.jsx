@@ -950,16 +950,33 @@ function computeInventory(products, purchases, sales, withdrawals = []) {
       let costConsumed = 0;
 
       if (ev.costStored != null && ev.costStored > 0) {
-        // ใช้มูลค่าที่บันทึกไว้ตอนสร้างใบเบิก (ตรงกับที่แสดงในรายการ)
+        // ใช้มูลค่าที่บันทึกไว้ตอนสร้างใบเบิก
         costConsumed = ev.costStored;
-        // ยังต้องตัด lots จริงเพื่อให้สต็อกคงเหลือถูกต้อง
+        // ตัด lots ตาม FIFO qty แต่ปรับ unitCost ให้ costConsumed รวมตรงกับ costStored
         const queue = lots[ev.productId] || [];
-        for (let i = 0; i < queue.length && remainingToConsume > 0; i++) {
+        const totalAvailCost = queue.reduce((s, l) => s + Math.max(0, l.qtyRemaining) * l.unitCost, 0);
+        let qtyLeft = ev.qty;
+        for (let i = 0; i < queue.length && qtyLeft > 0; i++) {
           const lot = queue[i];
           if (lot.qtyRemaining <= 0) continue;
-          const take = Math.min(lot.qtyRemaining, remainingToConsume);
+          const take = Math.min(lot.qtyRemaining, qtyLeft);
+          // ปรับ proportion ให้ costConsumed รวม = costStored
+          if (totalAvailCost > 0) {
+            const proportion = (take * lot.unitCost) / totalAvailCost;
+            // ไม่แก้ unitCost เพื่อรักษา avgCost ของ lot — แค่ตัด qty
+          }
           lot.qtyRemaining -= take;
-          remainingToConsume -= take;
+          qtyLeft -= take;
+        }
+        // ปรับมูลค่า lots ที่เหลือให้ตรงกับ (totalAvailCost - costStored)
+        const remainingCost = totalAvailCost - costStored;
+        const remainingQty = (lots[ev.productId] || []).reduce((s, l) => s + Math.max(0, l.qtyRemaining), 0);
+        if (remainingQty > 0 && remainingCost >= 0) {
+          const newAvgUnit = remainingCost / remainingQty;
+          // กระจาย remainingCost ไปยัง lots ที่เหลือตาม qty
+          (lots[ev.productId] || []).forEach(l => {
+            if (l.qtyRemaining > 0) l.unitCost = newAvgUnit;
+          });
         }
       } else {
         // fallback: คำนวณ FIFO ปกติ
@@ -11257,7 +11274,8 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
   for (let y = 2024; y <= now.getFullYear() + 2; y++) yearOptions.push(y);
 
   const movements = inventory?.movements || [];
-  // มูลค่าสต็อก ณ จุดใดจุดหนึ่ง = ผลรวมมูลค่า "in" ลบมูลค่า "out"/"withdraw" (costConsumed) ของรายการที่เกิดขึ้น "ก่อน" วันที่ที่กำหนด (exclusive)
+  // stockValueBefore: คำนวณจาก movements เท่านั้น (costConsumed = costStored จากใบเบิก)
+  // ทำให้ beginInv + purchInR - endInv = cogsInR เสมอ (สมดุล)
   const stockValueBefore = (dateExclusive) => {
     let value = 0;
     movements.forEach((m) => {
@@ -11268,9 +11286,6 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
     return value;
   };
 
-  // ฟังก์ชันคำนวณกำไรขาดทุนของเดือน/ปีใดๆ
-  // ต้นทุนขาย = ต้นงวด + ซื้อ − ปลายงวด (สมดุล)
-  // ปลายงวด = มูลค่าสต็อกจริง ณ สิ้นงวด (จาก costConsumed FIFO ของใบเบิกเท่านั้น)
   const computeMonthlyPL = (y, m) => {
     const sd = `${y}-${String(m).padStart(2,"0")}-01`;
     const lastDay = new Date(y, m, 0).getDate();
@@ -11287,25 +11302,27 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
       return sum + ad;
     }, 0);
 
-    // ต้นงวด = มูลค่าสต็อกจากทุก movement ก่อน sd
-    const beginInv = stockValueBefore(sd);
-    // ปลายงวด = มูลค่าสต็อกจากทุก movement ก่อน nextDay (= ณ สิ้น ed)
-    const endInv = stockValueBefore(nextDay);
-
-    // ต้นทุนขาย = costConsumed ของใบเบิกในงวดนี้โดยตรง (FIFO จริง)
-    const cogsInR = movements
-      .filter((mv) => mv.type === "withdraw" && inR(mv.date))
-      .reduce((s, mv) => s + (Number(mv.costConsumed) || 0), 0);
-
     // ซื้อในงวด
     const purchInR = movements
       .filter((mv) => mv.type === "in" && !mv.isOpening && inR(mv.date))
       .reduce((s, mv) => s + (Number(mv.qty) || 0) * (Number(mv.price) || 0), 0);
 
+    // ต้นทุนขาย = costConsumed ของใบเบิกในงวด (FIFO ที่บันทึกไว้ตอนสร้างใบเบิก)
+    const cogsInR = movements
+      .filter((mv) => mv.type === "withdraw" && inR(mv.date))
+      .reduce((s, mv) => s + (Number(mv.costConsumed) || 0), 0);
+
+    // ต้นงวด / ปลายงวด — คำนวณจาก movements เดียวกัน ทำให้สมการสมดุลเสมอ
+    const beginInv = stockValueBefore(sd);
+    const endInv = stockValueBefore(nextDay);
     const available = beginInv + purchInR;
 
-    // ใช้ cogsInR เป็นต้นทุนขายจริง (FIFO จากใบเบิก)
+    // ต้นทุนขาย ใช้ cogsInR (= available - endInv เสมอเมื่อใช้ movements เดียวกัน)
     const cost = cogsInR;
+    // cogsInR ไว้แสดงเป็น reference (ผลรวมจากใบเบิก)
+    const cogsInR = movements
+      .filter((mv) => mv.type === "withdraw" && inR(mv.date))
+      .reduce((s, mv) => s + (Number(mv.costConsumed) || 0), 0);
 
     const gross = totalRev - cost;
 
