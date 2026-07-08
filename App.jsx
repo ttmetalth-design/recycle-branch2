@@ -7187,7 +7187,9 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
 
       {/* ===== Modal บันทึกรับ/จ่ายยอดยกมา ===== */}
       {openingPayModal && (() => {
-        const { customer: c, type } = openingPayModal;
+        const { customer: cSnapshot, type } = openingPayModal;
+        // ดึงข้อมูลล่าสุดจาก state (ป้องกัน Supabase push ข้อมูลใหม่ระหว่าง Modal เปิด)
+        const c = customers.find(cu => cu.id === cSnapshot.id) || cSnapshot;
         const isRec = type === "receivable";
         const orig = Number(isRec ? c.openingReceivable : c.openingPayable) || 0;
         const paid = (c.openingPayments||[]).filter(p=>p.type===type).reduce((s,p)=>s+(Number(p.amount)||0),0);
