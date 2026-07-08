@@ -11319,10 +11319,6 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
 
     // ต้นทุนขาย ใช้ cogsInR (= available - endInv เสมอเมื่อใช้ movements เดียวกัน)
     const cost = cogsInR;
-    // cogsInR ไว้แสดงเป็น reference (ผลรวมจากใบเบิก)
-    const cogsInR = movements
-      .filter((mv) => mv.type === "withdraw" && inR(mv.date))
-      .reduce((s, mv) => s + (Number(mv.costConsumed) || 0), 0);
 
     const gross = totalRev - cost;
 
