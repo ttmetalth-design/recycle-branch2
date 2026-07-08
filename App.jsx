@@ -968,8 +968,8 @@ function computeInventory(products, purchases, sales, withdrawals = []) {
           lot.qtyRemaining -= take;
           qtyLeft -= take;
         }
-        // ปรับมูลค่า lots ที่เหลือให้ตรงกับ (totalAvailCost - costStored)
-        const remainingCost = totalAvailCost - costStored;
+        // ปรับมูลค่า lots ที่เหลือให้ตรงกับ (totalAvailCost - ev.costStored)
+        const remainingCost = totalAvailCost - ev.costStored;
         const remainingQty = (lots[ev.productId] || []).reduce((s, l) => s + Math.max(0, l.qtyRemaining), 0);
         if (remainingQty > 0 && remainingCost >= 0) {
           const newAvgUnit = remainingCost / remainingQty;
