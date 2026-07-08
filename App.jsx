@@ -6121,15 +6121,15 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
       </div>
       <div id="tab-export-sales" style={{ flex: 1, overflow: "auto" }}>
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflow: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 860, tableLayout: "fixed" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 920 }}>
           <thead>
             <tr>
-              <th style={{ ...thStyle, width: "15%" }}>เลข Invoice</th>
-              <th style={{ ...thStyle, width: "10%" }}>วันที่</th>
-              <th style={{ ...thStyle, width: "18%" }}>ลูกค้า</th>
-              <th style={{ ...thStyle, width: "10%" }}>ทะเบียนรถ</th>
-              <th style={{ ...thStyle, textAlign: "right", width: "13%" }}>ยอดสุทธิ</th>
-              <th style={{ ...thStyle, textAlign: "right", width: "15%" }}>ยอดรับชำระ</th>
+              <th style={{ ...thStyle, width: "14%" }}>เลข Invoice</th>
+              <th style={{ ...thStyle, width: "9%" }}>วันที่</th>
+              <th style={{ ...thStyle, width: "17%" }}>ลูกค้า</th>
+              <th style={{ ...thStyle, width: "9%" }}>ทะเบียนรถ</th>
+              <th style={{ ...thStyle, textAlign: "right", width: "14%" }}>ยอดสุทธิ</th>
+              <th style={{ ...thStyle, textAlign: "right", width: "18%" }}>ยอดรับชำระ</th>
               <th style={{ ...thStyle, width: "10%" }}>สถานะ</th>
               <th style={{ ...thStyle, textAlign: "right", width: "9%" }}>จัดการ</th>
             </tr>
@@ -6148,9 +6148,9 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
                     {inv.vehiclePlate ? <span style={{ background: "#f3f4f6", padding: "2px 8px", borderRadius: 4, fontSize: 12, fontFamily: "monospace" }}>🚛 {inv.vehiclePlate}</span> : <span style={{ color: "#d1d5db" }}>—</span>}
                   </td>
                   <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>{fmt(t.total)} บาท</td>
-                  <td style={{ ...tdStyle, textAlign: "right" }}>
-                    <div style={{ fontSize: 12, color: "#1B3A6B" }}>รับแล้ว ฿{fmt(t.paid)}</div>
-                    {livePayStatus !== "ชำระแล้ว" && t.remaining > 0.01 && <div style={{ fontSize: 12, color: "#1E4D8C" }}>ค้าง ฿{fmt(t.remaining)}</div>}
+                  <td style={{ ...tdStyle, textAlign: "right", whiteSpace: "normal" }}>
+                    <div style={{ fontSize: 13, color: "#1B3A6B" }}>รับแล้ว ฿{fmt(t.paid)}</div>
+                    {livePayStatus !== "ชำระแล้ว" && t.remaining > 0.01 && <div style={{ fontSize: 13, color: "#1E4D8C" }}>ค้าง ฿{fmt(t.remaining)}</div>}
                   </td>
                   <td style={tdStyle}><span style={{ background: sc.bg, color: sc.color, padding: "2px 10px", borderRadius: 6, fontSize: 12, fontWeight: 500 }}>{livePayStatus}</span></td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>
