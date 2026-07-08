@@ -927,11 +927,13 @@ function computeInventory(products, purchases, sales, withdrawals = []) {
       events.push({ type: "in", date: po.date, ref: po.id, productId: it.productId, qty: it.net, price: it.price });
     });
   });
-  // ข้อ 7: ตัดสต็อกจากใบเบิกเท่านั้น ใบขายไม่ตัดสต็อก (รายการที่ qty=0 ก็ไม่กระทบ)
+  // ข้อ 7: ตัดสต็อกจากใบเบิกเท่านั้น ใช้ it.value ที่บันทึกไว้เป็น costConsumed โดยตรง
   withdrawals.forEach((lot) => {
     (lot.items || []).forEach((it) => {
-      if ((Number(it.qty) || 0) <= 0) return; // qty=0 ไม่กระทบสต็อก
-      events.push({ type: "withdraw", date: lot.date, ref: lot.id, productId: it.sourceProductId, qty: it.qty });
+      const qty = Number(it.qty) || 0;
+      if (qty <= 0) return;
+      const costStored = Number(it.value) || 0; // มูลค่า FIFO ที่บันทึกตอนสร้างใบเบิก
+      events.push({ type: "withdraw", date: lot.date, ref: lot.id, productId: it.sourceProductId, qty, costStored });
     });
   });
   // เรียงตามวันที่ แล้วให้ "withdraw" มาก่อน "in"/"out" ในวันเดียวกัน เพื่อให้ลำดับสอดคล้องกับการตัดสต๊อกทันที
@@ -946,15 +948,32 @@ function computeInventory(products, purchases, sales, withdrawals = []) {
     } else {
       let remainingToConsume = ev.qty;
       let costConsumed = 0;
-      const queue = lots[ev.productId];
-      for (let i = 0; i < queue.length && remainingToConsume > 0; i++) {
-        const lot = queue[i];
-        if (lot.qtyRemaining <= 0) continue;
-        const take = Math.min(lot.qtyRemaining, remainingToConsume);
-        lot.qtyRemaining -= take;
-        costConsumed += take * lot.unitCost;
-        remainingToConsume -= take;
+
+      if (ev.costStored != null && ev.costStored > 0) {
+        // ใช้มูลค่าที่บันทึกไว้ตอนสร้างใบเบิก (ตรงกับที่แสดงในรายการ)
+        costConsumed = ev.costStored;
+        // ยังต้องตัด lots จริงเพื่อให้สต็อกคงเหลือถูกต้อง
+        const queue = lots[ev.productId] || [];
+        for (let i = 0; i < queue.length && remainingToConsume > 0; i++) {
+          const lot = queue[i];
+          if (lot.qtyRemaining <= 0) continue;
+          const take = Math.min(lot.qtyRemaining, remainingToConsume);
+          lot.qtyRemaining -= take;
+          remainingToConsume -= take;
+        }
+      } else {
+        // fallback: คำนวณ FIFO ปกติ
+        const queue = lots[ev.productId] || [];
+        for (let i = 0; i < queue.length && remainingToConsume > 0; i++) {
+          const lot = queue[i];
+          if (lot.qtyRemaining <= 0) continue;
+          const take = Math.min(lot.qtyRemaining, remainingToConsume);
+          lot.qtyRemaining -= take;
+          costConsumed += take * lot.unitCost;
+          remainingToConsume -= take;
+        }
       }
+
       const avgCostUsed = ev.qty > 0 ? costConsumed / ev.qty : 0;
       movements.push({ ...ev, costConsumed, avgCostUsed, shortfall: remainingToConsume });
     }
