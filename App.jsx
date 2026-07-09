@@ -5465,6 +5465,7 @@ function syncWithdrawalsToSales(sales, withdrawalLots) {
 
 function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, setWithdrawals, inventory, customers, companySettings }) {
   const isMobile = useIsMobile();
+  const [selectedSales, setSelectedSales] = useState({});
   const cs = companySettings || {};
   const [modal, setModal] = useState(null); // {mode:'add'|'edit'}
   const [search, setSearch] = useState("");
@@ -5741,14 +5742,45 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
         <Pagination page={page} totalPages={totalPages} setPage={setPage} total={total} start={start} end={end} />
       </div>
 
-      {aggregates.length > 0 && (
+        {aggregates.length > 0 && (
         <div style={{ marginTop: 20 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>สรุปยอดต้นทุนรวมที่ไปลงในใบขาย</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>สรุปยอดต้นทุนรวมที่ไปลงในใบขาย</h3>
+            {Object.values(selectedSales || {}).some(Boolean) && (
+              <button style={{ ...btnSecondary, display: "flex", alignItems: "center", gap: 6 }}
+                onClick={() => {
+                  const chosen = Object.entries(selectedSales).filter(([,v])=>v).map(([k])=>k);
+                  const rows = [["เลข Invoice","สินค้าในใบขาย","จำนวนรวม","มูลค่ารวม","ราคาเฉลี่ยใหม่"]];
+                  chosen.forEach(sid => {
+                    const items = aggregates.filter(g=>g.saleId===sid);
+                    const tV = items.reduce((s,g)=>s+g.value,0);
+                    const tQ = items.reduce((s,g)=>s+g.qty,0);
+                    rows.push([sid, `${items.length} รายการ`, tQ, tV, ""]);
+                    items.forEach(g=>rows.push(["", prodName(g.productId), g.qty, g.value, g.avgCost]));
+                  });
+                  exportExcel(rows, `ต้นทุนใบขาย.xlsx`, "ต้นทุน");
+                }}>
+                <Download size={14} /> Export Excel ({Object.values(selectedSales).filter(Boolean).length} ใบ)
+              </button>
+            )}
+          </div>
           <SearchBar value={aggregateSearch} onChange={setAggregateSearch} placeholder="ค้นหาเลข Invoice หรือสินค้า..." />
           <Card>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
+                  <th style={{ ...thStyle, width: 36 }}>
+                    <input type="checkbox"
+                      style={{ width: 15, height: 15, cursor: "pointer" }}
+                      checked={filteredAggregates.length > 0 && [...new Set(filteredAggregates.map(g=>g.saleId))].every(id=>selectedSales?.[id])}
+                      onChange={(e) => {
+                        const ids = [...new Set(filteredAggregates.map(g=>g.saleId))];
+                        const next = {};
+                        ids.forEach(id => next[id] = e.target.checked);
+                        setSelectedSales(next);
+                      }}
+                    />
+                  </th>
                   <th style={thStyle}>เลข Invoice</th>
                   <th style={thStyle}>สินค้าในใบขาย</th>
                   <th style={{ ...thStyle, textAlign: "right" }}>จำนวนรวม</th>
@@ -5764,33 +5796,43 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
                     grouped[g.saleId].push(g);
                   });
                   if (Object.keys(grouped).length === 0) return (
-                    <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่พบรายการที่ค้นหา</td></tr>
+                    <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่พบรายการที่ค้นหา</td></tr>
                   );
-                  return Object.entries(grouped).map(([saleId, items]) => {
+                  // เรียงล่าสุดก่อน
+                  const sortedEntries = Object.entries(grouped).sort(([a],[b]) => b.localeCompare(a, undefined, { numeric: true }));
+                  return sortedEntries.map(([saleId, items]) => {
                     const totalValue = items.reduce((s, g) => s + g.value, 0);
                     const totalQty = items.reduce((s, g) => s + g.qty, 0);
                     const isExpanded = !!expandedGroups[saleId];
+                    const isChecked = !!(selectedSales?.[saleId]);
                     return (
                       <React.Fragment key={saleId}>
-                        {/* แถวกลุ่ม — คลิกเพื่อ expand/collapse */}
                         <tr
                           onClick={() => toggleGroup(saleId)}
-                          style={{ background: "#f3f4f6", cursor: "pointer" }}
+                          style={{ background: isChecked ? "#ede9fe" : "#f3f4f6", cursor: "pointer" }}
                           onMouseEnter={(e) => e.currentTarget.style.background = "#e5e7eb"}
-                          onMouseLeave={(e) => e.currentTarget.style.background = "#f3f4f6"}
+                          onMouseLeave={(e) => e.currentTarget.style.background = isChecked ? "#ede9fe" : "#f3f4f6"}
                         >
-                          <td style={{ ...tdStyle, fontWeight: 700, color: "#534ab7", fontFamily: "'JetBrains Mono', monospace", display: "flex", alignItems: "center", gap: 6 }}>
-                            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                            {saleId}
+                          <td style={{ ...tdStyle, textAlign: "center" }} onClick={e=>e.stopPropagation()}>
+                            <input type="checkbox" checked={isChecked}
+                              style={{ width: 15, height: 15, cursor: "pointer" }}
+                              onChange={e => setSelectedSales(prev=>({...prev,[saleId]:e.target.checked}))}
+                            />
+                          </td>
+                          <td style={{ ...tdStyle, fontWeight: 700, color: "#534ab7", fontFamily: "'JetBrains Mono', monospace" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                              {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                              {saleId}
+                            </span>
                           </td>
                           <td style={{ ...tdStyle, color: "#6b7280", fontSize: 12 }}>{items.length} รายการ</td>
                           <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>{fmt(totalQty)}</td>
                           <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#534ab7" }}>฿{fmt(totalValue)}</td>
                           <td style={{ ...tdStyle, textAlign: "right", color: "#9ca3af" }}>—</td>
                         </tr>
-                        {/* รายการสินค้า — แสดงเมื่อ expand */}
                         {isExpanded && items.map((g) => (
                           <tr key={`${g.saleId}__${g.productId}`} style={{ background: "#fafafa" }}>
+                            <td style={tdStyle}></td>
                             <td style={{ ...tdStyle, color: "#9ca3af", paddingLeft: 32 }}>↳</td>
                             <td style={tdStyle}>{prodName(g.productId)}</td>
                             <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.qty)} {prodUnit(g.productId)}</td>
