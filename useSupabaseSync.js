@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase, isSupabaseReady } from './supabase'
 
-const DEVICE_ID = Math.random().toString(36).slice(2)
+const DEVICE_ID = (() => {
+  try {
+    const stored = localStorage.getItem('_device_id')
+    if (stored) return stored
+    const newId = Math.random().toString(36).slice(2)
+    localStorage.setItem('_device_id', newId)
+    return newId
+  } catch {
+    return Math.random().toString(36).slice(2)
+  }
+})()
 
 const ARRAY_TABLES = {
   purchases: 'purchases',
@@ -34,6 +44,7 @@ const SETTINGS_KEYS = [
 let globalStatus = 'synced'
 let pendingCount = 0
 const statusListeners = new Set()
+const pendingSaveKeys = new Set() // keys ที่กำลัง pending save อยู่
 
 function setGlobalStatus(status) {
   globalStatus = status
@@ -192,9 +203,20 @@ function ensureSettingsChannel() {
       const setter = key && settingsSetters.get(key)
       if (!setter) return
       const updatedBy = payload.new?.data?._updated_by
+      // ถ้ามาจาก device เดียวกัน ข้าม (เราอัปเดต state เองแล้ว)
       if (updatedBy === DEVICE_ID) return
       const newValue = payload.new?.data?.value
-      if (newValue !== undefined) setter(newValue)
+      if (newValue === undefined) return
+      // สำหรับ payFlags: merge แทน overwrite เพื่อไม่ให้ข้อมูลหาย
+      if (key === 'payFlags' && typeof newValue === 'object' && newValue !== null) {
+        setter(prev => {
+          if (typeof prev !== 'object' || prev === null) return newValue
+          // merge: ค่า true จากทั้งสองฝั่ง จะ win (ติ๊กแล้วไม่หาย)
+          return { ...newValue, ...prev }
+        })
+        return
+      }
+      setter(newValue)
     })
     .subscribe()
 }
@@ -228,6 +250,7 @@ export function useSupabaseSync(key, value, setValue, loaded) {
       saveTimer.current = null
       maxWaitTimer.current = null
 
+      if (isSettingsKey) pendingSaveKeys.add(key)
       incrementPending()
       let success = false
       try {
@@ -257,6 +280,10 @@ export function useSupabaseSync(key, value, setValue, loaded) {
       } catch {
         success = false
       } finally {
+        if (isSettingsKey) {
+          // ปลด lock หลัง save เสร็จ (500ms พอ — แค่กัน echo ทันที)
+          setTimeout(() => pendingSaveKeys.delete(key), 500)
+        }
         decrementPending(success)
       }
     }
