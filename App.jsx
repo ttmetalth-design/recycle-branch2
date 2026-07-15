@@ -2826,10 +2826,12 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
       footerRow: ["รวม", expensesBySubCategory.reduce((s,g)=>s+g.count,0), totalExpenses, "100%"],
       accentColor: "#1E4D8C", filename: `ค่าใช้จ่าย_${periodLabel}.png`,
     }),
-    stock: () => shareStockCardImage({
-      groups: stockByType.filter(g => g.items.some(s => s.qty > 0)),
-      today,
-      filename: `สต็อก_${today}.png`,
+    stock: () => shareTableImage({
+      title: "สรุปสต็อกสินค้า", subtitle: `ณ วันที่ ${today}`,
+      headers: ["ประเภทสินค้า", "คงเหลือ (กก.)", "มูลค่า (฿)", "ราคาเฉลี่ย"],
+      rows: stockByType.filter(g => g.qty > 0).map(g => [g.type, g.qty, g.value, g.avgCost]),
+      footerRow: ["ผลรวม", stockByType.reduce((s,g)=>s+g.qty,0), stockByType.reduce((s,g)=>s+g.value,0), ""],
+      accentColor: "#0A1E3D", filename: `สต็อก_${today}.png`,
     }),
     loans: () => shareTableImage({
       title: "สินเชื่อ / เงินกู้คงเหลือ", subtitle: `ณ วันที่ ${today}`,
