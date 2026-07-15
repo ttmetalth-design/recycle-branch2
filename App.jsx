@@ -2826,13 +2826,96 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
       footerRow: ["รวม", expensesBySubCategory.reduce((s,g)=>s+g.count,0), totalExpenses, "100%"],
       accentColor: "#1E4D8C", filename: `ค่าใช้จ่าย_${periodLabel}.png`,
     }),
-    stock: () => shareTableImage({
-      title: "สรุปสต็อกสินค้า", subtitle: `ณ วันที่ ${today}`,
-      headers: ["ประเภทสินค้า", "คงเหลือ (กก.)", "มูลค่า (฿)", "ราคาเฉลี่ย"],
-      rows: stockByType.filter(g => g.qty > 0).map(g => [g.type, g.qty, g.value, g.avgCost]),
-      footerRow: ["ผลรวม", stockByType.reduce((s,g)=>s+g.qty,0), stockByType.reduce((s,g)=>s+g.value,0), ""],
-      accentColor: "#0A1E3D", filename: `สต็อก_${today}.png`,
-    }),
+    stock: () => {
+      const visGroups = stockByType.filter(g => g.qty > 0);
+      const fmtN = (n) => typeof n === "number" ? n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : String(n ?? "");
+      const DPR = 2, W = 900, PAD = 28;
+      const FONT = "'Noto Sans Thai','Sarabun','Prompt',sans-serif";
+      const HEADER_H = 80, COL_HEAD_H = 48, ROW_H = 52, FOOTER_H = 56;
+      const H = HEADER_H + COL_HEAD_H + visGroups.length * ROW_H + FOOTER_H;
+      const canvas = document.createElement("canvas");
+      canvas.width = W * DPR; canvas.height = H * DPR;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(DPR, DPR);
+      // colXs
+      const colXs = [PAD, W*0.52, W*0.70, W*0.86];
+      const colW = [colXs[1]-PAD, colXs[2]-colXs[1], colXs[3]-colXs[2], W-colXs[3]-PAD];
+
+      // bg
+      ctx.fillStyle = "#f5f3ff"; ctx.fillRect(0,0,W,H);
+
+      // header
+      ctx.fillStyle = "#6b1a1a"; ctx.fillRect(0,0,W,HEADER_H);
+      ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fillRect(0,0,W,HEADER_H);
+      ctx.fillStyle = "#fff"; ctx.font = `bold 26px ${FONT}`;
+      ctx.fillText("สรุปสต็อกสินค้า", PAD, 40);
+      ctx.font = `15px ${FONT}`; ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.fillText(`ณ วันที่ ${today}`, PAD, 64);
+
+      // col header
+      let y = HEADER_H;
+      ctx.fillStyle = "#0A1E3D"; ctx.fillRect(0, y, W, COL_HEAD_H);
+      const headers = ["ประเภทสินค้า", "คงเหลือ (กก.)", "มูลค่า (฿)", "ราคาเฉลี่ย"];
+      const aligns = ["left","right","right","right"];
+      headers.forEach((h, ci) => {
+        ctx.fillStyle = "#c8d8f0"; ctx.font = `bold 17px ${FONT}`;
+        ctx.textAlign = aligns[ci];
+        const tx = ci === 0 ? colXs[ci] : ci === headers.length-1 ? W-PAD : colXs[ci]+colW[ci]-8;
+        ctx.fillText(h, tx, y + COL_HEAD_H/2 + 6);
+      });
+      ctx.textAlign = "left";
+
+      // rows
+      y += COL_HEAD_H;
+      visGroups.forEach((g, ri) => {
+        const bg = ri % 2 === 0 ? "#ffffff" : "#f0eeff";
+        ctx.fillStyle = bg; ctx.fillRect(0, y, W, ROW_H);
+        ctx.strokeStyle = "#e0d8f8"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(PAD, y+ROW_H); ctx.lineTo(W-PAD, y+ROW_H); ctx.stroke();
+
+        const row = [g.type, fmtN(g.qty), fmtN(g.value), fmtN(g.avgCost)];
+        row.forEach((val, ci) => {
+          ctx.fillStyle = ci === 0 ? "#1a1a3a" : ci === 2 ? "#b91c1c" : ci === 3 ? "#1E4D8C" : "#374151";
+          ctx.font = ci === 0 ? `600 18px ${FONT}` : `17px ${FONT}`;
+          ctx.textAlign = aligns[ci];
+          const tx = ci === 0 ? colXs[ci] : ci === row.length-1 ? W-PAD : colXs[ci]+colW[ci]-8;
+          ctx.fillText(val, tx, y + ROW_H/2 + 7);
+        });
+        ctx.textAlign = "left";
+        y += ROW_H;
+      });
+
+      // footer
+      ctx.fillStyle = "#6b1a1a"; ctx.fillRect(0, y, W, FOOTER_H);
+      ctx.fillStyle = "rgba(255,255,255,0.08)"; ctx.fillRect(0, y, W, 1);
+      const totalQ = visGroups.reduce((s,g)=>s+g.qty,0);
+      const totalV = visGroups.reduce((s,g)=>s+g.value,0);
+      ctx.fillStyle = "#fff"; ctx.font = `bold 20px ${FONT}`; ctx.textAlign = "left";
+      ctx.fillText("ผลรวม", PAD, y + FOOTER_H/2 + 7);
+      ctx.textAlign = "right";
+      ctx.fillText(fmtN(totalQ), colXs[1]+colW[1]-8, y + FOOTER_H/2 + 7);
+      ctx.fillStyle = "#fbbf24"; ctx.font = `bold 22px ${FONT}`;
+      ctx.fillText(fmtN(totalV), colXs[2]+colW[2]-8, y + FOOTER_H/2 + 7);
+      ctx.textAlign = "left";
+
+      // watermark
+      ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = `13px ${FONT}`; ctx.textAlign = "right";
+      ctx.fillText(new Date().toLocaleDateString("th-TH"), W-PAD, H-8);
+      ctx.textAlign = "left";
+
+      const filename = `สต็อก_${today}.png`;
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], filename, { type: "image/png" });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try { await navigator.share({ files: [file], title: "สรุปสต็อกสินค้า" }); } catch {}
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 3000);
+          alert("💾 บันทึกรูปแล้ว!\nกรุณาเปิด LINE แล้วแนบรูปได้เลยครับ");
+        }
+      }, "image/png");
+    },
     loans: () => shareTableImage({
       title: "สินเชื่อ / เงินกู้คงเหลือ", subtitle: `ณ วันที่ ${today}`,
       headers: ["ชื่อสัญญา", "ประเภท", "เงินต้น", "งวดคงเหลือ"],
