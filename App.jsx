@@ -3296,8 +3296,26 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "18px 20px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>ยอดซื้อ แบ่งตามรายการสินค้า</h3>
-                <LineShareBtn onClick={lineShareHandlers.purchaseByProduct} />
+                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <button onClick={() => {
+                    const rows = [
+                      ["ยอดซื้อ แบ่งตามรายการสินค้า", `ช่วงเวลา: ${periodLabel}`],
+                      ["สินค้า", "จำนวน", "มูลค่ารวม"],
+                      ...purchaseByProduct.map(g => [prodName(g.productId), `${fmt(g.qty)} ${prodUnit(g.productId)}`, g.value]),
+                      ["รวมทั้งหมด", "", purchaseByProduct.reduce((s,g)=>s+g.value,0)],
+                    ];
+                    exportExcel(rows, `ยอดซื้อแยกสินค้า_${periodLabel}.xlsx`, "ยอดซื้อ");
+                  }} style={{ display:"flex",alignItems:"center",gap:4,padding:"5px 10px",borderRadius:6,border:"1px solid #e5e7eb",background:"#fff",cursor:"pointer",fontSize:12,color:"#185fa5" }}>
+                    <FileSpreadsheet size={13} /> Excel
+                  </button>
+                  <button onClick={() => printAsPDF("dash-purchase-by-product", `ยอดซื้อแยกสินค้า_${periodLabel}`)}
+                    style={{ display:"flex",alignItems:"center",gap:4,padding:"5px 10px",borderRadius:6,border:"1px solid #e5e7eb",background:"#fff",cursor:"pointer",fontSize:12,color:"#185fa5" }}>
+                    <FileText size={13} /> PDF
+                  </button>
+                  <LineShareBtn onClick={lineShareHandlers.purchaseByProduct} />
+                </div>
               </div>
+              <div id="dash-purchase-by-product">
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
@@ -3326,6 +3344,7 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
                   </tfoot>
                 )}
               </table>
+              </div>{/* end dash-purchase-by-product */}
             </div>
           </div>
 
