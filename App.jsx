@@ -3268,6 +3268,7 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
                   <tr>
                     <th style={thStyle}>ประเภท</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>จำนวน</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>ราคาเฉลี่ย</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>มูลค่ารวม</th>
                   </tr>
                 </thead>
@@ -3276,16 +3277,20 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
                     <tr key={g.type}>
                       <td style={tdStyle}><Badge text={g.type} /></td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.qty)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>฿{fmt(g.avgCost)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(g.value)}</td>
                     </tr>
                   ))}
-                  {purchaseByType.length === 0 && <tr><td colSpan={3} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
+                  {purchaseByType.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
                 </tbody>
                 {purchaseByType.length > 0 && (
                   <tfoot>
                     <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(purchaseByType.reduce((s, g) => s + g.qty, 0))}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#6b7280" }}>
+                        {(() => { const tQ = purchaseByType.reduce((s,g)=>s+g.qty,0); const tV = purchaseByType.reduce((s,g)=>s+g.value,0); return `฿${fmt(tQ > 0 ? tV/tQ : 0)}`; })()}
+                      </td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(purchaseByType.reduce((s, g) => s + g.value, 0))}</td>
                     </tr>
                   </tfoot>
@@ -3321,6 +3326,7 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
                   <tr>
                     <th style={thStyle}>สินค้า</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>จำนวน</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>ราคาเฉลี่ย</th>
                     <th style={{ ...thStyle, textAlign: "right" }}>มูลค่ารวม</th>
                   </tr>
                 </thead>
@@ -3329,16 +3335,20 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
                     <tr key={g.productId}>
                       <td style={tdStyle}>{prodName(g.productId)}</td>
                       <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(g.qty)} {prodUnit(g.productId)}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", color: "#6b7280" }}>฿{fmt(g.avgCost)}</td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(g.value)}</td>
                     </tr>
                   ))}
-                  {purchaseByProduct.length === 0 && <tr><td colSpan={3} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
+                  {purchaseByProduct.length === 0 && <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีข้อมูลในช่วงเวลานี้</td></tr>}
                 </tbody>
                 {purchaseByProduct.length > 0 && (
                   <tfoot>
                     <tr style={{ background: "#f3f4f6", borderTop: "2px solid #e5e7eb" }}>
                       <td style={{ ...tdStyle, fontWeight: 700 }}>รวมทั้งหมด</td>
-                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>—</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(purchaseByProduct.reduce((s, g) => s + g.qty, 0))}</td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#6b7280" }}>
+                        {(() => { const tQ = purchaseByProduct.reduce((s,g)=>s+g.qty,0); const tV = purchaseByProduct.reduce((s,g)=>s+g.value,0); return `฿${fmt(tQ > 0 ? tV/tQ : 0)}`; })()}
+                      </td>
                       <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#1E4D8C" }}>฿{fmt(purchaseByProduct.reduce((s, g) => s + g.value, 0))}</td>
                     </tr>
                   </tfoot>
