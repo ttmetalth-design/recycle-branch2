@@ -89,15 +89,16 @@ async function loadArrayTable(tableName) {
   let all = []
   let from = 0
   while (true) {
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
       .from(tableName)
-      .select('data')
+      .select('data', { count: 'exact' })
       .order('updated_at', { ascending: true })
       .range(from, from + PAGE - 1)
     if (error || !data) break
     all = all.concat(data.map(row => row.data))
-    if (data.length < PAGE) break
     from += PAGE
+    // หยุดเมื่อโหลดครบทั้งหมดแล้ว (ใช้ count จริงจาก DB)
+    if (count !== null ? all.length >= count : data.length < PAGE) break
   }
   return all
 }
