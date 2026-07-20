@@ -4565,13 +4565,34 @@ function CustomersTab({ customers, setCustomers }) {
 
   const remove = (id) => setCustomers(customers.filter((c) => c.id !== id));
 
-  // รับรูปภาพบัตรประชาชนและแปลงเป็น base64
-  const handleIdCardImage = (e) => {
+  // รับรูปภาพบัตรประชาชนและอัปโหลดไป Supabase Storage
+  const handleIdCardImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setForm((f) => ({ ...f, idCardImage: ev.target.result }));
-    reader.readAsDataURL(file);
+    if (file.size > 5 * 1024 * 1024) { alert("รูปต้องไม่เกิน 5MB"); return; }
+
+    // ถ้าไม่มี Supabase ให้ใช้ base64 แทน
+    if (!isSupabaseReady) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setForm((f) => ({ ...f, idCardImage: ev.target.result }));
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    try {
+      const { supabase } = await import('./supabase');
+      const ext = file.name.split('.').pop();
+      const path = `id-cards/${form.id || 'temp'}_${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('customer-images').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from('customer-images').getPublicUrl(path);
+      setForm((f) => ({ ...f, idCardImage: urlData.publicUrl }));
+    } catch (err) {
+      // fallback to base64 ถ้า storage ไม่พร้อม
+      const reader = new FileReader();
+      reader.onload = (ev) => setForm((f) => ({ ...f, idCardImage: ev.target.result }));
+      reader.readAsDataURL(file);
+    }
   };
 
   // --- จัดการบัญชีธนาคารของลูกค้า (หลายบัญชี) ---
