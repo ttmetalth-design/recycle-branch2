@@ -87,28 +87,25 @@ async function loadArrayTable(tableName) {
   if (!isSupabaseReady) return []
   const PAGE = 1000
   let all = []
-  let lastUpdatedAt = null
-  let lastId = null
+  let from = 0
   while (true) {
-    let query = supabase
+    const { data, error } = await supabase
       .from(tableName)
-      .select('id, data, updated_at')
+      .select('data')
       .order('updated_at', { ascending: true })
-      .order('id', { ascending: true })
-      .limit(PAGE)
-
-    // ใช้ cursor-based pagination แทน offset
-    if (lastUpdatedAt && lastId) {
-      query = query.or(`updated_at.gt.${lastUpdatedAt},and(updated_at.eq.${lastUpdatedAt},id.gt.${lastId})`)
-    }
-
-    const { data, error } = await query
+      .range(from, from + PAGE - 1)
     if (error || !data || data.length === 0) break
-    all = all.concat(data.map(row => row.data))
+    // สำหรับ customers ตัด idCardImage ออกก่อน (ไฟล์ใหญ่) โหลดทีหลังเมื่อเปิดดู
+    const rows = tableName === 'customers'
+      ? data.map(row => {
+          const d = { ...row.data }
+          delete d.idCardImage
+          return d
+        })
+      : data.map(row => row.data)
+    all = all.concat(rows)
     if (data.length < PAGE) break
-    const last = data[data.length - 1]
-    lastUpdatedAt = last.updated_at
-    lastId = last.id
+    from += PAGE
   }
   return all
 }
