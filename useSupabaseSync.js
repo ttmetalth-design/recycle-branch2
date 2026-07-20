@@ -85,7 +85,7 @@ async function deleteArrayRow(tableName, id) {
 
 async function loadArrayTable(tableName) {
   if (!isSupabaseReady) return []
-  const PAGE = 2000
+  const PAGE = 1000
   let all = []
   let from = 0
   while (true) {
@@ -94,7 +94,6 @@ async function loadArrayTable(tableName) {
       .select('data')
       .order('updated_at', { ascending: true })
       .range(from, from + PAGE - 1)
-      .limit(PAGE)
     if (error || !data || data.length === 0) break
     all = all.concat(data.map(row => row.data))
     if (data.length < PAGE) break
