@@ -85,20 +85,20 @@ async function deleteArrayRow(tableName, id) {
 
 async function loadArrayTable(tableName) {
   if (!isSupabaseReady) return []
-  const PAGE = 1000
+  const PAGE = 2000
   let all = []
   let from = 0
   while (true) {
-    const { data, error, count } = await supabase
+    const { data, error } = await supabase
       .from(tableName)
-      .select('data', { count: 'exact' })
+      .select('data')
       .order('updated_at', { ascending: true })
       .range(from, from + PAGE - 1)
-    if (error || !data) break
+      .limit(PAGE)
+    if (error || !data || data.length === 0) break
     all = all.concat(data.map(row => row.data))
+    if (data.length < PAGE) break
     from += PAGE
-    // หยุดเมื่อโหลดครบทั้งหมดแล้ว (ใช้ count จริงจาก DB)
-    if (count !== null ? all.length >= count : data.length < PAGE) break
   }
   return all
 }
