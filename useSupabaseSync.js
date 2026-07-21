@@ -21,6 +21,7 @@ const ARRAY_TABLES = {
   withdrawals: 'withdrawals',
   deposits: 'deposits',
   prepayments: 'prepayments',
+  otherIncomes: 'other_incomes',
   deliveries: 'deliveries',
   bankTransfers: 'bank_transfers',
   assets: 'assets',
