@@ -2023,6 +2023,7 @@ export default function App() {
 
   const [withdrawals, setWithdrawals] = useState(initialWithdrawals);
   const [deposits, setDeposits] = useState(initialDeposits);
+  const [otherIncomes, setOtherIncomes] = useState([]);
   const [prepayments, setPrepayments] = useState([]);
   const [deliveries, setDeliveries] = useState([]);
   const [bankTransfers, setBankTransfers] = useState([]);
@@ -2138,6 +2139,7 @@ export default function App() {
   useSupabaseSync('dividendPayments',  dividendPayments,  setDividendPayments,  dbLoaded)
   useSupabaseSync('deliveries',        deliveries,        setDeliveries,        dbLoaded)
   useSupabaseSync('prepayments',       prepayments,       setPrepayments,       dbLoaded)
+  useSupabaseSync('otherIncomes',      otherIncomes,      setOtherIncomes,      dbLoaded)
   useSupabaseSync('payFlags',          payFlags,          setPayFlags,          dbLoaded)
 
 // loadProducts ถูกเรียกใน loadAllFromSupabase แล้ว ไม่ต้องเรียกซ้ำที่นี่
@@ -2150,6 +2152,7 @@ export default function App() {
     { key: "expenses",          label: "ค่าใช้จ่าย",             icon: Receipt },
     { key: "payments",          label: "รับชำระ/จ่ายชำระ",       icon: BadgeDollarSign },
     { key: "deposits",          label: "เงินมัดจำ",              icon: Wallet },
+    { key: "other-income",      label: "รายได้อื่น",             icon: TrendingUp },
     { key: "prepayments",       label: "รับล่วงหน้า",             icon: BadgeDollarSign },
     { key: "banktransfer",      label: "โยกเงินระหว่างธนาคาร",   icon: ArrowLeftRight },
     { key: "delivery",          label: "ใบส่งสินค้า",            icon: Truck },
@@ -2417,7 +2420,7 @@ export default function App() {
       </div>
 
       {/* Main content — independently scrollable */}
-      <div style={{ flex: 1, padding: "28px 32px", overflowY: "auto", overflowX: "auto", minHeight: "100vh", marginLeft: sidebarOpen ? 220 : 64, transition: "margin-left 0.2s ease", boxSizing: "border-box", width: sidebarOpen ? "calc(100vw - 220px)" : "calc(100vw - 64px)" }}>        {tab === "dashboard" && <Dashboard products={products} customers={customers} purchases={purchases} sales={sales} inventory={inventory} expenses={expenses} loans={loans} storeBankAccounts={storeBankAccounts} deposits={deposits} bankTransfers={bankTransfers} expenseCategories={expenseCategories} prepayments={prepayments} assets={assets} />}
+      <div style={{ flex: 1, padding: "28px 32px", overflowY: "auto", overflowX: "auto", minHeight: "100vh", marginLeft: sidebarOpen ? 220 : 64, transition: "margin-left 0.2s ease", boxSizing: "border-box", width: sidebarOpen ? "calc(100vw - 220px)" : "calc(100vw - 64px)" }}>        {tab === "dashboard" && <Dashboard products={products} customers={customers} purchases={purchases} sales={sales} inventory={inventory} expenses={expenses} loans={loans} storeBankAccounts={storeBankAccounts} deposits={deposits} bankTransfers={bankTransfers} expenseCategories={expenseCategories} prepayments={prepayments} assets={assets} otherIncomes={otherIncomes} />}
         {tab === "products" && <ProductsTab products={products} setProducts={setProducts} unitOptions={unitOptions} setUnitOptions={setUnitOptions} productCategories={productCategories} setProductCategories={setProductCategories} />}
         {tab === "customers" && <CustomersTab customers={customers} setCustomers={setCustomers} />}
         {tab === "purchases" && <PurchasesTab products={products} customers={customers} purchases={purchases} setPurchases={setPurchases} storeBankAccounts={storeBankAccounts} deposits={deposits} companySettings={companySettings} />}
@@ -2427,6 +2430,7 @@ export default function App() {
         {tab === "delivery" && <DeliveryTab deliveries={deliveries} setDeliveries={setDeliveries} products={products} customers={customers} sales={sales} companySettings={companySettings} />}
         {tab === "inventory" && <InventoryTab products={products} inventory={inventory} storeBankAccounts={storeBankAccounts} />}
         {tab === "deposits" && <DepositsTab customers={customers} setCustomers={setCustomers} deposits={deposits} setDeposits={setDeposits} purchases={purchases} storeBankAccounts={storeBankAccounts} />}
+        {tab === "other-income" && <OtherIncomeTab otherIncomes={otherIncomes} setOtherIncomes={setOtherIncomes} storeBankAccounts={storeBankAccounts} />}
         {tab === "prepayments" && <PrepaymentsTab customers={customers} setCustomers={setCustomers} prepayments={prepayments} setPrepayments={setPrepayments} sales={sales} storeBankAccounts={storeBankAccounts} />}
         {tab === "expenses" && <ExpensesTab expenses={expenses} setExpenses={setExpenses} storeBankAccounts={storeBankAccounts} loans={loans} setLoans={setLoans} expenseCategories={expenseCategories} setExpenseCategories={setExpenseCategories} companySettings={companySettings} customers={customers} />}
         {tab === "expenseCategories" && <ExpenseCategoriesTab expenseCategories={expenseCategories} setExpenseCategories={setExpenseCategories} expenses={expenses} setExpenses={setExpenses} />}
@@ -2435,7 +2439,7 @@ export default function App() {
         {tab === "banktransfer" && <BankTransferTab storeBankAccounts={storeBankAccounts} bankTransfers={bankTransfers} setBankTransfers={setBankTransfers} />}
         {tab === "assets" && <AssetsTab assets={assets} setAssets={setAssets} />}
         {tab === "settings" && <CompanySettingsTab settings={companySettings} setSettings={setCompanySettings} shopProfile={shopProfile} setShopProfile={setShopProfile} />}
-        {tab === "report" && <MonthlyReportTab purchases={purchases} sales={sales} expenses={expenses} inventory={inventory} withdrawals={withdrawals} expenseCategories={expenseCategories} shareholders={shareholders} setShareholders={setShareholders} dividendPayments={dividendPayments} setDividendPayments={setDividendPayments} companySettings={companySettings} setCompanySettings={setCompanySettings} />}
+        {tab === "report" && <MonthlyReportTab purchases={purchases} sales={sales} expenses={expenses} inventory={inventory} withdrawals={withdrawals} expenseCategories={expenseCategories} shareholders={shareholders} setShareholders={setShareholders} dividendPayments={dividendPayments} setDividendPayments={setDividendPayments} companySettings={companySettings} setCompanySettings={setCompanySettings} otherIncomes={otherIncomes} />}
         {tab === "tax" && <TaxSummaryTab purchases={purchases} sales={sales} expenses={expenses} />}
       </div>
 
@@ -2446,7 +2450,7 @@ export default function App() {
 // ===================================================================
 // DASHBOARD
 // ===================================================================
-function Dashboard({ products, customers, purchases, sales, inventory, expenses, loans, storeBankAccounts, deposits, bankTransfers, expenseCategories, prepayments, assets }) {
+function Dashboard({ products, customers, purchases, sales, inventory, expenses, loans, storeBankAccounts, deposits, bankTransfers, expenseCategories, prepayments, assets, otherIncomes }) {
   // ---------- หมวดหมู่แดชบอร์ด ----------
   const [dashSubTab, setDashSubTab] = useState("purchases"); // "purchases" | "sales" | "expenses" | "stock" | "loans"
   const [expandedStockTypes, setExpandedStockTypes] = useState({}); // { [type]: bool } ติ๊กเลือกเพื่อดูรายการสินค้าในประเภทนั้น
@@ -2617,8 +2621,10 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
     customers.forEach((c) => (c.openingPayments || []).forEach((p) => {
       if (p.type === "receivable") add(p.bankId, Number(p.amount) || 0);
     }));
+    // รายได้อื่น → inflow
+    (otherIncomes || []).forEach((x) => add(x.toStoreBankId, Number(x.amount) || 0));
     return inn;
-  }, [sales, bankTransfers, prepayments, customers]);
+  }, [sales, bankTransfers, prepayments, customers, otherIncomes]);
 
 
   // ---------- ซื้อ/ขาย แบ่งตามประเภทสินค้า และแบ่งตามรายการสินค้า ----------
@@ -3920,6 +3926,13 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
           }
         });
 
+        // รายได้อื่น → inflow
+        (otherIncomes || []).forEach((x) => {
+          if (x.toStoreBankId && x.toStoreBankId !== "CASH" && inRange(x.date)) {
+            bankInflowsRange[x.toStoreBankId] = (bankInflowsRange[x.toStoreBankId] || 0) + (Number(x.amount) || 0);
+          }
+        });
+
         const bankOutflowsRange = {};
         const addOutflowRange = (bankId, amount, date) => {
           if (!bankId || bankId === "CASH" || bankId === "DEPOSIT" || bankId === "PREPAYMENT") return;
@@ -3970,6 +3983,10 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
                 if (p.type === "receivable" && p.bankId === b.id && beforeDate(p.date)) bal += Number(p.amount) || 0;
                 if (p.type === "payable" && p.bankId === b.id && beforeDate(p.date)) bal -= Number(p.amount) || 0;
               });
+            });
+            // รายได้อื่น
+            (otherIncomes || []).forEach((x) => {
+              if (x.toStoreBankId === b.id && beforeDate(x.date)) bal += Number(x.amount) || 0;
             });
             beforeRangeBalance[b.id] = bal;
           });
@@ -6816,6 +6833,62 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
 // ===================================================================
 // PAYMENTS TAB (รับชำระ/จ่ายชำระ — รวมรายการค้างชำระจากใบรับสินค้าและใบขาย)
 // ===================================================================
+function CreditSettingModal({ companySettings, setCompanySettings, storeBankAccounts, onClose }) {
+  const [draft, setDraft] = useState({
+    creditLimit: companySettings?.creditLimit || 0,
+    creditAccounts: companySettings?.creditAccounts || [],
+  });
+  const handleSave = () => {
+    setCompanySettings(prev => ({ ...prev, creditLimit: draft.creditLimit, creditAccounts: draft.creditAccounts }));
+    onClose();
+  };
+  return (
+    <Modal title="ตั้งค่าวงเงินหมุนเวียนร้าน" onClose={onClose}>
+      <Field label="วงเงินตั้งต้น (บาท)">
+        <input type="number" style={{ ...inputStyle, textAlign: "right" }}
+          value={draft.creditLimit || ""}
+          onChange={(e) => setDraft(d => ({ ...d, creditLimit: Number(e.target.value) || 0 }))}
+          placeholder="เช่น 500000" />
+      </Field>
+      <div style={{ marginTop: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+          <div style={{ fontWeight: 600, fontSize: 14 }}>เลือกบัญชีที่นับในวงเงิน</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
+              onClick={() => setDraft(d => ({ ...d, creditAccounts: storeBankAccounts.map(a => a.id) }))}>
+              เลือกทั้งหมด
+            </button>
+            <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
+              onClick={() => setDraft(d => ({ ...d, creditAccounts: [] }))}>
+              ล้างทั้งหมด
+            </button>
+          </div>
+        </div>
+        <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 8 }}>
+          ถ้าไม่เลือกบัญชีใดเลย ระบบจะนับรวมทุกบัญชี
+        </div>
+        {storeBankAccounts.map((acc) => (
+          <label key={acc.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 13, cursor: "pointer" }}>
+            <input type="checkbox"
+              checked={draft.creditAccounts.includes(acc.id)}
+              onChange={(e) => {
+                const next = e.target.checked
+                  ? [...draft.creditAccounts, acc.id]
+                  : draft.creditAccounts.filter(id => id !== acc.id);
+                setDraft(d => ({ ...d, creditAccounts: next }));
+              }}
+              style={{ width: 16, height: 16 }} />
+            {acc.bankName} — {acc.accountNo} ({acc.accountName || ""})
+          </label>
+        ))}
+      </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+        <button style={btnPrimary} onClick={handleSave}><Check size={14} /> บันทึก</button>
+      </div>
+    </Modal>
+  );
+}
+
 function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setCustomers, storeBankAccounts, deposits, expenses, setExpenses, companySettings, setCompanySettings, bankTransfers, payFlags, setFlag, transferDetails, saveTransferDetail }) {
   const [showCreditSetting, setShowCreditSetting] = React.useState(false);
   const [openingPayModal, setOpeningPayModal] = React.useState(null); // { customer, type: "receivable"|"payable" }
@@ -7583,62 +7656,14 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
       </Card>}
 
       {/* Modal ตั้งค่าวงเงินหมุนเวียน */}
-      {showCreditSetting && (() => {
-        // ใช้ local draft เพื่อกันไม่ให้ realtime subscription ทับค่าระหว่างแก้
-        const [draft, setDraft] = React.useState({
-          creditLimit: companySettings?.creditLimit || 0,
-          creditAccounts: companySettings?.creditAccounts || [],
-        });
-        const handleSave = () => {
-          setCompanySettings(prev => ({ ...prev, creditLimit: draft.creditLimit, creditAccounts: draft.creditAccounts }));
-          setShowCreditSetting(false);
-        };
-        return (
-          <Modal title="ตั้งค่าวงเงินหมุนเวียนร้าน" onClose={() => setShowCreditSetting(false)}>
-            <Field label="วงเงินตั้งต้น (บาท)">
-              <input type="number" style={{ ...inputStyle, textAlign: "right" }}
-                value={draft.creditLimit || ""}
-                onChange={(e) => setDraft(d => ({ ...d, creditLimit: Number(e.target.value) || 0 }))}
-                placeholder="เช่น 500000" />
-            </Field>
-            <div style={{ marginTop: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>เลือกบัญชีที่นับในวงเงิน</div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
-                    onClick={() => setDraft(d => ({ ...d, creditAccounts: storeBankAccounts.map(a => a.id) }))}>
-                    เลือกทั้งหมด
-                  </button>
-                  <button type="button" style={{ ...btnSecondary, padding: "3px 10px", fontSize: 11 }}
-                    onClick={() => setDraft(d => ({ ...d, creditAccounts: [] }))}>
-                    ล้างทั้งหมด
-                  </button>
-                </div>
-              </div>
-              <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 8 }}>
-                ถ้าไม่เลือกบัญชีใดเลย ระบบจะนับรวมทุกบัญชี
-              </div>
-              {storeBankAccounts.map((acc) => (
-                <label key={acc.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 13, cursor: "pointer" }}>
-                  <input type="checkbox"
-                    checked={draft.creditAccounts.includes(acc.id)}
-                    onChange={(e) => {
-                      const next = e.target.checked
-                        ? [...draft.creditAccounts, acc.id]
-                        : draft.creditAccounts.filter(id => id !== acc.id);
-                      setDraft(d => ({ ...d, creditAccounts: next }));
-                    }}
-                    style={{ width: 16, height: 16 }} />
-                  {acc.bankName} — {acc.accountNo} ({acc.accountName || ""})
-                </label>
-              ))}
-            </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
-              <button style={btnPrimary} onClick={handleSave}><Check size={14} /> บันทึก</button>
-            </div>
-          </Modal>
-        );
-      })()}
+      {showCreditSetting && (
+        <CreditSettingModal
+          companySettings={companySettings}
+          setCompanySettings={setCompanySettings}
+          storeBankAccounts={storeBankAccounts}
+          onClose={() => setShowCreditSetting(false)}
+        />
+      )}
 
       {/* Modal ตั้งโอน — เลือกบัญชีและยอด */}
       {transferDetailModal && (
@@ -8304,6 +8329,131 @@ function InventoryTab({ products, inventory, storeBankAccounts }) {
 }
 // DEPOSITS TAB (เงินมัดจำจ่ายล่วงหน้าให้ลูกค้า)
 // ===================================================================
+// ===================================================================
+// OTHER INCOME TAB — รายได้อื่นๆ (รับเงินเข้าบัญชีโดยตรง)
+// ===================================================================
+function OtherIncomeTab({ otherIncomes, setOtherIncomes, storeBankAccounts }) {
+  const [modal, setModal] = useState(null);
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  const blank = () => ({
+    id: genId("OI", otherIncomes),
+    date: new Date().toISOString().slice(0, 10),
+    toStoreBankId: storeBankAccounts[0]?.id || "CASH",
+    amount: "",
+    note: "",
+  });
+  const [form, setForm] = useState(blank());
+
+  const save = () => {
+    if (!(Number(form.amount) > 0)) { alert("กรุณาระบุจำนวนเงิน"); return; }
+    const cleaned = { ...form, amount: Number(form.amount) };
+    if (modal.mode === "add") setOtherIncomes([...otherIncomes, cleaned]);
+    else setOtherIncomes(otherIncomes.map(x => x.id === modal.item.id ? cleaned : x));
+    setModal(null);
+  };
+
+  const bankLabel = (id) => {
+    if (!id || id === "CASH") return "เงินสดหน้าร้าน";
+    const b = storeBankAccounts.find(b => b.id === id);
+    return b ? `${b.bankName} ${b.accountNo}` : "-";
+  };
+
+  const filtered = otherIncomes
+    .filter(x => !search || x.note?.includes(search) || x.id.includes(search))
+    .filter(x => (!dateFrom || x.date >= dateFrom) && (!dateTo || x.date <= dateTo))
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const { paged, page, setPage, totalPages, total, start, end } = usePagination(filtered);
+  const totalAmt = filtered.reduce((s, x) => s + x.amount, 0);
+
+  return (
+    <div>
+      <Header title="รายได้อื่น" subtitle="บันทึกเงินรับเข้าบัญชีที่ไม่ใช่จากการขาย">
+        <button style={btnPrimary} onClick={() => { setForm(blank()); setModal({ mode: "add" }); }}>
+          <Plus size={16} /> บันทึกรายได้
+        </button>
+      </Header>
+
+      {/* สรุปยอด */}
+      <div style={{ background: "#e6f9f0", borderRadius: 12, padding: "14px 20px", marginBottom: 20, display: "inline-block", border: "1px solid #bbf7d0" }}>
+        <div style={{ fontSize: 12, color: "#166534", marginBottom: 4, fontWeight: 600 }}>รายได้อื่นรวม (ทั้งหมด)</div>
+        <div style={{ fontWeight: 700, fontSize: 22, color: "#15803d" }}>฿{fmt(otherIncomes.reduce((s, x) => s + x.amount, 0))}</div>
+        <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>{otherIncomes.length} รายการ</div>
+      </div>
+
+      <SearchBar value={search} onChange={setSearch} placeholder="ค้นหาหมายเหตุ หรือเลขที่..." dateFrom={dateFrom} dateTo={dateTo} onDateFromChange={setDateFrom} onDateToChange={setDateTo} />
+
+      <Card>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={thStyle}>เลขที่</th>
+              <th style={thStyle}>วันที่</th>
+              <th style={thStyle}>บัญชีที่รับ</th>
+              <th style={{ ...thStyle, textAlign: "right" }}>จำนวนเงิน</th>
+              <th style={thStyle}>หมายเหตุ</th>
+              <th style={{ ...thStyle, textAlign: "right" }}>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paged.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ยังไม่มีรายการ</td></tr>}
+            {paged.map(x => (
+              <tr key={x.id}>
+                <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 13 }}>{x.id}</td>
+                <td style={tdStyle}>{x.date}</td>
+                <td style={tdStyle}>{bankLabel(x.toStoreBankId)}</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#15803d" }}>฿{fmt(x.amount)}</td>
+                <td style={{ ...tdStyle, color: "#6b7280" }}>{x.note || "—"}</td>
+                <td style={{ ...tdStyle, textAlign: "right" }}>
+                  <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                    <button style={iconBtn} onClick={() => { setForm({ ...x }); setModal({ mode: "edit", item: x }); }}><Edit2 size={14} /></button>
+                    <button style={iconBtn} onClick={() => { if (confirm(`ลบรายการ ${x.id}?`)) setOtherIncomes(otherIncomes.filter(o => o.id !== x.id)); }}><Trash2 size={14} /></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          {filtered.length > 0 && (
+            <tfoot>
+              <tr style={{ borderTop: "2px solid #e5e7eb", background: "#f9fafb" }}>
+                <td colSpan={3} style={{ ...tdStyle, fontWeight: 700 }}>รวม {filtered.length} รายการ</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#15803d" }}>฿{fmt(totalAmt)}</td>
+                <td colSpan={2}></td>
+              </tr>
+            </tfoot>
+          )}
+        </table>
+        <Pagination page={page} totalPages={totalPages} setPage={setPage} total={total} start={start} end={end} />
+      </Card>
+
+      {modal && (
+        <Modal title={modal.mode === "add" ? "บันทึกรายได้อื่น" : "แก้ไขรายได้อื่น"} onClose={() => setModal(null)}>
+          <Field label="วันที่"><input type="date" style={inputStyle} value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} /></Field>
+          <Field label="บัญชีที่รับเงิน">
+            <select style={inputStyle} value={form.toStoreBankId} onChange={e => setForm({ ...form, toStoreBankId: e.target.value })}>
+              <option value="CASH">เงินสดหน้าร้าน</option>
+              {storeBankAccounts.map(b => <option key={b.id} value={b.id}>{b.bankName} — {b.accountNo}</option>)}
+            </select>
+          </Field>
+          <Field label="จำนวนเงิน (บาท)">
+            <input type="number" min={0} style={{ ...inputStyle, textAlign: "right" }} value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} placeholder="0.00" />
+          </Field>
+          <Field label="หมายเหตุ">
+            <input style={inputStyle} value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} placeholder="เช่น ค่าเช่า, ดอกเบี้ย..." />
+          </Field>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+            <button style={btnSecondary} onClick={() => setModal(null)}>ยกเลิก</button>
+            <button style={btnPrimary} onClick={save}><Save size={16} /> บันทึก</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
 function DepositsTab({ customers, setCustomers, deposits, setDeposits, purchases, storeBankAccounts }) {
   const [modal, setModal] = useState(null);
   const [search, setSearch] = useState("");
@@ -11467,7 +11617,7 @@ function Badge({ text }) {
 // ===================================================================
 // MONTHLY REPORT TAB (รายงานกำไร/ขาดทุน, สรุปรายเดือน, เงินปันผล)
 // ===================================================================
-function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, expenseCategories, shareholders, setShareholders, dividendPayments, setDividendPayments, companySettings, setCompanySettings }) {
+function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, expenseCategories, shareholders, setShareholders, dividendPayments, setDividendPayments, companySettings, setCompanySettings, otherIncomes }) {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
