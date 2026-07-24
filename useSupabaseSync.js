@@ -96,15 +96,7 @@ async function loadArrayTable(tableName) {
       .order('updated_at', { ascending: true })
       .range(from, from + PAGE - 1)
     if (error || !data || data.length === 0) break
-    // สำหรับ customers ตัด idCardImage ออกก่อน (ไฟล์ใหญ่) โหลดทีหลังเมื่อเปิดดู
-    const rows = tableName === 'customers'
-      ? data.map(row => {
-          const d = { ...row.data }
-          delete d.idCardImage
-          return d
-        })
-      : data.map(row => row.data)
-    all = all.concat(rows)
+    all = all.concat(data.map(row => row.data))
     if (data.length < PAGE) break
     from += PAGE
   }
