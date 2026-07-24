@@ -5565,13 +5565,64 @@ function PurchasePdfModal({ po, customer, products, storeBankAccounts, companySe
         </div>
       </div>
 
+      {/* หน้าที่ 2: บัตรประชาชน (แสดงเฉพาะเมื่อลูกค้ามีรูปบัตร) */}
+      {customer?.idCardImage && (
+        <div style={{ marginTop: 16, padding: 8, border: "1px dashed #d1d5db", borderRadius: 8, background: "#f9fafb" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <CreditCard size={14} style={{ color: "#6b7280" }} />
+            <span style={{ fontSize: 12, color: "#6b7280" }}>บัตรประชาชนจะพิมพ์เป็นหน้าที่ 2</span>
+          </div>
+          <img src={customer.idCardImage} alt="ตัวอย่างบัตรประชาชน" style={{ maxWidth: 200, borderRadius: 6, border: "1px solid #e5e7eb" }} />
+        </div>
+      )}
+
+      {/* ID Card Page — พิมพ์เป็น page 2 */}
+      {customer?.idCardImage && (
+        <div id="purchase-pdf-idcard" style={{ display: "none" }}>
+          <div style={{ padding: 32, fontFamily: "'Noto Sans Thai', sans-serif", textAlign: "center" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>บัตรประชาชน — {customer.name}</div>
+            <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 12 }}>อ้างอิง: {po.id} วันที่ {po.date}</div>
+            <img src={customer.idCardImage} alt="บัตรประชาชน" style={{ maxWidth: "100%", maxHeight: 500, borderRadius: 10, border: "1px solid #e5e7eb", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }} />
+          </div>
+        </div>
+      )}
+
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
         <button style={btnSecondary} onClick={onClose}>ปิด</button>
-        <button style={btnPrimary} onClick={() => printAsPDF("purchase-pdf-content", `${cs.purchaseTitle || "ใบรับสินค้า"} ${po.id}`)}><Download size={16} /> พิมพ์ / บันทึก PDF</button>
+        {customer?.idCardImage ? (
+          <button style={btnPrimary} onClick={() => {
+            // พิมพ์ทั้งสองหน้าพร้อมกัน
+            const content1 = document.getElementById("purchase-pdf-content");
+            const content2 = document.getElementById("purchase-pdf-idcard");
+            if (!content1 || !content2) return;
+            const w = window.open("", "_blank");
+            w.document.write(`<!DOCTYPE html><html><head><title>${cs.purchaseTitle || "ใบรับสินค้า"} ${po.id}</title>
+              <style>
+                body { font-family: 'Noto Sans Thai', sans-serif; margin: 0; padding: 0; }
+                @media print { @page { margin: 12mm; } }
+                .page-break { page-break-after: always; }
+              </style>
+              <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+            </head><body>
+              <div class="page-break">${content1.outerHTML}</div>
+              <div>${content2.innerHTML}</div>
+              <script>window.onload=()=>{setTimeout(()=>{window.print();},800);}<\/script>
+            </body></html>`);
+            w.document.close();
+          }}>
+            <Download size={16} /> พิมพ์พร้อมบัตรประชาชน
+          </button>
+        ) : (
+          <button style={btnPrimary} onClick={() => printAsPDF("purchase-pdf-content", `${cs.purchaseTitle || "ใบรับสินค้า"} ${po.id}`)}>
+            <Download size={16} /> พิมพ์ / บันทึก PDF
+          </button>
+        )}
       </div>
     </Modal>
   );
 }
+
+// helper สำหรับ printAsPDF ที่รวมบัตรประชาชน — ใช้ใน PurchasePdfModal
 
 // ===================================================================
 // SALES TAB
