@@ -4588,27 +4588,29 @@ function CustomersTab({ customers, setCustomers }) {
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) { alert("รูปต้องไม่เกิน 5MB"); return; }
 
-    // ถ้าไม่มี Supabase ให้ใช้ base64 แทน
     if (!isSupabaseReady) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setForm((f) => ({ ...f, idCardImage: ev.target.result }));
-      reader.readAsDataURL(file);
+      alert("ไม่ได้เชื่อมต่อ Supabase");
       return;
     }
 
     try {
       const { supabase } = await import('./supabase');
       const ext = file.name.split('.').pop();
-      const path = `id-cards/${form.id || 'temp'}_${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('customer-images').upload(path, file, { upsert: true });
-      if (error) throw error;
-      const { data: urlData } = supabase.storage.from('customer-images').getPublicUrl(path);
+      const customerId = form.id || `temp_${Date.now()}`;
+      const path = `id-cards/${customerId}_${Date.now()}.${ext}`;
+      const { error } = await supabase.storage
+        .from('customer-images')
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (error) {
+        alert(`อัปโหลดรูปไม่สำเร็จ: ${error.message}`);
+        return;
+      }
+      const { data: urlData } = supabase.storage
+        .from('customer-images')
+        .getPublicUrl(path);
       setForm((f) => ({ ...f, idCardImage: urlData.publicUrl }));
     } catch (err) {
-      // fallback to base64 ถ้า storage ไม่พร้อม
-      const reader = new FileReader();
-      reader.onload = (ev) => setForm((f) => ({ ...f, idCardImage: ev.target.result }));
-      reader.readAsDataURL(file);
+      alert(`เกิดข้อผิดพลาด: ${err.message}`);
     }
   };
 
