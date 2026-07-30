@@ -7834,8 +7834,26 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
                       const details = transferDetails[r.id] || [];
                       const totalTransfer = details.reduce((s,e)=>s+(Number(e.amount)||0),0) || r.remaining;
                       if (details.length <= 1) {
-                        const acc = details[0]?.bankId ? storeBankAccounts.find(a=>a.id===details[0].bankId) : null;
-                        const bankInfo = acc ? `${acc.bankName} — ${acc.accountNo}` : "-";
+                        // บัญชีที่จะโอนเงินให้ลูกค้า/vendor
+                        let bankInfo = "-";
+                        if (r.kind === "purchase") {
+                          // ใบรับสินค้า: บัญชีลูกค้าที่รับเงิน
+                          const cust = customers.find(c => c.id === r.customerId);
+                          const bankId = r.doc?.receivingCustomerBankId;
+                          const custBank = (cust?.bankAccounts || []).find(b => b.id === bankId);
+                          if (custBank) bankInfo = `${custBank.bankName} — ${custBank.accountNo} (${custBank.accountName || ""})`;
+                          else if ((cust?.bankAccounts || []).length > 0) {
+                            const b = cust.bankAccounts[0];
+                            bankInfo = `${b.bankName} — ${b.accountNo} (${b.accountName || ""})`;
+                          }
+                        } else if (r.kind === "expense") {
+                          // ค่าใช้จ่าย: ดึงจาก transferDetails ถ้ามี
+                          const acc = details[0]?.bankId ? storeBankAccounts.find(a => a.id === details[0].bankId) : null;
+                          bankInfo = acc ? `${acc.bankName} — ${acc.accountNo}` : "-";
+                        } else {
+                          const acc = details[0]?.bankId ? storeBankAccounts.find(a => a.id === details[0].bankId) : null;
+                          bankInfo = acc ? `${acc.bankName} — ${acc.accountNo}` : "-";
+                        }
                         return [(
                           <tr key={r.id}>
                             <td style={{ ...tdStyle, fontFamily: "'JetBrains Mono', monospace", color: "#534ab7" }}>{r.id}</td>
