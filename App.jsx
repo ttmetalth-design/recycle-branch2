@@ -7945,11 +7945,24 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
                       }
                       // หลายบัญชี
                       return details.map((d, di) => {
+                          const bid = d.bankId;
                           let bankLabel = "-";
-                          try {
-                            const parsed = JSON.parse(d.bankId);
-                            bankLabel = `${parsed.bankName} — ${parsed.accountNo}`;
-                          } catch { bankLabel = d.bankId || "-"; }
+                          if (bid) {
+                            // ลองหาจาก customer bankAccounts ก่อน
+                            const cust = customers.find(c => c.id === (r.customerId || r.doc?.vendorId));
+                            const cb = (cust?.bankAccounts||[]).find(b => (b.id||`${b.bankName}_${b.accountNo}`) === bid);
+                            if (cb) {
+                              bankLabel = `${cb.bankName} — ${cb.accountNo}${cb.accountName ? ` (${cb.accountName})` : ""}`;
+                            } else {
+                              // ลองหาจาก storeBankAccounts
+                              const acc = storeBankAccounts.find(a => a.id === bid);
+                              if (acc) bankLabel = `${acc.bankName} — ${acc.accountNo}`;
+                              else {
+                                // fallback: ลอง JSON.parse แบบเก่า
+                                try { const p = JSON.parse(bid); bankLabel = `${p.bankName} — ${p.accountNo}`; } catch { bankLabel = bid; }
+                              }
+                            }
+                          }
                           return (
                             <tr key={`${r.id}-d${di}`}>
                               <td style={{ ...tdStyle, fontFamily: "'JetBrains Mono', monospace", color: "#534ab7" }}>{di === 0 ? r.id : ""}</td>
@@ -9494,25 +9507,26 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
   // --- คำนวณ VAT / หัก ณ ที่จ่าย / จำนวนเงินสุทธิ (คำนวณแยกต่อรายการ แล้วรวมผลลัพธ์) ---
   const calcTotals = (e) => {
     if (e.items && e.items.length > 0) {
-      let amount = 0, vat = 0, wht = 0;
+      let amount = 0, discount = 0, vat = 0, wht = 0;
       e.items.forEach((it) => {
         const itAmount = Number(it.amount) || 0;
         const itDisc = Number(it.discount) || 0;
-        const itAfterDisc = itAmount - itDisc;
-        amount += itAfterDisc;
-        vat += it.vatEnabled ? itAfterDisc * 0.07 : 0;
-        wht += itAfterDisc * ((Number(it.whtRate) || 0) / 100);
+        amount += itAmount;
+        discount += itDisc;
+        vat += it.vatEnabled ? itAmount * 0.07 : 0;
+        wht += itAmount * ((Number(it.whtRate) || 0) / 100);
       });
-      return { amount, vat, wht, net: amount + vat - wht };
+      return { amount, discount, vat, wht, net: amount + vat - wht - discount };
     }
     // รองรับข้อมูลเก่าที่ยังเป็นรายการเดียวระดับบิล
     const amount = Number(e.amount) || 0;
+    const discount = Number(e.discount) || 0;
     const vat = e.vatEnabled ? amount * 0.07 : 0;
     const wht = amount * ((Number(e.whtRate) || 0) / 100);
-    return { amount, vat, wht, net: amount + vat - wht };
+    return { amount, discount, vat, wht, net: amount + vat - wht - discount };
   };
 
-  const { amount: formAmount, vat: formVat, wht: formWht, net: formNet } = calcTotals(form);
+  const { amount: formAmount, discount: formDiscount, vat: formVat, wht: formWht, net: formNet } = calcTotals(form);
   const formPaid = (form.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
   const formRemaining = formNet - formPaid;
 
@@ -9865,10 +9879,9 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
               {(() => {
                 const amt = Number(it.amount) || 0;
                 const disc = Number(it.discount) || 0;
-                const afterDisc = amt - disc;
-                const vatAmt = it.vatEnabled ? afterDisc * 0.07 : 0;
-                const whtAmt = afterDisc * ((Number(it.whtRate) || 0) / 100);
-                const net = afterDisc + vatAmt - whtAmt;
+                const vatAmt = it.vatEnabled ? amt * 0.07 : 0;
+                const whtAmt = amt * ((Number(it.whtRate) || 0) / 100);
+                const net = amt + vatAmt - whtAmt - disc;
                 return (
                   <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.7fr 0.7fr 0.6fr 0.8fr 0.8fr 0.8fr", gap: "0 10px", alignItems: "end" }}>
                     <Field label="จำนวนเงิน (บาท)">
@@ -9915,6 +9928,7 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
             <Row label="จำนวนเงินรวมทุกรายการ" value={`฿${fmt(formAmount)}`} />
             <Row label="ภาษีมูลค่าเพิ่มรวม" value={`+฿${fmt(formVat)}`} />
             <Row label="หัก ณ ที่จ่ายรวม" value={`-฿${fmt(formWht)}`} />
+            {formDiscount > 0 && <Row label="ส่วนลดรวม" value={`-฿${fmt(formDiscount)}`} />}
             <Row label="จำนวนเงินสุทธิ" value={`฿${fmt(formNet)}`} bold />
           </div>
 
