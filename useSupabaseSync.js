@@ -204,16 +204,20 @@ function ensureSettingsChannel() {
       const setter = key && settingsSetters.get(key)
       if (!setter) return
       const updatedBy = payload.new?.data?._updated_by
-      // ถ้ามาจาก device เดียวกัน ข้าม (เราอัปเดต state เองแล้ว)
+      // ถ้ามาจาก device เดียวกัน ข้าม
       if (updatedBy === DEVICE_ID) return
+      // ถ้ากำลัง pending save อยู่ ไม่ให้ overwrite
+      if (pendingSaveKeys.has(key)) return
       const newValue = payload.new?.data?.value
       if (newValue === undefined) return
       // สำหรับ payFlags: merge แทน overwrite เพื่อไม่ให้ข้อมูลหาย
       if (key === 'payFlags' && typeof newValue === 'object' && newValue !== null) {
         setter(prev => {
           if (typeof prev !== 'object' || prev === null) return newValue
-          // merge: ค่า true จากทั้งสองฝั่ง จะ win (ติ๊กแล้วไม่หาย)
-          return { ...newValue, ...prev }
+          // merge: ค่า true จาก prev จะ win เสมอ (ติ๊กแล้วไม่หาย)
+          const merged = { ...newValue }
+          Object.entries(prev).forEach(([k, v]) => { if (v) merged[k] = v })
+          return merged
         })
         return
       }
@@ -282,17 +286,21 @@ export function useSupabaseSync(key, value, setValue, loaded) {
         success = false
       } finally {
         if (isSettingsKey) {
-          // ปลด lock หลัง save เสร็จ (500ms พอ — แค่กัน echo ทันที)
-          setTimeout(() => pendingSaveKeys.delete(key), 500)
+          // ปลด lock หลัง save เสร็จ — payFlags ปลดช้าหน่อยให้ echo ผ่านไปก่อน
+          const lockTime = key === 'payFlags' ? 2000 : 500
+          setTimeout(() => pendingSaveKeys.delete(key), lockTime)
         }
         decrementPending(success)
       }
     }
 
     clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(doSave, 2000)
+    // payFlags ให้ save เร็วขึ้น (300ms) เพื่อป้องกัน realtime ทับก่อน save เสร็จ
+    const delay = key === 'payFlags' ? 300 : 2000
+    const maxDelay = key === 'payFlags' ? 1000 : 6000
+    saveTimer.current = setTimeout(doSave, delay)
     if (!maxWaitTimer.current) {
-      maxWaitTimer.current = setTimeout(doSave, 6000)
+      maxWaitTimer.current = setTimeout(doSave, maxDelay)
     }
 
     return () => {
