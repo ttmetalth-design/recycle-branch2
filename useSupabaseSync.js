@@ -210,13 +210,16 @@ function ensureSettingsChannel() {
       if (pendingSaveKeys.has(key)) return
       const newValue = payload.new?.data?.value
       if (newValue === undefined) return
-      // สำหรับ payFlags: merge แทน overwrite เพื่อไม่ให้ข้อมูลหาย
+      // สำหรับ payFlags: merge แบบ conservative — เอาเฉพาะ key ที่มีใน newValue
+      // ถ้า prev มี true แต่ newValue ไม่มี key นั้น แสดงว่า device อื่นลบออกไปแล้ว ต้องเคารพ
       if (key === 'payFlags' && typeof newValue === 'object' && newValue !== null) {
         setter(prev => {
           if (typeof prev !== 'object' || prev === null) return newValue
-          // merge: ค่า true จาก prev จะ win เสมอ (ติ๊กแล้วไม่หาย)
           const merged = { ...newValue }
-          Object.entries(prev).forEach(([k, v]) => { if (v) merged[k] = v })
+          // เฉพาะ key ที่มีทั้งใน prev และ newValue และ prev เป็น true จึงเอา prev
+          Object.entries(prev).forEach(([k, v]) => {
+            if (v === true && k in newValue) merged[k] = true
+          })
           return merged
         })
         return
