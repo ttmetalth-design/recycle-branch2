@@ -2484,11 +2484,11 @@ function Dashboard({ products, customers, purchases, sales, inventory, expenses,
 
   // มูลค่าซื้อ ก่อน VAT (ต้นทุนสินค้าที่ใช้คำนวณสต๊อก/กำไร)
   const totalPurchaseValue = filteredPurchases.reduce((sum, po) => sum + po.items.reduce((s, it) => s + (it.net || 0) * (it.price || 0), 0), 0);
+  // มูลค่าขาย ก่อน VAT (ให้เทียบกับมูลค่าซื้อและงบกำไรขาดทุนได้ตรงกัน)
   const totalSalesValue = filteredSales.reduce((sum, inv) => {
     const subtotal = inv.items.reduce((s, it) => s + it.net * it.price, 0);
     const afterDiscount = subtotal - (inv.discount || 0);
-    const vat = afterDiscount * ((inv.vatRate || 0) / 100);
-    return sum + afterDiscount + vat;
+    return sum + afterDiscount;
   }, 0);
 
   // ---------- ยอดยกมาของหมวดหมู่ย่อยค่าใช้จ่าย (นับรวมเฉพาะตอนช่วงเวลาที่เลือกตรงกับเดือนที่ระบุไว้ หรือเลือก "ทั้งหมด") ----------
@@ -5890,13 +5890,15 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
         });
         const handleSplit = () => {
           const newLots = [];
+          const workingList = [...withdrawals]; // ใช้จำลองรายการที่มีอยู่ เพื่อให้ genId นับเลขที่ใบถัดไปไม่ซ้ำ แม้แยกหลายใบพร้อมกัน
           const updatedLots = withdrawals.map(lot => {
             if (!byLot[lot.id]) return lot;
             const selectedIdxs = byLot[lot.id];
             const remainItems = (lot.items||[]).filter((_,i) => !selectedIdxs.includes(i));
             const splitItems = (lot.items||[]).filter((_,i) => selectedIdxs.includes(i));
             if (splitItems.length === 0) return lot;
-            const newId = `WD${lot.date.replace(/-/g,'').slice(2)}${String(withdrawals.length + newLots.length + 1).padStart(3,'0')}`;
+            const newId = genId("WD", workingList, lot.date);
+            workingList.push({ id: newId }); // จองเลขที่นี้ไว้ทันที ป้องกันชนกันเองถ้าแยกหลายใบวันเดียวกัน
             newLots.push({ ...lot, id: newId, items: splitItems, targetSaleId: null });
             if (remainItems.length === 0) return null;
             return { ...lot, items: remainItems };
@@ -11323,7 +11325,7 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
   const vatDiff = totalOutputVat - totalInputVat;
   const vatTh = { ...thStyle, textAlign: "right" };
 
-  // ===== หัก ณ ที่จ่าย (Withholding Tax) =====
+  // ===== หัก ณ ที่จ่าย (Withholding Tax) - ฝั่งจ่าย (ค่าใช้จ่าย) =====
   const whtRows = expenses.filter((e) => inRange(e.billDate || e.date)).flatMap((e) => {
     const items = (e.items && e.items.length > 0) ? e.items : [{ amount: e.amount, whtRate: e.whtRate, description: e.description }];
     const vendor = e.vendorName || e.description || e.refNo || e.id;
@@ -11335,6 +11337,16 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
   }).sort((a, b) => a.date.localeCompare(b.date));
   const totalWhtBase = whtRows.reduce((s, r) => s + r.base, 0);
   const totalWht     = whtRows.reduce((s, r) => s + r.wht, 0);
+
+  // ===== หัก ณ ที่จ่าย (Withholding Tax) - ฝั่งถูกหัก (ขาย) =====
+  const salesWhtRows = sales.filter((inv) => inRange(inv.date) && Number(inv.whtRate) > 0).map((inv) => {
+    const subtotal = inv.items.reduce((s, it) => s + (it.net || 0) * (it.price || 0), 0);
+    const ad = subtotal - (inv.discount || 0);
+    const wht = ad * ((Number(inv.whtRate) || 0) / 100);
+    return { id: inv.id, date: inv.date, description: `ใบขาย ${inv.id}`, base: ad, whtRate: inv.whtRate, wht };
+  }).sort((a, b) => a.date.localeCompare(b.date));
+  const totalSalesWhtBase = salesWhtRows.reduce((s, r) => s + r.base, 0);
+  const totalSalesWht     = salesWhtRows.reduce((s, r) => s + r.wht, 0);
 
   return (
     <div>
@@ -11352,10 +11364,14 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
               ["เลขที่","วันที่","ฐานภาษี","VAT"],
               ...outputVatRows.map(r => [r.id, r.date, r.base, r.vat]),
               ["รวมภาษีขาย","",totalOutputBase,totalOutputVat],[""],
-              ["หัก ณ ที่จ่าย (WHT)","","",""],
+              ["หัก ณ ที่จ่าย - ฝั่งจ่าย (ค่าใช้จ่าย)","","",""],
               ["เลขที่","วันที่","ฐานภาษี","WHT"],
               ...whtRows.map(r => [r.id, r.date, r.base, r.wht]),
-              ["รวม WHT","",totalWhtBase,totalWht],[""],
+              ["รวม WHT (จ่าย)","",totalWhtBase,totalWht],[""],
+              ["หัก ณ ที่จ่าย - ฝั่งถูกหัก (ขาย)","","",""],
+              ["เลขที่","วันที่","ฐานภาษี","WHT"],
+              ...salesWhtRows.map(r => [r.id, r.date, r.base, r.wht]),
+              ["รวม WHT (ถูกหัก)","",totalSalesWhtBase,totalSalesWht],[""],
               ["ภาษีสุทธิ (ขาย-ซื้อ)","","",vatDiff],
             ];
             exportExcel(rows, `ภาษี_${periodLabel.replace(/\s/g,"_")}.xlsx`, "ภาษี");
@@ -11395,7 +11411,7 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
         <div style={{ background: "#E8EEF8", borderRadius: 12, padding: "14px 18px" }}>
           <div style={{ fontSize: 12, color: "#1E4D8C", marginBottom: 4 }}>ภาษีซื้อ (Input VAT)</div>
           <div style={{ fontWeight: 700, fontSize: 20, color: "#1E4D8C" }}>฿{fmt(totalInputVat)}</div>
@@ -11413,9 +11429,14 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
           <div style={{ fontWeight: 700, fontSize: 20, color: vatDiff >= 0 ? "#185fa5" : "#1B3A6B" }}>฿{fmt(Math.abs(vatDiff))}</div>
         </div>
         <div style={{ background: "#eeedfe", borderRadius: 12, padding: "14px 18px" }}>
-          <div style={{ fontSize: 12, color: "#3c3489", marginBottom: 4 }}>หัก ณ ที่จ่าย (WHT)</div>
+          <div style={{ fontSize: 12, color: "#3c3489", marginBottom: 4 }}>หัก ณ ที่จ่าย (จ่าย)</div>
           <div style={{ fontWeight: 700, fontSize: 20, color: "#3c3489" }}>฿{fmt(totalWht)}</div>
           <div style={{ fontSize: 11, color: "#9ca3af" }}>ฐานภาษี ฿{fmt(totalWhtBase)}</div>
+        </div>
+        <div style={{ background: "#fdf2e9", borderRadius: 12, padding: "14px 18px" }}>
+          <div style={{ fontSize: 12, color: "#9a5b1e", marginBottom: 4 }}>หัก ณ ที่จ่าย (ถูกหัก)</div>
+          <div style={{ fontWeight: 700, fontSize: 20, color: "#9a5b1e" }}>฿{fmt(totalSalesWht)}</div>
+          <div style={{ fontSize: 11, color: "#9ca3af" }}>ฐานภาษี ฿{fmt(totalSalesWhtBase)}</div>
         </div>
       </div>
 
@@ -11502,10 +11523,10 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
           </div>
         </div>
 
-        {/* หัก ณ ที่จ่าย */}
+        {/* หัก ณ ที่จ่าย - ฝั่งจ่าย */}
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflow: "hidden", marginTop: 16 }}>
           <div style={{ background: "#eeedfe", padding: "10px 16px", fontWeight: 700, fontSize: 14, color: "#3c3489" }}>
-            หัก ณ ที่จ่าย (Withholding Tax) — {periodLabel}
+            หัก ณ ที่จ่าย — ฝั่งจ่าย (ค่าใช้จ่าย) — {periodLabel}
           </div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead><tr>
@@ -11530,11 +11551,47 @@ function TaxSummaryTab({ purchases, sales, expenses }) {
               {whtRows.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีรายการหัก ณ ที่จ่ายในช่วงนี้</td></tr>}
             </tbody>
             {whtRows.length > 0 && <tfoot><tr>
-              <td colSpan={4} style={{ ...tdStyle, fontWeight: 700 }}>รวมภาษีหัก ณ ที่จ่าย</td>
+              <td colSpan={4} style={{ ...tdStyle, fontWeight: 700 }}>รวมภาษีหัก ณ ที่จ่าย (จ่าย)</td>
               <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(totalWhtBase)}</td>
               <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#3c3489" }}>{fmt(totalWht)}</td>
             </tr></tfoot>}
           </table>
+        </div>
+
+        {/* หัก ณ ที่จ่าย - ฝั่งถูกหัก (ขาย) */}
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", overflow: "hidden", marginTop: 16 }}>
+          <div style={{ background: "#fdf2e9", padding: "10px 16px", fontWeight: 700, fontSize: 14, color: "#9a5b1e" }}>
+            หัก ณ ที่จ่าย — ฝั่งถูกหัก (ขาย) — {periodLabel}
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead><tr>
+              <th style={thStyle}>เลขที่เอกสาร</th>
+              <th style={thStyle}>วันที่</th>
+              <th style={thStyle}>รายการ</th>
+              <th style={{ ...thStyle, textAlign: "right" }}>อัตรา WHT</th>
+              <th style={{ ...thStyle, textAlign: "right" }}>ฐานภาษี (บาท)</th>
+              <th style={{ ...thStyle, textAlign: "right" }}>ภาษีถูกหัก ณ ที่จ่าย (บาท)</th>
+            </tr></thead>
+            <tbody>
+              {salesWhtRows.map((r, i) => (
+                <tr key={i}>
+                  <td style={{ ...tdStyle, fontFamily: "monospace", fontSize: 12 }}>{r.id}</td>
+                  <td style={tdStyle}>{r.date}</td>
+                  <td style={tdStyle}>{r.description}</td>
+                  <td style={{ ...tdStyle, textAlign: "right" }}>{r.whtRate}%</td>
+                  <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(r.base)}</td>
+                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600, color: "#9a5b1e" }}>{fmt(r.wht)}</td>
+                </tr>
+              ))}
+              {salesWhtRows.length === 0 && <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "#9ca3af" }}>ไม่มีรายการถูกหัก ณ ที่จ่ายในช่วงนี้</td></tr>}
+            </tbody>
+            {salesWhtRows.length > 0 && <tfoot><tr>
+              <td colSpan={4} style={{ ...tdStyle, fontWeight: 700 }}>รวมภาษีถูกหัก ณ ที่จ่าย (ขาย)</td>
+              <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{fmt(totalSalesWhtBase)}</td>
+              <td style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#9a5b1e" }}>{fmt(totalSalesWht)}</td>
+            </tr></tfoot>}
+          </table>
+          <p style={{ fontSize: 12, color: "#9ca3af", padding: "10px 16px", margin: 0 }}>* ยอดนี้คือภาษีที่ลูกค้าหักไว้ ณ ที่จ่าย ถือเป็นเครดิตภาษี นำไปหักภาษีเงินได้นิติบุคคลตอนสิ้นปีได้ (ไม่ใช่ค่าใช้จ่าย)</p>
         </div>
       </div>
     </div>
@@ -11855,13 +11912,13 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
     const ym = `${y}-${String(m).padStart(2,"0")}`;
     const todayStr = new Date().toISOString().slice(0, 10);
 
-    // รายได้
+    // รายได้ (ยอดขายเต็ม ก่อนหักส่วนลด — ส่วนลดจะไปแสดงเป็นค่าใช้จ่ายแยกด้านล่างแทน)
     const salesInR = sales.filter((s) => inR(s.date));
     const totalRev = salesInR.reduce((sum, inv) => {
       const subtotal = inv.items.reduce((s, it) => s + (it.net || 0) * (it.price || 0), 0);
-      const ad = subtotal - (inv.discount || 0);
-      return sum + ad;
+      return sum + subtotal;
     }, 0);
+    const totalSalesDiscount = salesInR.reduce((sum, inv) => sum + (Number(inv.discount) || 0), 0);
 
     // ซื้อในงวด
     const purchInR = movements
@@ -11909,6 +11966,9 @@ function MonthlyReportTab({ purchases, sales, expenses, deposits, inventory, exp
       });
     });
     openingRows.filter((r) => r.mainCategory === "ค่าใช้จ่าย").forEach((r) => { groups["ค่าใช้จ่าย"] = (groups["ค่าใช้จ่าย"] || 0) + r.amount; });
+    if (totalSalesDiscount > 0) {
+      groups["ส่วนลดการขาย"] = (groups["ส่วนลดการขาย"] || 0) + totalSalesDiscount;
+    }
     const byCategory = Object.entries(groups).map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount);
     const totalExp = byCategory.reduce((s, c) => s + c.amount, 0);
 
