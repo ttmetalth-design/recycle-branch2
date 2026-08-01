@@ -4022,7 +4022,9 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
         const totalReceivable = openingRecRemainDash + sales.reduce((s, inv) => {
           const subtotal = inv.items.reduce((ss, it) => ss + (it.net || 0) * (Number(it.price) || 0), 0);
           const ad = subtotal - (Number(inv.discount) || 0);
-          const total = ad + ad * ((Number(inv.vatRate) || 0) / 100);
+          const vat = ad * ((Number(inv.vatRate) || 0) / 100);
+          const wht = ad * ((Number(inv.whtRate) || 0) / 100);
+          const total = ad + vat - wht;
           const paid = (inv.payments || []).reduce((ss, p) => ss + (Number(p.amount) || 0), 0);
           const remaining = total - paid;
           if (inv.writeOff || remaining <= 0.01) return s;
@@ -6361,7 +6363,7 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
   const blankPayment = () => ({ id: "SP" + Date.now().toString().slice(-6), date: new Date().toISOString().slice(0, 10), amount: 0, method: PAYMENT_METHODS[0], toStoreBankId: "", note: "" });
   const blankForm = () => ({
     id: "", date: new Date().toISOString().slice(0, 10), customerId: "",
-    items: [blankItem()], discount: 0, vatRate: 7, paymentStatus: PAYMENT_STATUSES[0],
+    items: [blankItem()], discount: 0, vatRate: 7, whtRate: 0, paymentStatus: PAYMENT_STATUSES[0],
     payments: [], vehiclePlate: "",
   });
   const [form, setForm] = useState(blankForm());
@@ -6403,18 +6405,21 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
   const afterDiscount = subtotal - (Number(form.discount) || 0);
   const vatAmount = afterDiscount * ((Number(form.vatRate) || 0) / 100);
   const grandTotal = afterDiscount + vatAmount;
+  const whtAmount = afterDiscount * ((Number(form.whtRate) || 0) / 100);
+  const netAfterWht = grandTotal - whtAmount;
   const cogs = form.items.reduce((s, it) => s + (it.fromWithdrawal ? (it.withdrawalValue || 0) : 0), 0);
   const profit = afterDiscount - cogs;
   const totalPaid = (form.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  const remaining = grandTotal - totalPaid;
+  const remaining = netAfterWht - totalPaid;
 
   const calcInvoiceTotals = (inv) => {
     const sub = inv.items.reduce((s, it) => s + (it.deductType === "pct" ? (Number(it.qty)||0)*(1-(Number(it.deduct)||0)/100) : (it.net != null ? Number(it.net) : (Number(it.qty)||0)-(Number(it.deduct)||0))) * (Number(it.price)||0) * (1-(Number(it.discountPct)||0)/100), 0);
     const ad = sub - (inv.discount || 0);
     const vat = ad * ((inv.vatRate || 0) / 100);
-    const total = ad + vat;
+    const wht = ad * ((Number(inv.whtRate) || 0) / 100);
+    const total = ad + vat - wht;
     const paid = (inv.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
-    return { sub, ad, vat, total, paid, remaining: total - paid };
+    return { sub, ad, vat, wht, total, paid, remaining: total - paid };
   };
 
   const save = () => {
@@ -6423,6 +6428,7 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
       ...form,
       discount: Number(form.discount) || 0,
       vatRate: Number(form.vatRate) || 0,
+      whtRate: Number(form.whtRate) || 0,
       items: form.items.map((it) => ({ ...it, qty: Number(it.qty) || 0, deduct: Number(it.deduct) || 0, net: (Number(it.qty) || 0) - (Number(it.deduct) || 0), price: Number(it.price) || 0 })),
     };
     if (modal.mode === "add") setSales([...sales, cleaned]);
@@ -6696,12 +6702,15 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
           )}
           <button style={{ ...btnSecondary, marginTop: 8 }} onClick={addItem}><Plus size={14} /> เพิ่มรายการสินค้า</button>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0 16px", marginTop: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0 16px", marginTop: 16 }}>
             <Field label="ส่วนลด (บาท)">
               <input type="number" style={inputStyle} value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} onKeyDown={(e) => handleEnterNavigate(e, save)} />
             </Field>
             <Field label="VAT (%)">
               <input type="number" style={inputStyle} value={form.vatRate} onChange={(e) => setForm({ ...form, vatRate: e.target.value })} onKeyDown={(e) => handleEnterNavigate(e, save)} />
+            </Field>
+            <Field label="หัก ณ ที่จ่าย (%)">
+              <input type="number" style={inputStyle} value={form.whtRate} onChange={(e) => setForm({ ...form, whtRate: e.target.value })} onKeyDown={(e) => handleEnterNavigate(e, save)} placeholder="0" />
             </Field>
             <Field label="สถานะชำระเงิน">
               <select style={inputStyle} value={form.paymentStatus} onChange={(e) => setForm({ ...form, paymentStatus: e.target.value })} onKeyDown={(e) => handleEnterNavigate(e, save)}>
@@ -6733,7 +6742,13 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
             <Row label="ราคารวม (ก่อนหักส่วนลด)" value={`${fmt(subtotal)} บาท`} />
             <Row label="หลังหักส่วนลด" value={`${fmt(afterDiscount)} บาท`} />
             <Row label={`VAT (${form.vatRate}%)`} value={`${fmt(vatAmount)} บาท`} />
-            <Row label="ยอดสุทธิ" value={`${fmt(grandTotal)} บาท`} bold />
+            <Row label="ยอดสุทธิ (ก่อนหัก ณ ที่จ่าย)" value={`${fmt(grandTotal)} บาท`} bold />
+            {Number(form.whtRate) > 0 && (
+              <>
+                <Row label={`หัก ณ ที่จ่าย (${form.whtRate}%)`} value={`-${fmt(whtAmount)} บาท`} />
+                <Row label="ยอดรับสุทธิ (หลังหัก ณ ที่จ่าย)" value={`${fmt(netAfterWht)} บาท`} bold />
+              </>
+            )}
             <div style={{ borderTop: "1px solid #e5e7eb", marginTop: 8, paddingTop: 8 }} />
             <Row label="ต้นทุนสินค้า (FIFO เฉลี่ย)" value={`${fmt(cogs)} บาท`} />
             <Row label="กำไรขั้นต้นโดยประมาณ" value={`${fmt(profit)} บาท`} bold color={profit >= 0 ? "#27500a" : "#791f1f"} />
@@ -6746,7 +6761,7 @@ function SalesTab({ products, customers, sales, setSales, inventory, withdrawals
           </div>
 
           <div style={{ background: "#f9fafb", borderRadius: 8, padding: "12px 16px", marginTop: 16, fontSize: 14 }}>
-            <Row label="ยอดรวมที่ต้องเรียกเก็บ" value={`฿${fmt(grandTotal)}`} bold />
+            <Row label="ยอดรวมที่ต้องเรียกเก็บ" value={`฿${fmt(netAfterWht)}`} bold />
             <p style={{ fontSize: 12, color: "#9ca3af", margin: "8px 0 0" }}>
               * บันทึกใบนี้ก่อนได้เลย — ไปบันทึกการรับเงินจริงที่เมนู "รับชำระ/จ่ายชำระ" ทีหลังได้
             </p>
@@ -6782,7 +6797,9 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
   const subtotal = inv.items.reduce((s, it) => s + (it.deductType === "pct" ? (Number(it.qty)||0)*(1-(Number(it.deduct)||0)/100) : (it.net != null ? Number(it.net) : (Number(it.qty)||0)-(Number(it.deduct)||0))) * (Number(it.price)||0) * (1-(Number(it.discountPct)||0)/100), 0);
   const afterDiscount = subtotal - (inv.discount || 0);
   const vat = afterDiscount * ((inv.vatRate || 0) / 100);
-  const total = afterDiscount + vat;
+  const grossTotal = afterDiscount + vat;
+  const wht = afterDiscount * ((Number(inv.whtRate) || 0) / 100);
+  const total = grossTotal - wht;
   const paid = (inv.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
   const remaining = total - paid;
   const accentColor = cs.accentColor || "#185fa5";
@@ -6871,6 +6888,9 @@ function SalesInvoiceModal({ inv, customer, products, storeBankAccounts, company
             <Row label="ส่วนลด" value={`${fmt(inv.discount || 0)} บาท`} />
             <Row label="หลังหักส่วนลด" value={`${fmt(afterDiscount)} บาท`} />
             <Row label={`VAT ${inv.vatRate || 0}%`} value={`${fmt(vat)} บาท`} />
+            {Number(inv.whtRate) > 0 && (
+              <Row label={`หัก ณ ที่จ่าย ${inv.whtRate}%`} value={`-${fmt(wht)} บาท`} />
+            )}
             <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: "2px solid #185fa5", fontWeight: 700, fontSize: 15 }}>
               <span>ยอดสุทธิ</span>
               <span>{fmt(total)} บาท</span>
@@ -7064,7 +7084,8 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
         const subtotal = inv.items.reduce((s, it) => s + (it.net || 0) * (it.price || 0), 0);
         const ad = subtotal - (inv.discount || 0);
         const vat = ad * ((Number(inv.vatRate) || 0) / 100);
-        const total = ad + vat;
+        const wht = ad * ((Number(inv.whtRate) || 0) / 100);
+        const total = ad + vat - wht;
         const paid = (inv.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
         const remaining = total - paid;
         const payStatus = inv.writeOff ? "paid" : (remaining > 0.01 ? (paid > 0.01 ? "partial" : "unpaid") : "paid");
@@ -7334,7 +7355,9 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
     } else {
       const subtotal = doc.items.reduce((s, it) => s + (it.net || 0) * (it.price || 0), 0);
       const ad = subtotal - (doc.discount || 0);
-      total = ad + ad * ((Number(doc.vatRate) || 0) / 100);
+      const vat = ad * ((Number(doc.vatRate) || 0) / 100);
+      const wht = ad * ((Number(doc.whtRate) || 0) / 100);
+      total = ad + vat - wht;
     }
     const paid = (doc.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
     return { total, paid, remaining: total - paid };
