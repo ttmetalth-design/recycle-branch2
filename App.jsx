@@ -3592,7 +3592,7 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
                   const exps=(expenses||[]).filter(e=>inRange(e.billDate||e.date));
                   const grouped={};
                   exps.forEach(e=>{
-                    const total=(()=>{const items=e.items&&e.items.length>0?e.items:[{amount:e.amount,vatEnabled:e.vatEnabled,whtRate:e.whtRate}];return items.reduce((s,it)=>{const a=Number(it.amount)||0;return s+a+(it.vatEnabled?a*0.07:0)-a*((Number(it.whtRate)||0)/100);},0);})();
+                    const total=(()=>{const items=e.items&&e.items.length>0?e.items:[{amount:e.amount,discount:e.discount,vatEnabled:e.vatEnabled,whtRate:e.whtRate}];return items.reduce((s,it)=>{const a=Number(it.amount)||0;const d=Number(it.discount)||0;return s+a+(it.vatEnabled?a*0.07:0)-a*((Number(it.whtRate)||0)/100)-d;},0);})();
                     (e.payments||[]).forEach(p=>{const acc=storeBankAccounts.find(a=>a.id===p.fromStoreBankId);const grp=p.fromStoreBankId==="DEPOSIT"?"หักเงินมัดจำ":acc?`${acc.bankName} — ${acc.accountNo}`:(p.method||"เงินสด");if(!grouped[grp])grouped[grp]={count:0,total:0};grouped[grp].count++;grouped[grp].total+=Number(p.amount)||0;});
                     if(!(e.payments||[]).length){const grp="ยังไม่ชำระ";if(!grouped[grp])grouped[grp]={count:0,total:0};grouped[grp].count++;grouped[grp].total+=total;}
                   });
@@ -3605,8 +3605,8 @@ async function shareStockCardImage({ groups, today, filename = "สต็อก.
                 exps.forEach(e => {
                   const label = e.vendorName || (e.items&&e.items[0]?.subCategory) || "-";
                   const total = (() => {
-                    const items = e.items&&e.items.length>0 ? e.items : [{amount:e.amount,vatEnabled:e.vatEnabled,whtRate:e.whtRate}];
-                    return items.reduce((s,it)=>{const a=Number(it.amount)||0;return s+a+(it.vatEnabled?a*0.07:0)-a*((Number(it.whtRate)||0)/100);},0);
+                    const items = e.items&&e.items.length>0 ? e.items : [{amount:e.amount,discount:e.discount,vatEnabled:e.vatEnabled,whtRate:e.whtRate}];
+                    return items.reduce((s,it)=>{const a=Number(it.amount)||0;const d=Number(it.discount)||0;return s+a+(it.vatEnabled?a*0.07:0)-a*((Number(it.whtRate)||0)/100)-d;},0);
                   })();
                   (e.payments||[]).forEach(p => {
                     const acc = storeBankAccounts.find(a=>a.id===p.fromStoreBankId);
@@ -7075,15 +7075,16 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
   // ---------- รายการค่าใช้จ่ายทั้งหมด (รวมที่ชำระครบแล้ว) ----------
   const allExpenseRows = useMemo(() => {
     return (expenses || []).map((e) => {
-      const items = (e.items && e.items.length > 0) ? e.items : [{ amount: e.amount, vatEnabled: e.vatEnabled, whtRate: e.whtRate }];
-      let amount = 0, vat = 0, wht = 0;
+      const items = (e.items && e.items.length > 0) ? e.items : [{ amount: e.amount, discount: e.discount, vatEnabled: e.vatEnabled, whtRate: e.whtRate }];
+      let amount = 0, discount = 0, vat = 0, wht = 0;
       items.forEach((it) => {
         const itAmount = Number(it.amount) || 0;
         amount += itAmount;
+        discount += Number(it.discount) || 0;
         vat += it.vatEnabled ? itAmount * 0.07 : 0;
         wht += itAmount * ((Number(it.whtRate) || 0) / 100);
       });
-      const total = amount + vat - wht;
+      const total = amount + vat - wht - discount;
       const paid = (e.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0);
       const remaining = total - paid;
       const payStatus = e.writeOff ? "paid" : (remaining > 0.01 ? (paid > 0.01 ? "partial" : "unpaid") : "paid");
@@ -7319,12 +7320,13 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
     const doc = historyModal.doc;
     let total;
     if (historyModal.kind === "expense") {
-      const items = (doc.items && doc.items.length > 0) ? doc.items : [{ amount: doc.amount, vatEnabled: doc.vatEnabled, whtRate: doc.whtRate }];
+      const items = (doc.items && doc.items.length > 0) ? doc.items : [{ amount: doc.amount, discount: doc.discount, vatEnabled: doc.vatEnabled, whtRate: doc.whtRate }];
       total = items.reduce((s, it) => {
         const itAmount = Number(it.amount) || 0;
+        const itDisc = Number(it.discount) || 0;
         const vat = it.vatEnabled ? itAmount * 0.07 : 0;
         const wht = itAmount * ((Number(it.whtRate) || 0) / 100);
-        return s + itAmount + vat - wht;
+        return s + itAmount + vat - wht - itDisc;
       }, 0);
     } else if (historyModal.kind === "purchase") {
       const subtotal = doc.items.reduce((s, it) => s + (it.deductType === "pct" ? (Number(it.qty)||0)*(1-(Number(it.deduct)||0)/100) : (it.net != null ? Number(it.net) : (Number(it.qty)||0)-(Number(it.deduct)||0))) * (Number(it.price)||0) * (1-(Number(it.discountPct)||0)/100), 0);
@@ -10052,11 +10054,12 @@ function ExpenseVoucherModal({ expense, storeBankAccounts, companySettings, onCl
   const cs = companySettings || {};
   const items = (expense.items && expense.items.length > 0)
     ? expense.items
-    : [{ description: expense.description, mainCategory: expense.mainCategory || expense.category, subCategory: expense.subCategory, amount: expense.amount, vatEnabled: expense.vatEnabled, whtRate: expense.whtRate }];
+    : [{ description: expense.description, mainCategory: expense.mainCategory || expense.category, subCategory: expense.subCategory, amount: expense.amount, discount: expense.discount, vatEnabled: expense.vatEnabled, whtRate: expense.whtRate }];
   const amount = items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+  const discount = items.reduce((s, it) => s + (Number(it.discount) || 0), 0);
   const vat = items.reduce((s, it) => s + (it.vatEnabled ? (Number(it.amount) || 0) * 0.07 : 0), 0);
   const wht = items.reduce((s, it) => s + (Number(it.amount) || 0) * ((Number(it.whtRate) || 0) / 100), 0);
-  const net = amount + vat - wht;
+  const net = amount + vat - wht - discount;
   const payments = expense.payments || [];
   const totalPaid = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
 
@@ -10124,6 +10127,7 @@ function ExpenseVoucherModal({ expense, storeBankAccounts, companySettings, onCl
             <Row label="จำนวนเงิน" value={`฿${fmt(amount)}`} />
             <Row label="ภาษีมูลค่าเพิ่มรวม" value={`+฿${fmt(vat)}`} />
             <Row label="หัก ณ ที่จ่ายรวม" value={`-฿${fmt(wht)}`} />
+            {discount > 0 && <Row label="ส่วนลดรวม" value={`-฿${fmt(discount)}`} />}
             <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: "2px solid #1E4D8C", fontWeight: 700, fontSize: 15 }}>
               <span>จำนวนเงินสุทธิ</span>
               <span>฿{fmt(net)}</span>
