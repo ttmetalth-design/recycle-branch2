@@ -5680,6 +5680,7 @@ function syncWithdrawalsToSales(sales, withdrawalLots) {
 function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, setWithdrawals, inventory, customers, companySettings }) {
   const isMobile = useIsMobile();
   const [selectedSales, setSelectedSales] = useState({});
+  const [splitSelected, setSplitSelected] = useState({});
   const cs = companySettings || {};
   const [modal, setModal] = useState(null); // {mode:'add'|'edit'}
   const [search, setSearch] = useState("");
@@ -5919,6 +5920,17 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead>
                       <tr>
+                        <th style={{ ...thStyle, width: 36 }}>
+                          <input type="checkbox"
+                            style={{ width: 15, height: 15, cursor: "pointer" }}
+                            checked={(lot.items||[]).filter(it=>it.qty>0).length > 0 && (lot.items||[]).filter(it=>it.qty>0).every((_, idx) => splitSelected[`${lot.id}_${idx}`])}
+                            onChange={(e) => {
+                              const next = { ...splitSelected };
+                              (lot.items||[]).forEach((it, idx) => { next[`${lot.id}_${idx}`] = e.target.checked; });
+                              setSplitSelected(next);
+                            }}
+                          />
+                        </th>
                         <th style={thStyle}>สินค้าที่เบิก (ต้นทาง)</th>
                         <th style={{ ...thStyle, textAlign: "right" }}>จำนวนที่เบิก</th>
                         <th style={{ ...thStyle, textAlign: "right" }}>มูลค่าที่เบิก</th>
@@ -5929,7 +5941,14 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
                     </thead>
                     <tbody>
                       {(lot.items || []).map((it, idx) => (
-                        <tr key={idx}>
+                        <tr key={idx} style={splitSelected[`${lot.id}_${idx}`] ? { background: "#ede9fe" } : {}}>
+                          <td style={{ ...tdStyle, textAlign: "center" }}>
+                            <input type="checkbox"
+                              style={{ width: 15, height: 15, cursor: "pointer" }}
+                              checked={!!splitSelected[`${lot.id}_${idx}`]}
+                              onChange={(e) => setSplitSelected(prev => ({ ...prev, [`${lot.id}_${idx}`]: e.target.checked }))}
+                            />
+                          </td>
                           <td style={tdStyle}>{prodName(it.sourceProductId)}</td>
                           <td style={{ ...tdStyle, textAlign: "right" }}>{fmt(it.qty)} {prodUnit(it.sourceProductId)}</td>
                           <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>฿{fmt(it.value)}</td>
@@ -5948,6 +5967,48 @@ function WithdrawalsTab({ products, purchases, sales, setSales, withdrawals, set
             </div>
           );
         })}
+        {/* Banner แยกรายการ */}
+        {Object.values(splitSelected).some(Boolean) && (() => {
+          const selectedKeys = Object.entries(splitSelected).filter(([,v])=>v).map(([k])=>k);
+          const byLot = {};
+          selectedKeys.forEach(key => {
+            const parts = key.split('_');
+            const idx = parts.pop();
+            const lotId = parts.join('_');
+            if (!byLot[lotId]) byLot[lotId] = [];
+            byLot[lotId].push(Number(idx));
+          });
+          const handleSplit = () => {
+            const newLots = [];
+            const updatedLots = withdrawals.map(lot => {
+              if (!byLot[lot.id]) return lot;
+              const selectedIdxs = byLot[lot.id];
+              const remainItems = (lot.items||[]).filter((_,i) => !selectedIdxs.includes(i));
+              const splitItems = (lot.items||[]).filter((_,i) => selectedIdxs.includes(i));
+              if (splitItems.length === 0) return lot;
+              const newId = `WD${lot.date.replace(/-/g,'').slice(2)}${String(withdrawals.length + newLots.length + 1).padStart(3,'0')}`;
+              newLots.push({ ...lot, id: newId, items: splitItems, saleId: null });
+              if (remainItems.length === 0) return null;
+              return { ...lot, items: remainItems };
+            }).filter(Boolean);
+            setWithdrawals([...updatedLots, ...newLots]);
+            setSplitSelected({});
+          };
+          return (
+            <div style={{ background: "#fef3c7", border: "1px solid #f59e0b", borderRadius: 10, padding: "10px 16px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#92400e" }}>
+                เลือกไว้ {selectedKeys.length} รายการ เพื่อแยกไปเปิดแวก
+              </span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button style={{ ...btnSecondary, fontSize: 12 }} onClick={() => setSplitSelected({})}>ยกเลิกการเลือก</button>
+                <button style={{ ...btnPrimary, fontSize: 12, background: "#d97706", border: "none" }} onClick={handleSplit}>
+                  แยกรายการที่เลือกไปเปิดแวก
+                </button>
+              </div>
+            </div>
+          );
+        })()}
+
         {filtered.length === 0 && (
           <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", color: "#9ca3af" }}>
             ยังไม่มีรายการเบิกสินค้า
