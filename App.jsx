@@ -7801,7 +7801,7 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
                       const cust = customers.find(c => c.id === (transferDetailModal?.row?.customerId || transferDetailModal?.row?.doc?.vendorId));
                       const bankAccs = cust?.bankAccounts || [];
                       return bankAccs.length > 0
-                        ? bankAccs.map((b, bi) => <option key={bi} value={JSON.stringify({bankName:b.bankName,accountNo:b.accountNo})}>{b.bankName} — {b.accountNo}</option>)
+                        ? bankAccs.map((b, bi) => <option key={bi} value={b.id || `${b.bankName}_${b.accountNo}`}>{b.bankName} — {b.accountNo} ({b.accountName || ""})</option>)
                         : <option value="" disabled>ไม่มีบัญชีลูกค้า</option>;
                     })()}
                 </select>
@@ -7900,22 +7900,37 @@ function PaymentsTab({ purchases, setPurchases, sales, setSales, customers, setC
                         // บัญชีที่จะโอนเงินให้ลูกค้า/vendor
                         let bankInfo = "-";
                         if (r.kind === "purchase") {
-                          // ใบรับสินค้า: บัญชีลูกค้าที่รับเงิน
+                          // ใบรับสินค้า: แสดงเฉพาะบัญชีที่เลือกใน receivingCustomerBankId เท่านั้น ไม่ auto-select
                           const cust = customers.find(c => c.id === r.customerId);
                           const bankId = r.doc?.receivingCustomerBankId;
                           const custBank = (cust?.bankAccounts || []).find(b => b.id === bankId);
                           if (custBank) bankInfo = `${custBank.bankName} — ${custBank.accountNo} (${custBank.accountName || ""})`;
-                          else if ((cust?.bankAccounts || []).length > 0) {
-                            const b = cust.bankAccounts[0];
-                            bankInfo = `${b.bankName} — ${b.accountNo} (${b.accountName || ""})`;
-                          }
+                          // ไม่ fallback ไปบัญชีแรก
                         } else if (r.kind === "expense") {
-                          // ค่าใช้จ่าย: ดึงจาก transferDetails ถ้ามี
-                          const acc = details[0]?.bankId ? storeBankAccounts.find(a => a.id === details[0].bankId) : null;
-                          bankInfo = acc ? `${acc.bankName} — ${acc.accountNo}` : "-";
+                          // ค่าใช้จ่าย: ดึงจาก transferDetails ที่ผู้ใช้เลือกใน modal
+                          const bid = details[0]?.bankId;
+                          if (bid) {
+                            // หาจาก customer bankAccounts ก่อน (เก็บด้วย b.id)
+                            const cust = customers.find(c => c.id === r.customerId);
+                            const cb = (cust?.bankAccounts||[]).find(b => (b.id||`${b.bankName}_${b.accountNo}`) === bid);
+                            if (cb) bankInfo = `${cb.bankName} — ${cb.accountNo} (${cb.accountName||""})`;
+                            else {
+                              // fallback: หาจาก storeBankAccounts
+                              const acc = storeBankAccounts.find(a => a.id === bid);
+                              bankInfo = acc ? `${acc.bankName} — ${acc.accountNo}` : bid;
+                            }
+                          }
                         } else {
-                          const acc = details[0]?.bankId ? storeBankAccounts.find(a => a.id === details[0].bankId) : null;
-                          bankInfo = acc ? `${acc.bankName} — ${acc.accountNo}` : "-";
+                          const bid = details[0]?.bankId;
+                          if (bid) {
+                            const cust = customers.find(c => c.id === r.customerId);
+                            const cb = (cust?.bankAccounts||[]).find(b => (b.id||`${b.bankName}_${b.accountNo}`) === bid);
+                            if (cb) bankInfo = `${cb.bankName} — ${cb.accountNo} (${cb.accountName||""})`;
+                            else {
+                              const acc = storeBankAccounts.find(a => a.id === bid);
+                              bankInfo = acc ? `${acc.bankName} — ${acc.accountNo}` : bid;
+                            }
+                          }
                         }
                         return [(
                           <tr key={r.id}>
@@ -9482,9 +9497,11 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
       let amount = 0, vat = 0, wht = 0;
       e.items.forEach((it) => {
         const itAmount = Number(it.amount) || 0;
-        amount += itAmount;
-        vat += it.vatEnabled ? itAmount * 0.07 : 0;
-        wht += itAmount * ((Number(it.whtRate) || 0) / 100);
+        const itDisc = Number(it.discount) || 0;
+        const itAfterDisc = itAmount - itDisc;
+        amount += itAfterDisc;
+        vat += it.vatEnabled ? itAfterDisc * 0.07 : 0;
+        wht += itAfterDisc * ((Number(it.whtRate) || 0) / 100);
       });
       return { amount, vat, wht, net: amount + vat - wht };
     }
@@ -9847,13 +9864,18 @@ function ExpensesTab({ expenses, setExpenses, storeBankAccounts, loans, setLoans
               {/* แถว 2: จำนวนเงิน VAT ✓ จำนวนVAT หัก ณ ที่จ่าย จำนวนหัก ณ ที่จ่าย สุทธิ */}
               {(() => {
                 const amt = Number(it.amount) || 0;
-                const vatAmt = it.vatEnabled ? amt * 0.07 : 0;
-                const whtAmt = amt * ((Number(it.whtRate) || 0) / 100);
-                const net = amt + vatAmt - whtAmt;
+                const disc = Number(it.discount) || 0;
+                const afterDisc = amt - disc;
+                const vatAmt = it.vatEnabled ? afterDisc * 0.07 : 0;
+                const whtAmt = afterDisc * ((Number(it.whtRate) || 0) / 100);
+                const net = afterDisc + vatAmt - whtAmt;
                 return (
-                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.7fr 0.8fr 0.8fr 0.8fr 0.8fr", gap: "0 12px", alignItems: "end" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.7fr 0.7fr 0.6fr 0.8fr 0.8fr 0.8fr", gap: "0 10px", alignItems: "end" }}>
                     <Field label="จำนวนเงิน (บาท)">
                       <input type="number" style={{ ...inputStyle, textAlign: "right" }} value={it.amount} onChange={(e) => updateItem(idx, "amount", e.target.value)} placeholder="0" />
+                    </Field>
+                    <Field label="ส่วนลด (บาท)">
+                      <input type="number" min={0} style={{ ...inputStyle, textAlign: "right" }} value={it.discount || ""} onChange={(e) => updateItem(idx, "discount", e.target.value)} placeholder="0" />
                     </Field>
                     <Field label="VAT 7%">
                       <label style={{ display: "flex", alignItems: "center", gap: 6, height: 38, fontSize: 14, cursor: "pointer" }}>
