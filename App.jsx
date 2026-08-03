@@ -2082,6 +2082,8 @@ export default function App() {
         if (data.dividendPayments) setDividendPayments(dedup(data.dividendPayments))
         if (data.deliveries) setDeliveries(dedup(data.deliveries))
         if (data.prepayments) setPrepayments(dedup(data.prepayments))
+        if (data.otherIncomes) setOtherIncomes(dedup(data.otherIncomes))
+        if (data.payFlags) setPayFlags(data.payFlags)
       }
       setDbLoaded(true)
     })
@@ -2115,6 +2117,8 @@ export default function App() {
       if (data.dividendPayments) setDividendPayments(dedup(data.dividendPayments))
       if (data.deliveries) setDeliveries(dedup(data.deliveries))
       if (data.prepayments) setPrepayments(dedup(data.prepayments))
+      if (data.otherIncomes) setOtherIncomes(dedup(data.otherIncomes))
+      if (data.payFlags) setPayFlags(data.payFlags)
     }
     setIsReloading(false)
   }
