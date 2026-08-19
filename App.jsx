@@ -4877,8 +4877,11 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
   const selectRange = () => {
     if (!rangeFrom || !rangeTo) return;
     const ids = sortedForRange.map((po) => po.id);
-    let i1 = ids.indexOf(rangeFrom), i2 = ids.indexOf(rangeTo);
-    if (i1 === -1 || i2 === -1) return;
+    let i1 = ids.indexOf(rangeFrom.trim()), i2 = ids.indexOf(rangeTo.trim());
+    if (i1 === -1 || i2 === -1) {
+      alert("ไม่พบเลขที่ใบรับสินค้าที่พิมพ์ กรุณาตรวจสอบเลขที่ให้ตรงกับที่มีในระบบ");
+      return;
+    }
     if (i1 > i2) [i1, i2] = [i2, i1];
     const rangeIds = ids.slice(i1, i2 + 1);
     setSelectedIds((prev) => new Set([...prev, ...rangeIds]));
@@ -5012,15 +5015,24 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "10px 0" }}>
         <span style={{ fontSize: 13, color: "#6b7280" }}>เลือกช่วงพิมพ์:</span>
-        <select style={{ ...inputStyle, width: 160, fontSize: 12 }} value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)}>
-          <option value="">จากเลขที่...</option>
-          {sortedForRange.map((po) => <option key={po.id} value={po.id}>{po.id}</option>)}
-        </select>
+        <input
+          style={{ ...inputStyle, width: 160, fontSize: 12 }}
+          list="po-range-ids"
+          placeholder="จากเลขที่..."
+          value={rangeFrom}
+          onChange={(e) => setRangeFrom(e.target.value)}
+        />
         <span style={{ fontSize: 13, color: "#6b7280" }}>ถึง</span>
-        <select style={{ ...inputStyle, width: 160, fontSize: 12 }} value={rangeTo} onChange={(e) => setRangeTo(e.target.value)}>
-          <option value="">ถึงเลขที่...</option>
-          {sortedForRange.map((po) => <option key={po.id} value={po.id}>{po.id}</option>)}
-        </select>
+        <input
+          style={{ ...inputStyle, width: 160, fontSize: 12 }}
+          list="po-range-ids"
+          placeholder="ถึงเลขที่..."
+          value={rangeTo}
+          onChange={(e) => setRangeTo(e.target.value)}
+        />
+        <datalist id="po-range-ids">
+          {sortedForRange.map((po) => <option key={po.id} value={po.id} />)}
+        </datalist>
         <button style={btnSecondary} onClick={selectRange} disabled={!rangeFrom || !rangeTo}>
           <CheckCircle2 size={14} /> เลือกช่วงนี้
         </button>
@@ -5472,11 +5484,11 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
   const vat = subtotal * ((Number(po.vatRate) || 0) / 100);
   const total = subtotal + vat;
   const primaryColor = cs.primaryColor || "#1B3A6B";
-  const thCompact = { ...thStyle, padding: "3px 8px", fontSize: 10, lineHeight: 1.3 };
-  const tdCompact = { ...tdStyle, padding: "2px 8px", fontSize: 10, lineHeight: 1.3 };
+  const thCompact = { ...thStyle, padding: "3px 8px", fontSize: 11, lineHeight: 1.3 };
+  const tdCompact = { ...tdStyle, padding: "2px 8px", fontSize: 11, lineHeight: 1.3 };
 
   return (
-    <div style={{ background: "#fff", padding: "12px", border: "1px solid #e5e7eb", borderRadius: 8, fontFamily: "'Noto Sans Thai', sans-serif", fontSize: 11 }}>
+    <div style={{ background: "#fff", padding: "12px", border: "1px solid #e5e7eb", borderRadius: 8, fontFamily: "'Noto Sans Thai', sans-serif", fontSize: 12 }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: `2px solid ${primaryColor}`, paddingBottom: 12, marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -5525,7 +5537,7 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
         })()}
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10, tableLayout: "fixed" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, tableLayout: "fixed" }}>
         <thead>
           <tr style={{ background: primaryColor + "22" }}>
             <th style={{ ...thCompact, color: primaryColor, width: "7%" }}>ลำดับ</th>
@@ -5568,8 +5580,8 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
         return (
           <div style={{ display: "flex", pageBreakInside: "avoid" }}>
             <div style={{ width: "7%" }} />
-            <div style={{ width: "40%", padding: "2px 8px", fontSize: 10, fontWeight: 700, color: "#374151" }}>รวมทั้งหมด</div>
-            <div style={{ width: "17%", padding: "2px 8px", fontSize: 10, fontWeight: 700, textAlign: "right" }}>{fmt(totalNet)} {unit}</div>
+            <div style={{ width: "40%", padding: "2px 8px", fontSize: 11, fontWeight: 700, color: "#374151" }}>รวมทั้งหมด</div>
+            <div style={{ width: "17%", padding: "2px 8px", fontSize: 11, fontWeight: 700, textAlign: "right" }}>{fmt(totalNet)} {unit}</div>
             <div style={{ width: "17%" }} />
             <div style={{ width: "19%" }} />
           </div>
@@ -5579,18 +5591,18 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
       <div style={{ pageBreakInside: "avoid", display: "flex", justifyContent: "flex-end", marginTop: 2 }}>
         <div style={{ width: 260, maxWidth: "100%" }}>
           {po.vatRate > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 8px", fontSize: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 8px", fontSize: 11 }}>
               <span>ยอดก่อน VAT</span>
               <span>{fmt(subtotal)} บาท</span>
             </div>
           )}
           {po.vatRate > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 8px", fontSize: 10, color: "#1E4D8C" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 8px", fontSize: 11, color: "#1E4D8C" }}>
               <span>VAT {po.vatRate}%</span>
               <span>+{fmt(vat)} บาท</span>
             </div>
           )}
-          <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 8px", marginTop: 2, background: "#f0fdf4", fontWeight: 700, fontSize: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 8px", marginTop: 2, background: "#f0fdf4", fontWeight: 700, fontSize: 13 }}>
             <span>จำนวนเงินสุทธิ</span>
             <span style={{ color: "#1B3A6B" }}>{fmt(total)}</span>
           </div>
