@@ -5484,8 +5484,8 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
   const vat = subtotal * ((Number(po.vatRate) || 0) / 100);
   const total = subtotal + vat;
   const primaryColor = cs.primaryColor || "#1B3A6B";
-  const thCompact = { ...thStyle, padding: "3px 8px", fontSize: 11, lineHeight: 1.3 };
-  const tdCompact = { ...tdStyle, padding: "2px 8px", fontSize: 11, lineHeight: 1.3 };
+  const thCompact = { ...thStyle, padding: "3px 8px", fontSize: 12, lineHeight: 1.3 };
+  const tdCompact = { ...tdStyle, padding: "2px 8px", fontSize: 12, lineHeight: 1.3 };
 
   return (
     <div style={{ background: "#fff", padding: "12px", border: "1px solid #e5e7eb", borderRadius: 8, fontFamily: "'Noto Sans Thai', sans-serif", fontSize: 12 }}>
@@ -5537,7 +5537,7 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
         })()}
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, tableLayout: "fixed" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
         <thead>
           <tr style={{ background: primaryColor + "22" }}>
             <th style={{ ...thCompact, color: primaryColor, width: "7%" }}>ลำดับ</th>
@@ -5580,8 +5580,8 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
         return (
           <div style={{ display: "flex", pageBreakInside: "avoid" }}>
             <div style={{ width: "7%" }} />
-            <div style={{ width: "40%", padding: "2px 8px", fontSize: 11, fontWeight: 700, color: "#374151" }}>รวมทั้งหมด</div>
-            <div style={{ width: "17%", padding: "2px 8px", fontSize: 11, fontWeight: 700, textAlign: "right" }}>{fmt(totalNet)} {unit}</div>
+            <div style={{ width: "40%", padding: "2px 8px", fontSize: 12, fontWeight: 700, color: "#374151" }}>รวมทั้งหมด</div>
+            <div style={{ width: "17%", padding: "2px 8px", fontSize: 12, fontWeight: 700, textAlign: "right" }}>{fmt(totalNet)} {unit}</div>
             <div style={{ width: "17%" }} />
             <div style={{ width: "19%" }} />
           </div>
