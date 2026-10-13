@@ -4877,11 +4877,8 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
   const selectRange = () => {
     if (!rangeFrom || !rangeTo) return;
     const ids = sortedForRange.map((po) => po.id);
-    let i1 = ids.indexOf(rangeFrom.trim()), i2 = ids.indexOf(rangeTo.trim());
-    if (i1 === -1 || i2 === -1) {
-      alert("ไม่พบเลขที่ใบรับสินค้าที่พิมพ์ กรุณาตรวจสอบเลขที่ให้ตรงกับที่มีในระบบ");
-      return;
-    }
+    let i1 = ids.indexOf(rangeFrom), i2 = ids.indexOf(rangeTo);
+    if (i1 === -1 || i2 === -1) return;
     if (i1 > i2) [i1, i2] = [i2, i1];
     const rangeIds = ids.slice(i1, i2 + 1);
     setSelectedIds((prev) => new Set([...prev, ...rangeIds]));
@@ -4995,11 +4992,11 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
             onPDF={() => printAsPDF("tab-export-purchases", "ใบรับสินค้า")}
             onExcel={() => {
               const rows = [
-                ["เลขที่ใบรับ", "วันที่", "ลูกค้า", "สถานะ", "รายการสินค้า", "จำนวน", "ราคา/หน่วย", "รวม"],
+                ["เลขที่ใบรับ", "วันที่", "ลูกค้า", "สถานะ", "รหัสสินค้า", "รายการสินค้า", "จำนวน", "ราคา/หน่วย", "รวม"],
                 ...filtered.flatMap((po) =>
                   po.items.map((it, i) => [
                     i === 0 ? po.id : "", i === 0 ? po.date : "", i === 0 ? custName(po.customerId) : "", i === 0 ? po.status : "",
-                    prodName(it.productId), it.net, it.price, it.net * it.price,
+                    it.productId, prodName(it.productId), it.net, it.price, it.net * it.price,
                   ])
                 ),
               ];
@@ -5015,24 +5012,15 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "10px 0" }}>
         <span style={{ fontSize: 13, color: "#6b7280" }}>เลือกช่วงพิมพ์:</span>
-        <input
-          style={{ ...inputStyle, width: 160, fontSize: 12 }}
-          list="po-range-ids"
-          placeholder="จากเลขที่..."
-          value={rangeFrom}
-          onChange={(e) => setRangeFrom(e.target.value)}
-        />
+        <select style={{ ...inputStyle, width: 160, fontSize: 12 }} value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)}>
+          <option value="">จากเลขที่...</option>
+          {sortedForRange.map((po) => <option key={po.id} value={po.id}>{po.id}</option>)}
+        </select>
         <span style={{ fontSize: 13, color: "#6b7280" }}>ถึง</span>
-        <input
-          style={{ ...inputStyle, width: 160, fontSize: 12 }}
-          list="po-range-ids"
-          placeholder="ถึงเลขที่..."
-          value={rangeTo}
-          onChange={(e) => setRangeTo(e.target.value)}
-        />
-        <datalist id="po-range-ids">
-          {sortedForRange.map((po) => <option key={po.id} value={po.id} />)}
-        </datalist>
+        <select style={{ ...inputStyle, width: 160, fontSize: 12 }} value={rangeTo} onChange={(e) => setRangeTo(e.target.value)}>
+          <option value="">ถึงเลขที่...</option>
+          {sortedForRange.map((po) => <option key={po.id} value={po.id}>{po.id}</option>)}
+        </select>
         <button style={btnSecondary} onClick={selectRange} disabled={!rangeFrom || !rangeTo}>
           <CheckCircle2 size={14} /> เลือกช่วงนี้
         </button>
@@ -5484,11 +5472,11 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
   const vat = subtotal * ((Number(po.vatRate) || 0) / 100);
   const total = subtotal + vat;
   const primaryColor = cs.primaryColor || "#1B3A6B";
-  const thCompact = { ...thStyle, padding: "3px 8px", fontSize: 12, lineHeight: 1.3 };
-  const tdCompact = { ...tdStyle, padding: "2px 8px", fontSize: 12, lineHeight: 1.3 };
+  const thCompact = { ...thStyle, padding: "4px 12px" };
+  const tdCompact = { ...tdStyle, padding: "4px 12px" };
 
   return (
-    <div style={{ background: "#fff", padding: "12px", border: "1px solid #e5e7eb", borderRadius: 8, fontFamily: "'Noto Sans Thai', sans-serif", fontSize: 12 }}>
+    <div style={{ background: "#fff", padding: "16px", border: "1px solid #e5e7eb", borderRadius: 8, fontFamily: "'Noto Sans Thai', sans-serif", fontSize: 12 }}>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: `2px solid ${primaryColor}`, paddingBottom: 12, marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -5537,13 +5525,12 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
         })()}
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, tableLayout: "fixed" }}>
         <thead>
           <tr style={{ background: primaryColor + "22" }}>
-            <th style={{ ...thCompact, color: primaryColor, width: "7%" }}>ลำดับ</th>
-            <th style={{ ...thCompact, color: primaryColor, width: "40%" }}>สินค้า</th>
-            <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "17%" }}>จำนวนสุทธิ</th>
-            <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "17%" }}>ราคา/หน่วย</th>
+            <th style={{ ...thCompact, color: primaryColor, width: "45%" }}>สินค้า</th>
+            <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "18%" }}>จำนวนสุทธิ</th>
+            <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "18%" }}>ราคา/หน่วย</th>
             <th style={{ ...thCompact, color: primaryColor, textAlign: "right", width: "19%" }}>จำนวนเงิน</th>
           </tr>
         </thead>
@@ -5555,7 +5542,6 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
             const amount = net * (Number(it.price) || 0) * (1 - discountPct / 100);
             return (
               <tr key={idx}>
-                <td style={{ ...tdCompact, textAlign: "center", color: "#6b7280" }}>{idx + 1}</td>
                 <td style={{ ...tdCompact, wordBreak: "break-word" }}>{p.name}</td>
                 <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(net)} {p.unit}</td>
                 <td style={{ ...tdCompact, textAlign: "right" }}>{fmt(it.price)}</td>
@@ -5564,50 +5550,41 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
             );
           })}
         </tbody>
+        <tfoot>
+          {(() => {
+            const totalNet = po.items.reduce((s, it) => {
+              const qty = Number(it.qty) || 0;
+              const net = it.deductType === "pct" ? qty*(1-(Number(it.deductPct)||0)/100) : qty - (Number(it.deduct)||0);
+              return s + net;
+            }, 0);
+            const unit = po.items[0] ? (products.find(p=>p.id===po.items[0].productId)?.unit || "") : "";
+            return (
+              <tr style={{ background: "#f9fafb" }}>
+                <td style={{ ...tdCompact, fontWeight: 700, color: "#374151" }}>รวมทั้งหมด</td>
+                <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700 }}>{fmt(totalNet)} {unit}</td>
+                <td style={{ ...tdCompact }}></td>
+                <td style={{ ...tdCompact }}></td>
+              </tr>
+            );
+          })()}
+          {po.vatRate > 0 && (
+            <tr>
+              <td colSpan={3} style={{ ...tdCompact, textAlign: "right", fontSize: 11 }}>ยอดก่อน VAT</td>
+              <td style={{ ...tdCompact, textAlign: "right", fontSize: 11 }}>{fmt(subtotal)} บาท</td>
+            </tr>
+          )}
+          {po.vatRate > 0 && (
+            <tr>
+              <td colSpan={3} style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#1E4D8C" }}>VAT {po.vatRate}%</td>
+              <td style={{ ...tdCompact, textAlign: "right", fontSize: 11, color: "#1E4D8C" }}>+{fmt(vat)} บาท</td>
+            </tr>
+          )}
+          <tr style={{ background: "#f0fdf4" }}>
+            <td colSpan={3} style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 13 }}>จำนวนเงินสุทธิ</td>
+            <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 13, color: "#1B3A6B" }}>{fmt(total)}</td>
+          </tr>
+        </tfoot>
       </table>
-
-      {/* ยอดรวม — วางนอกตาราง (ไม่ใช้ tfoot) เพื่อไม่ให้ซ้ำทุกหน้าเวลาพิมพ์เอกสารที่ยาวเกิน 1 หน้า
-          จะแสดงเพียงครั้งเดียวต่อจากรายการสินค้าแถวสุดท้าย (หน้าสุดท้ายของเอกสาร) ตามลำดับการไหลของเนื้อหาปกติ
-          แถว "รวมทั้งหมด" ใช้ความกว้างคอลัมน์เดียวกับตารางด้านบน เพื่อให้ยอดรวมจำนวนสุทธิ (กก.)
-          ตกอยู่ใต้คอลัมน์ "จำนวนสุทธิ" พอดี ไม่ใช่ใต้คอลัมน์ "จำนวนเงิน" */}
-      {(() => {
-        const totalNet = po.items.reduce((s, it) => {
-          const qty = Number(it.qty) || 0;
-          const net = it.deductType === "pct" ? qty*(1-(Number(it.deductPct)||0)/100) : qty - (Number(it.deduct)||0);
-          return s + net;
-        }, 0);
-        const unit = po.items[0] ? (products.find(p=>p.id===po.items[0].productId)?.unit || "") : "";
-        return (
-          <div style={{ display: "flex", pageBreakInside: "avoid" }}>
-            <div style={{ width: "7%" }} />
-            <div style={{ width: "40%", padding: "2px 8px", fontSize: 12, fontWeight: 700, color: "#374151" }}>รวมทั้งหมด</div>
-            <div style={{ width: "17%", padding: "2px 8px", fontSize: 12, fontWeight: 700, textAlign: "right" }}>{fmt(totalNet)} {unit}</div>
-            <div style={{ width: "17%" }} />
-            <div style={{ width: "19%" }} />
-          </div>
-        );
-      })()}
-
-      <div style={{ pageBreakInside: "avoid", display: "flex", justifyContent: "flex-end", marginTop: 2 }}>
-        <div style={{ width: 260, maxWidth: "100%" }}>
-          {po.vatRate > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 8px", fontSize: 11 }}>
-              <span>ยอดก่อน VAT</span>
-              <span>{fmt(subtotal)} บาท</span>
-            </div>
-          )}
-          {po.vatRate > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 8px", fontSize: 11, color: "#1E4D8C" }}>
-              <span>VAT {po.vatRate}%</span>
-              <span>+{fmt(vat)} บาท</span>
-            </div>
-          )}
-          <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 8px", marginTop: 2, background: "#f0fdf4", fontWeight: 700, fontSize: 13 }}>
-            <span>จำนวนเงินสุทธิ</span>
-            <span style={{ color: "#1B3A6B" }}>{fmt(total)}</span>
-          </div>
-        </div>
-      </div>
 
       <div style={{ pageBreakInside: "avoid", pageBreakBefore: "auto" }}>
 
