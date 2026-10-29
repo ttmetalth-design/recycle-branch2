@@ -5012,15 +5012,24 @@ const { paged, page, setPage, totalPages, total, start, end } = usePagination(fi
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "10px 0" }}>
         <span style={{ fontSize: 13, color: "#6b7280" }}>เลือกช่วงพิมพ์:</span>
-        <select style={{ ...inputStyle, width: 160, fontSize: 12 }} value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)}>
-          <option value="">จากเลขที่...</option>
-          {sortedForRange.map((po) => <option key={po.id} value={po.id}>{po.id}</option>)}
-        </select>
+        <datalist id="range-po-list">
+          {sortedForRange.map((po) => <option key={po.id} value={po.id} />)}
+        </datalist>
+        <input
+          list="range-po-list"
+          style={{ ...inputStyle, width: 160, fontSize: 12 }}
+          value={rangeFrom}
+          onChange={(e) => setRangeFrom(e.target.value)}
+          placeholder="จากเลขที่..."
+        />
         <span style={{ fontSize: 13, color: "#6b7280" }}>ถึง</span>
-        <select style={{ ...inputStyle, width: 160, fontSize: 12 }} value={rangeTo} onChange={(e) => setRangeTo(e.target.value)}>
-          <option value="">ถึงเลขที่...</option>
-          {sortedForRange.map((po) => <option key={po.id} value={po.id}>{po.id}</option>)}
-        </select>
+        <input
+          list="range-po-list"
+          style={{ ...inputStyle, width: 160, fontSize: 12 }}
+          value={rangeTo}
+          onChange={(e) => setRangeTo(e.target.value)}
+          placeholder="ถึงเลขที่..."
+        />
         <button style={btnSecondary} onClick={selectRange} disabled={!rangeFrom || !rangeTo}>
           <CheckCircle2 size={14} /> เลือกช่วงนี้
         </button>
@@ -5472,37 +5481,36 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
   const vat = subtotal * ((Number(po.vatRate) || 0) / 100);
   const total = subtotal + vat;
   const primaryColor = cs.primaryColor || "#1B3A6B";
-  // ลดขนาด padding ให้แน่นขึ้น ประหยัดกระดาษ
-  const thCompact = { ...thStyle, padding: "2px 8px", fontSize: 10 };
-  const tdCompact = { ...tdStyle, padding: "2px 8px", fontSize: 10 };
+  const thCompact = { ...thStyle, padding: "3px 10px", fontSize: 11 };
+  const tdCompact = { ...tdStyle, padding: "3px 10px", fontSize: 11 };
 
   return (
-    <div style={{ background: "#fff", padding: "12px", border: "1px solid #e5e7eb", borderRadius: 8, fontFamily: "'Noto Sans Thai', sans-serif", fontSize: 10 }}>
+    <div style={{ background: "#fff", padding: "14px", border: "1px solid #e5e7eb", borderRadius: 8, fontFamily: "'Noto Sans Thai', sans-serif", fontSize: 11 }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: `2px solid ${primaryColor}`, paddingBottom: 8, marginBottom: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: `2px solid ${primaryColor}`, paddingBottom: 10, marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {cs.logo && (
-            <img src={cs.logo} alt="logo" style={{ height: 44, maxWidth: 90, objectFit: "contain" }} />
+            <img src={cs.logo} alt="logo" style={{ height: 52, maxWidth: 100, objectFit: "contain" }} />
           )}
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: primaryColor }}>{cs.name || "Ttm@นครสวรรค์"}</div>
-            {cs.nameEn && <div style={{ fontSize: 10, color: "#6b7280" }}>{cs.nameEn}</div>}
-            {cs.taxId && <div style={{ fontSize: 10, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
-            {cs.address && <div style={{ fontSize: 10, color: "#6b7280" }}>{cs.address}</div>}
-            {cs.phone && <div style={{ fontSize: 10, color: "#6b7280" }}>โทร: {cs.phone}</div>}
+            <div style={{ fontSize: 16, fontWeight: 700, color: primaryColor }}>{cs.name || "Ttm@นครสวรรค์"}</div>
+            {cs.nameEn && <div style={{ fontSize: 11, color: "#6b7280" }}>{cs.nameEn}</div>}
+            {cs.taxId && <div style={{ fontSize: 11, color: "#6b7280" }}>เลขผู้เสียภาษี: {cs.taxId}</div>}
+            {cs.address && <div style={{ fontSize: 11, color: "#6b7280" }}>{cs.address}</div>}
+            {cs.phone && <div style={{ fontSize: 11, color: "#6b7280" }}>โทร: {cs.phone}</div>}
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: primaryColor }}>{cs.purchaseTitle || "ใบรับสินค้า"}</div>
-          <div style={{ fontSize: 10, color: "#6b7280" }}>เลขที่: {po.id}</div>
-          <div style={{ fontSize: 10, color: "#6b7280" }}>วันที่: {po.date}</div>
-          <div style={{ fontSize: 10, marginTop: 2 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: primaryColor }}>{cs.purchaseTitle || "ใบรับสินค้า"}</div>
+          <div style={{ fontSize: 11, color: "#6b7280" }}>เลขที่: {po.id}</div>
+          <div style={{ fontSize: 11, color: "#6b7280" }}>วันที่: {po.date}</div>
+          <div style={{ fontSize: 11, marginTop: 2 }}>
             สถานะ: <span style={{ fontWeight: 600, color: "#1B3A6B" }}>{po.status || "รออนุมัติ"}</span>
           </div>
         </div>
       </div>
 
-      <div style={{ marginBottom: 10, fontSize: 10 }}>
+      <div style={{ marginBottom: 12, fontSize: 11 }}>
         <div style={{ fontWeight: 600, marginBottom: 2 }}>ข้อมูลผู้ขาย/ผู้ส่งสินค้า</div>
         <div>{customer?.name}</div>
         {customer?.address && <div style={{ color: "#6b7280" }}>{customer.address}</div>}
@@ -5522,7 +5530,7 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
         })()}
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10, tableLayout: "fixed" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, tableLayout: "fixed" }}>
         <thead>
           <tr style={{ background: primaryColor + "22" }}>
             <th style={{ ...thCompact, color: primaryColor, width: "5%", textAlign: "center" }}>ลำดับ</th>
@@ -5579,8 +5587,8 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
             </tr>
           )}
           <tr style={{ background: "#f0fdf4" }}>
-            <td colSpan={4} style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 11 }}>จำนวนเงินสุทธิ</td>
-            <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 11, color: "#1B3A6B" }}>{fmt(total)}</td>
+            <td colSpan={4} style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 12 }}>จำนวนเงินสุทธิ</td>
+            <td style={{ ...tdCompact, textAlign: "right", fontWeight: 700, fontSize: 12, color: "#1B3A6B" }}>{fmt(total)}</td>
           </tr>
         </tfoot>
       </table>
@@ -5588,13 +5596,13 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
       <div style={{ pageBreakInside: "avoid", pageBreakBefore: "auto" }}>
 
         {cs.footerNote && (
-          <div style={{ marginTop: 6, padding: "4px 8px", background: "#f9fafb", borderRadius: 4, fontSize: 10, color: "#6b7280" }}>
+          <div style={{ marginTop: 8, padding: "5px 10px", background: "#f9fafb", borderRadius: 4, fontSize: 11, color: "#6b7280" }}>
             {cs.footerNote}
           </div>
         )}
 
         {cs.showSignature !== false && (
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 18, fontSize: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 20, fontSize: 11 }}>
             <div style={{ textAlign: "center", width: "45%" }}>
               <div style={{ borderTop: "1px solid #9ca3af", paddingTop: 4 }}>ผู้รับสินค้า</div>
             </div>
@@ -5606,15 +5614,15 @@ function PurchasePrintContent({ po, customer, products, companySettings }) {
 
         {(po.payments || []).length > 0 && (
           <div style={{ marginTop: 10, borderTop: "1px dashed #d1d5db", paddingTop: 6 }}>
-            <div style={{ fontWeight: 600, fontSize: 10, marginBottom: 2 }}>รายละเอียดช่องทางการชำระเงิน</div>
-            <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 4 }}>
+            <div style={{ fontWeight: 600, fontSize: 11, marginBottom: 2 }}>รายละเอียดช่องทางการชำระเงิน</div>
+            <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 4 }}>
               ช่องทางชำระเงิน: {po.paymentMethod || "-"}
               {(() => {
                 const b = (customer?.bankAccounts || []).find((x) => x.id === po.receivingCustomerBankId);
                 return b ? ` — บัญชีรับเงิน: ${b.bankName} ${b.accountNo} (${b.accountName})` : "";
               })()}
             </div>
-            <div style={{ textAlign: "right", fontSize: 10, fontWeight: 600 }}>
+            <div style={{ textAlign: "right", fontSize: 11, fontWeight: 600 }}>
               ชำระแล้วทั้งหมด: {fmt((po.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0))} บาท
               {" / "}คงเหลือ: {fmt(total - (po.payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0))} บาท
             </div>
